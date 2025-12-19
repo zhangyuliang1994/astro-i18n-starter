@@ -3,14 +3,15 @@ import { LOCALES, useTranslations, type Lang } from "@/i18n";
 import Layout from "@/layouts/Base.astro";
 const t = useTranslations(Astro.currentLocale as Lang);
 import { getRelativeLocaleUrl } from "astro:i18n";
-
-import heroImageAr from "@/assets/ar/hero.svg";
-import heroImageEn from "@/assets/en/hero.svg";
-import heroImageJa from "@/assets/ja/hero.svg";
-import heroImageZhCn from "@/assets/zh-cn/hero.svg";
+import { getCollection } from "astro:content";
 import { Image } from "astro:assets";
 
 const locale = Astro.currentLocale as Lang;
+
+const posts = (await getCollection("blog"))
+  .filter((post) => post.id.split("/")[0] === locale)
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  .slice(0, 3); // Get top 3 latest posts
 
 export const getStaticPaths = () =>
   Object.keys(LOCALES).map((lang) => ({
@@ -19,201 +20,309 @@ export const getStaticPaths = () =>
 ---
 
 <Layout>
-  <Image
-    src={locale === "ja"
-      ? heroImageJa
-      : locale === "zh-cn"
-        ? heroImageZhCn
-        : locale === "ar"
-          ? heroImageAr
-          : heroImageEn}
-    alt={t({
-      ja: "こんにちは",
-      en: "Hello",
-      "zh-cn": "你好",
-      ar: "مرحبًا",
-    })}
-    loading="eager"
-  />
+  <div class="hero-container">
+    <div class="hero-card">
+      <h1 class="hero-title">
+        {
+          locale === "en" ? (
+            <span class="domain-text">frency.me</span>
+          ) : (
+            <span class="domain-text">xiaofeng.show</span>
+          )
+        }
+      </h1>
+      <p class="hero-subtitle">
+        {
+          t({
+            en: "Welcome to my digital garden.",
+            "zh-cn": "欢迎来到我的数字花园。",
+            ja: "私のデジタルガーデンへようこそ。",
+            ar: "مرحبا بكم في حديقتي الرقمية.",
+          })
+        }
+      </p>
+    </div>
+  </div>
 
-  <p>
-    <em>
+  <section class="latest-posts">
+    <div class="section-header">
+      <h2>
+        {
+          t({
+            en: "Latest Posts",
+            "zh-cn": "最新文章",
+            ja: "最新の投稿",
+            ar: "أحدث المشاركات",
+          })
+        }
+      </h2>
+      <a href={getRelativeLocaleUrl(locale, "/blog")} class="view-all">
+        {
+          t({
+            en: "View All",
+            "zh-cn": "查看全部",
+            ja: "すべて見る",
+            ar: "عرض الكل",
+          })
+        }
+        <span class="material-icons-sharp">arrow_forward</span>
+      </a>
+    </div>
+
+    <ul class="post-list">
       {
-        t({
-          ja: "i18n Starter は多言語対応サイトを作成するためのシンプルな Astro theme です。Astro v4.0からのi18n機能に対応しています。",
-          en: "i18n Starter is a simple Astro theme for creating multilingual websites. It supports i18n feature from Astro v4.0.",
-          "zh-cn":
-            "i18n Starter 是一个用于创建多语言网站的简单 Astro 主题。它支持 Astro v4.0 的 i18n 功能。",
-          ar: "i18n Starter هو موضوع Astro بسيط لإنشاء مواقع الويب متعددة اللغات.يدعم ميزة i18n من Astro v4.0.",
+        posts.map((post) => {
+          const [, ...id] = post.id.split("/");
+          return (
+            <li>
+              <a href={`/${locale}/blog/${id.join("/")}/`} class="post-card">
+                {post.data.cover && (
+                  <div class="post-image-container">
+                    <Image src={post.data.cover} alt={post.data.title} />
+                  </div>
+                )}
+                <div class="post-content">
+                  <h3>{post.data.title}</h3>
+                  <time datetime={post.data.date.toISOString()}>
+                    {post.data.date.toLocaleDateString(locale)}
+                  </time>
+                  <p>{post.data.description}</p>
+                </div>
+              </a>
+            </li>
+          );
         })
       }
-    </em>
-  </p>
+    </ul>
+  </section>
 
-  <p>
+  <section class="quick-links">
+    <a href={getRelativeLocaleUrl(locale, "/tags")} class="quick-link-card">
+      <span class="material-icons-sharp icon">label</span>
+      <h3>{t({ en: "Tags", "zh-cn": "标签", ja: "タグ", ar: "الوسوم" })}</h3>
+    </a>
     <a
-      href={`https://docs.astro.build/${locale}/guides/internationalization/`}
-      target="_blank"
+      href={getRelativeLocaleUrl(locale, "/categories")}
+      class="quick-link-card"
     >
-      Internationalization (i18n) Routing | Astro Docs
-      <span class="material-icons-sharp dir">open_in_new</span>
+      <span class="material-icons-sharp icon">category</span>
+      <h3>
+        {
+          t({
+            en: "Categories",
+            "zh-cn": "分类",
+            ja: "カテゴリー",
+            ar: "التصنيفات",
+          })
+        }
+      </h3>
     </a>
-  </p>
-
-  <p>
-    {
-      t({
-        ja: "基本的にサブディレクトリ方式のURLのみサポートしています。言語ごとに以下のようなURLで管理されます。ルートURLは指定したデフォルト言語にリダイレクトされます。",
-        en: "Basically, only the subdirectory URL scheme is supported. It is managed by the URL as follows for each language. The root URL is redirected to the specified default language.",
-        "zh-cn":
-          "基本上，只支持子目录 URL 方案。 它由以下 URL 为每种语言进行管理。 根 URL 将重定向到指定的默认语言。",
-        ar: "أساساً، يتم دعم نظام URL الفرعي فقط. يتم إدارتها من خلال URL كما يلي لكل لغة. يتم توجيه عنوان URL الجذري إلى اللغة الافتراضية المحددة.",
-      })
-    }
-  </p>
-
-  <ul>
-    <li>example.com/en/</li>
-    <li>example.com/ja/</li>
-  </ul>
-
-  <h2>
-    {
-      t({
-        ja: "特徴",
-        en: "Feature",
-        "zh-cn": "特点",
-        ar: "ميزة",
-      })
-    }
-  </h2>
-
-  <ul>
-    <li>
-      {
-        t({
-          ja: "Astro公式のi18n機能をサポート",
-          en: "support for Astro's official i18n feature",
-          "zh-cn": "支持 Astro 官方的 i18n 功能",
-          ar: "دعم لميزة i18n الرسمية لـ Astro",
-        })
-      }
-    </li>
-    <li>
-      {
-        t({
-          ja: "多言語ページの様々な管理方法",
-          en: "Various management methods for multilingual pages",
-          "zh-cn": "多语言页面的各种管理方法",
-          ar: "طرق إدارة متعددة للصفحات متعددة اللغات",
-        })
-      }
-    </li>
-    <li>Vanilla CSS</li>
-    <li>
-      {
-        t({
-          ja: "SEOフレンドリー",
-          en: "SEO friendly",
-          "zh-cn": "SEO 友好",
-          ar: "SEO ودية",
-        })
-      }
-    </li>
-    <li>
-      {
-        t({
-          en: "100/100 Lighthouse performance",
-          ja: "100/100 Lighthouse スコア",
-          "zh-cn": "100/100 Lighthouse 性能",
-          ar: "أداء Lighthouse 100/100",
-        })
-      }
-    </li>
-  </ul>
-
-  <h2>
-    {
-      t({
-        en: "Getting Started",
-        ja: "はじめに",
-        "zh-cn": "入门指南",
-        ar: "البدء",
-      })
-    }
-  </h2>
-
-  <p>
-    {
-      t({
-        ja: "Astroの基本的な知識を前提とします。",
-        en: "Assumes basic knowledge of Astro.",
-        "zh-cn": "假设您具有 Astro 的基本知识。",
-        ar: "يفترض المعرفة الأساسية بـ Astro.",
-      })
-    }
-  </p>
-
-  <p>
-    <a href="https://docs.astro.build/" target="_blank">
-      https://docs.astro.build/
-      <span class="material-icons-sharp dir">open_in_new</span>
+    <a href={getRelativeLocaleUrl(locale, "/about")} class="quick-link-card">
+      <span class="material-icons-sharp icon">person</span>
+      <h3>{t({ en: "About", "zh-cn": "关于", ja: "約", ar: "حول" })}</h3>
     </a>
-  </p>
-
-  <p>
-    {
-      t({
-        ja: "大丈夫な方は、さっそく初めましょう！",
-        en: "If you're okay, let's get started!",
-        "zh-cn": "如果您没问题，让我们开始吧！",
-        ar: "إذا كنت على ما يرام، دعنا نبدأ!",
-      })
-    }
-  </p>
-
-  <p>
-    <a href={getRelativeLocaleUrl(locale, "setup")} class="start">
-      <span class="material-icons-sharp dir">arrow_forward</span>
-      {
-        t({
-          ja: "設定を開始",
-          en: "Start Setup",
-          "zh-cn": "开始设置",
-          ar: "ابدأ الإعداد",
-        })
-      }
-    </a>
-  </p>
+  </section>
 </Layout>
 
 <style>
-  ul {
-    margin-block-start: var(--sp-s);
-    list-style: disc;
-    padding-inline-start: 1em;
+  /* Hero Section */
+  .hero-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: var(--sp-m) 0;
+    margin-bottom: var(--sp-m);
+  }
+
+  .hero-card {
+    background: linear-gradient(135deg, var(--color-theme), var(--color-main));
+    padding: 2rem 1.5rem;
+    border-radius: 16px;
+    color: white;
+    text-align: center;
+    width: 100%;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-card::before {
+    content: "";
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(
+      circle,
+      rgba(255, 255, 255, 0.1) 0%,
+      transparent 60%
+    );
+    transform: rotate(30deg);
+    pointer-events: none;
+  }
+
+  .hero-title {
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.02em;
+    font-family: var(--english-font); /* Use English font for the domain feel */
+  }
+
+  .domain-text {
+    background: linear-gradient(to right, #fff, #e0e0e0);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+  }
+
+  .hero-subtitle {
+    font-size: 1.25rem;
+    opacity: 0.9;
+    font-weight: 500;
+  }
+
+  /* Latest Posts */
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--sp-m);
   }
 
   h2 {
+    font-size: 1.8rem;
     color: var(--color-theme);
-    margin-block-start: var(--sp-l);
   }
 
-  em {
-    display: block;
-    font-style: normal;
-    font-size: 1.3em;
-    margin-block-end: var(--sp-m);
-  }
-
-  .start {
-    display: block;
-    width: fit-content;
-    padding: 0.5em;
-    border-radius: 0.5em;
-    background: var(--color-main);
-    color: var(--color-base);
+  .view-all {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-weight: 600;
+    color: var(--color-main);
     text-decoration: none;
-    letter-spacing: 0.05em;
+    transition: opacity 0.2s;
+  }
+
+  .view-all:hover {
+    opacity: 0.7;
+  }
+
+  .post-list {
+    display: grid;
+    gap: var(--sp-m);
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    list-style: none;
+    padding: 0;
+  }
+
+  .post-card {
+    display: block;
+    background: var(--color-base); /* Or a slightly different bg if needed */
+    border-radius: 12px;
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    transition:
+      transform 0.2s,
+      box-shadow 0.2s;
+    border: 1px solid rgba(0, 0, 0, 0.05); /* Subtle border */
+  }
+
+  .post-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  }
+
+  .post-image-container {
+    width: 100%;
+    aspect-ratio: 16/9;
+    overflow: hidden;
+  }
+
+  .post-image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s;
+  }
+
+  .post-card:hover .post-image-container img {
+    transform: scale(1.05);
+  }
+
+  .post-content {
+    padding: 1.5rem;
+  }
+
+  .post-content h3 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--color-text);
+  }
+
+  .post-content time {
+    display: block;
+    font-size: 0.9rem;
+    color: #888;
+    margin-bottom: 0.5rem;
+  }
+
+  .post-content p {
+    font-size: 1rem;
+    color: #555;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* Quick Links */
+  .quick-links {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--sp-s);
+    margin-top: var(--sp-m);
+    margin-bottom: var(--sp-m);
+  }
+
+  .quick-link-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.25rem;
+    background: #f8f9fa; /* Light grey bg */
+    border-radius: 12px;
+    text-decoration: none;
+    color: var(--color-text);
+    transition:
+      background 0.2s,
+      transform 0.2s;
+  }
+
+  :global(html.dark) .quick-link-card {
+    background: #1a1a1a; /* Dark bg for dark mode */
+  }
+
+  .quick-link-card:hover {
+    background: var(--color-theme);
+    color: white;
+    transform: translateY(-2px);
+  }
+
+  .quick-link-card .icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    opacity: 0.8;
+  }
+
+  .quick-link-card h3 {
+    font-size: 1.2rem;
+    font-weight: 600;
   }
 </style>

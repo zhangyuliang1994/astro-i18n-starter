@@ -7,6 +7,8 @@ import { useTranslations, type Lang } from "@/i18n";
 import { getRelativeLocaleUrl } from "astro:i18n";
 const t = useTranslations(Astro.currentLocale as Lang);
 
+import LogoEn from "@/assets/logo-en.png";
+import LogoZh from "@/assets/logo-zh.png";
 import AstroImage from "@/assets/astro-logo.svg";
 
 const locale = Astro.currentLocale as Lang;
@@ -15,171 +17,190 @@ const isActive = (path: string) =>
   getRelativeLocaleUrl(locale, path) === Astro.url.pathname;
 ---
 
-<header class="l-header">
+<header class="l-header l-content">
   <h1 dir="ltr">
     <a href={getRelativeLocaleUrl(locale, "/")}>
-      <Image src={AstroImage} alt="Astro" />
-      i18n Starter
+      {
+        locale === "en" ? (
+          <Image src={LogoEn} alt="frency" class="logo-img" />
+        ) : locale === "zh-cn" ? (
+          <Image src={LogoZh} alt="xiaofeng" class="logo-img" />
+        ) : (
+          <Image src={AstroImage} alt="Astro" />
+        )
+      }
     </a>
   </h1>
 
-  <LocaleSelect />
+  <div class="header-actions">
+    <nav>
+      <ul>
+        <li>
+          <a
+            href={getRelativeLocaleUrl(locale, "/blog")}
+            class={isActive("/blog") ? "active" : null}
+          >
+            {t({ ja: "ブログ", en: "Blog", "zh-cn": "博客", ar: "مدونة" })}
+          </a>
+        </li>
 
-  <nav class="l-content">
-    <ul>
-      <li>
-        <a
-          href={getRelativeLocaleUrl(locale, "/setup")}
-          class={isActive("/setup") ? "active" : null}
-        >
-          {t({ ja: "設定", en: "Setup", "zh-cn": "设置", ar: "إعداد" })}
-        </a>
-      </li>
+        <li>
+          <a
+            href={getRelativeLocaleUrl(locale, "/tags")}
+            class={isActive("/tags") ? "active" : null}
+          >
+            {t({ ja: "タグ", en: "Tags", "zh-cn": "标签", ar: "الوسوم" })}
+          </a>
+        </li>
 
-      <li>
-        <a
-          href={getRelativeLocaleUrl(locale, "/page")}
-          class={isActive("/page") ? "active" : null}
-        >
-          {
-            t({
-              ja: "ページの追加",
-              en: "Add Page",
-              "zh-cn": "添加页面",
-              ar: "إضافة صفحة",
-            })
-          }
-        </a>
-      </li>
+        <li>
+          <a
+            href={getRelativeLocaleUrl(locale, "/categories")}
+            class={isActive("/categories") ? "active" : null}
+          >
+            {
+              t({
+                ja: "カテゴリー",
+                en: "Categories",
+                "zh-cn": "分类",
+                ar: "التصنيفات",
+              })
+            }
+          </a>
+        </li>
 
-      <li>
-        <a
-          href={getRelativeLocaleUrl(locale, "/feature")}
-          class={isActive("/feature") ? "active" : null}
-        >
-          {
-            t({
-              ja: "その他の機能",
-              en: "Features",
-              "zh-cn": "特性",
-              ar: "الميزات",
-            })
-          }
-        </a>
-      </li>
+        <li>
+          <a
+            href={getRelativeLocaleUrl(locale, "/guestbook")}
+            class={isActive("/guestbook") ? "active" : null}
+          >
+            {
+              t({
+                ja: "ゲストブック",
+                en: "Guestbook",
+                "zh-cn": "留言板",
+                ar: "دفتر الزوار",
+              })
+            }
+          </a>
+        </li>
 
-      <li class="en-only">
-        <a
-          href={getRelativeLocaleUrl(locale, "/monolingual")}
-          class={isActive("/monolingual") ? "active" : null}
-        >
-          Monolingual
-        </a>
-      </li>
+        <li>
+          <a
+            href={getRelativeLocaleUrl(locale, "/about")}
+            class={isActive("/about") ? "active" : null}
+          >
+            {t({ ja: "約", en: "About", "zh-cn": "关于", ar: "حول" })}
+          </a>
+        </li>
 
-      <li>
-        <a
-          href={getRelativeLocaleUrl(locale, "/blog")}
-          class={isActive("/blog") ? "active" : null}
-        >
-          {t({ ja: "ブログ", en: "Blog", "zh-cn": "博客", ar: "مدونة" })}
-        </a>
-      </li>
-
-      <li>
-        <a
-          href="https://github.com/psephopaiktes/astro-i18n-starter"
-          target="_blank"
-        >
-          GitHub
-          <span class="material-icons-sharp dir">open_in_new</span>
-        </a>
-      </li>
-    </ul>
-  </nav>
+        <li>
+          <a
+            href={getRelativeLocaleUrl(locale, "/friends")}
+            class={isActive("/friends") ? "active" : null}
+          >
+            {t({ ja: "友達", en: "Friends", "zh-cn": "友链", ar: "أصدقاء" })}
+          </a>
+        </li>
+      </ul>
+    </nav>
+    <LocaleSelect />
+  </div>
 </header>
 
 <style>
-  * {
-    flex-wrap: wrap;
-    justify-content: center;
+  .l-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--sp-m);
+    padding-block: var(--sp-m);
+    margin-block-end: var(--sp-l);
   }
 
-  header {
-    display: grid;
-    place-items: center;
-    gap: var(--sp-s);
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-m);
+    justify-content: center;
+    flex-wrap: wrap;
   }
 
   h1 {
-    margin-block-start: var(--sp-l);
-    margin-inline-start: -0.5em;
-    font-size: 40px;
-    font-family: var(--english-font);
-    font-weight: 900;
-    @media (width < 480px) {
-      font-size: 28px;
-    }
+    font-size: 24px; /* Reset header size implies smaller logo area usually, or keep it big? kept reasonably sized */
+    line-height: 1;
+    margin-block-start: 0; /* Reset */
+    margin-inline-start: 0; /* Reset */
 
     a {
       display: flex;
       align-items: center;
+      text-decoration: none;
     }
-    img {
-      width: 6em;
-      position: relative;
-      inset: 0.1em;
+
+    .logo-img {
+      width: 100%;
+      height: auto;
+      aspect-ratio: 5/1;
+      object-fit: cover;
+      border-radius: 8px;
     }
   }
 
   nav {
     display: flex;
     align-items: center;
-    gap: var(--sp-m);
   }
+
   ul {
     display: flex;
     gap: var(--sp-s);
-    margin-block-start: var(--sp-s);
-
-    .en-only {
-      position: relative;
-      &:not(:lang(en))::before {
-        content: "EN";
-        position: absolute;
-        inset: -0.4em -0.6em auto auto;
-        font-size: 0.8em;
-        font-weight: 900;
-        color: var(--color-main);
-        opacity: 0.6;
-      }
-    }
+    margin: 0; /* Reset */
+    padding: 0;
+    list-style: none;
 
     a {
-      font-size: 1.05rem;
-      display: block;
+      font-size: 1rem;
       font-weight: 600;
-      letter-spacing: 0.05em;
-      padding-block: 0.2em;
-      padding-inline: 0.4em;
-      border-radius: 4px;
-      &:hover,
-      &:active {
+      color: var(--color-text);
+      padding: 0.5em 0.8em;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+      text-decoration: none;
+
+      &:hover {
+        background-color: rgba(0, 0, 0, 0.05);
+        color: var(--color-theme);
+      }
+
+      &.active {
+        color: var(--color-theme);
         background-color: color-mix(
           in srgb,
-          var(--color-theme) 5%,
+          var(--color-theme) 10%,
           transparent
         );
       }
-      &.active {
-        pointer-events: none;
-        color: var(--color-theme);
-      }
-      .material-icons-sharp {
-        opacity: 0.6;
-        margin-inline-start: -0.2em;
-        font-size: 0.9em;
-      }
+
+      /* mobile optimization? */
+    }
+  }
+
+  /* Responsive tweak */
+  @media (max-width: 900px) {
+    .l-header {
+      flex-direction: column;
+      gap: var(--sp-m);
+    }
+    .header-actions {
+      flex-direction: column;
+      gap: var(--sp-s);
+    }
+    ul {
+      display: grid;
+      grid-template-columns: repeat(3, auto);
+      justify-content: center;
+      gap: var(--sp-s);
     }
   }
 </style>

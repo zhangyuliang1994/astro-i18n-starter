@@ -1,0 +1,25 @@
+---
+import { LOCALES, useTranslations, type Lang } from "@/i18n";
+import Layout from "@/layouts/Base.astro";
+import PageHeadline from "@/components/PageHeadline.astro";
+
+const locale = Astro.currentLocale as Lang;
+const t = useTranslations(locale);
+
+const title = t({
+    ja: "ゲストブック",
+    en: "Guestbook",
+    "zh-cn": "留言板",
+    ar: "دفتر الزوار",
+});
+
+export const getStaticPaths = () =>
+    Object.keys(LOCALES).map((lang) => ({
+        params: { lang },
+    }));
+---
+
+<Layout {title}>
+    <PageHeadline {title} />
+    <p>Guestbook content goes here.</p>
+</Layout>

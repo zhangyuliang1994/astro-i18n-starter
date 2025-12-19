@@ -1,0 +1,36 @@
+---
+import { LOCALES, useTranslations, type Lang } from "@/i18n";
+import Layout from "@/layouts/Base.astro";
+import PageHeadline from "@/components/PageHeadline.astro";
+import { getCollection } from "astro:content";
+
+const locale = Astro.currentLocale as Lang;
+const t = useTranslations(locale);
+
+const posts = (await getCollection("blog")).filter(
+    (post) => post.id.split("/")[0] === locale,
+);
+
+const categories = [
+    ...new Set(posts.flatMap((post) => post.data.categories || [])),
+].sort();
+
+const title = t({
+    ja: "カテゴリー",
+    en: "Categories",
+    "zh-cn": "分类",
+    ar: "التصنيفات",
+});
+
+export const getStaticPaths = () =>
+    Object.keys(LOCALES).map((lang) => ({
+        params: { lang },
+    }));
+---
+
+<Layout {title}>
+    <PageHeadline {title} />
+    <ul>
+        {categories.map((category) => <li>{category}</li>)}
+    </ul>
+</Layout>

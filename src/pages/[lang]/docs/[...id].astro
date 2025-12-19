@@ -1,0 +1,53 @@
+---
+import Layout from "@/layouts/Article.astro";
+import { getCollection, render } from "astro:content";
+import { Image } from "astro:assets";
+
+export async function getStaticPaths() {
+    const docs = await getCollection("docs");
+
+    return docs.map((doc) => {
+        const [lang, ...id] = doc.id.split("/");
+        return { params: { lang, id: id.join("/") || undefined }, props: doc };
+    });
+}
+
+const { lang } = Astro.params;
+const doc = Astro.props;
+
+const { Content } = await render(doc);
+const title = doc.data.title;
+---
+
+<Layout {title}>
+    {
+        doc.data.cover && (
+            <Image src={doc.data.cover} alt={doc.data.title} class="cover" />
+        )
+    }
+
+    <header>
+        <h1>{title}</h1>
+        <time datetime={doc.data.date.toISOString()}>
+            {doc.data.date.toLocaleDateString(lang)}
+        </time>
+    </header>
+
+    <Content class="material-icons" />
+</Layout>
+
+<style>
+    header {
+        text-align: center;
+        border-block-end: 1px solid var(--color-theme);
+        padding-block-end: var(--sp-m);
+        h1 {
+            color: var(--color-theme);
+            font-size: 1.8rem;
+        }
+    }
+    .cover {
+        border-radius: 16px;
+        margin: 0;
+    }
+</style>

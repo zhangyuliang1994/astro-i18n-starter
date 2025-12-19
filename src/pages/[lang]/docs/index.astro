@@ -1,0 +1,67 @@
+---
+import { LOCALES, useTranslations, type Lang } from "@/i18n";
+import Layout from "@/layouts/Base.astro";
+import { Image } from "astro:assets";
+import { getCollection } from "astro:content";
+import PageHeadline from "@/components/PageHeadline.astro";
+
+const locale = Astro.currentLocale as Lang;
+const t = useTranslations(locale);
+
+const docs = (await getCollection("docs"))
+    .filter((doc) => doc.id.split("/")[0] === locale)
+    .sort((a, b) => a.data.date.valueOf() - b.data.date.valueOf());
+
+const title = t({
+    ja: "ドキュメント",
+    en: "Docs",
+    "zh-cn": "文档",
+    ar: "وثائق",
+});
+
+export const getStaticPaths = () =>
+    Object.keys(LOCALES).map((lang) => ({
+        params: { lang },
+    }));
+---
+
+<Layout {title}>
+    <PageHeadline {title} />
+
+    <ul>
+        {
+            docs.map((doc) => {
+                const [, ...id] = doc.id.split("/");
+                return (
+                    <li>
+                        <a href={`/${locale}/docs/${id.join("/")}/`}>
+                            {doc.data.cover && (
+                                <Image
+                                    src={doc.data.cover}
+                                    alt={doc.data.title}
+                                />
+                            )}
+                            <h2>{doc.data.title}</h2>
+                        </a>
+                    </li>
+                );
+            })
+        }
+    </ul>
+</Layout>
+
+<style>
+    ul {
+        margin-block-start: var(--sp-m);
+        display: grid;
+        gap: var(--sp-s);
+        grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));
+    }
+
+    li {
+        margin-block-end: 1rem;
+        img {
+            border-radius: 6px;
+        }
+    }
+</style>

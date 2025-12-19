@@ -1,0 +1,60 @@
+---
+import Layout from "@/layouts/Article.astro";
+import { getCollection, render } from "astro:content";
+import { Image } from "astro:assets";
+
+export async function getStaticPaths() {
+    const projects = await getCollection("projects");
+
+    return projects.map((project) => {
+        const [lang, ...id] = project.id.split("/");
+        return {
+            params: { lang, id: id.join("/") || undefined },
+            props: project,
+        };
+    });
+}
+
+const { lang } = Astro.params;
+const project = Astro.props;
+
+const { Content } = await render(project);
+const title = project.data.title;
+---
+
+<Layout {title}>
+    {
+        project.data.cover && (
+            <Image
+                src={project.data.cover}
+                alt={project.data.title}
+                class="cover"
+            />
+        )
+    }
+
+    <header>
+        <h1>{title}</h1>
+        <time datetime={project.data.date.toISOString()}>
+            {project.data.date.toLocaleDateString(lang)}
+        </time>
+    </header>
+
+    <Content class="material-icons" />
+</Layout>
+
+<style>
+    header {
+        text-align: center;
+        border-block-end: 1px solid var(--color-theme);
+        padding-block-end: var(--sp-m);
+        h1 {
+            color: var(--color-theme);
+            font-size: 1.8rem;
+        }
+    }
+    .cover {
+        border-radius: 16px;
+        margin: 0;
+    }
+</style>
