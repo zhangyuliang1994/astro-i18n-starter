@@ -13,7 +13,8 @@ import { SITE_TITLE, SITE_DESCRIPTION, X_ACCOUNT } from "@/consts";
 
 const t = useTranslations(Astro.currentLocale as Lang);
 const langs = Object.keys(LOCALES);
-const baseUrl = import.meta.env.PROD ? Astro.site : "/";
+// Use relative path for redirects to work on any deployment platform
+const baseUrl = "/";
 const defaultLocale = DEFAULT_LOCALE;
 ---
 
