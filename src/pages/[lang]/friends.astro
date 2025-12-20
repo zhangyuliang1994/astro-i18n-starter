@@ -2,6 +2,7 @@
 import { LOCALES, useTranslations, type Lang } from "@/i18n";
 import Layout from "@/layouts/Base.astro";
 import PageHeadline from "@/components/PageHeadline.astro";
+import FriendLinks from "@/components/FriendLinks.astro";
 
 const locale = Astro.currentLocale as Lang;
 const t = useTranslations(locale);
@@ -13,6 +14,13 @@ const title = t({
     ar: "أصدقاء",
 });
 
+const intro = t({
+    ja: "素晴らしいウェブサイトとブログのコレクション。",
+    en: "A collection of wonderful websites and blogs.",
+    "zh-cn": "这里收录了一些优秀的网站和博客。",
+    ar: "مجموعة من المواقع والمدونات الرائعة.",
+});
+
 export const getStaticPaths = () =>
     Object.keys(LOCALES).map((lang) => ({
         params: { lang },
@@ -20,6 +28,12 @@ export const getStaticPaths = () =>
 ---
 
 <Layout {title}>
-    <PageHeadline {title} />
-    <p>Friends links go here.</p>
+    <PageHeadline {title}>
+        <p
+            style="margin-block-start: var(--sp-s); opacity: 0.9; font-size: 0.95rem;"
+        >
+            {intro}
+        </p>
+    </PageHeadline>
+    <FriendLinks />
 </Layout>

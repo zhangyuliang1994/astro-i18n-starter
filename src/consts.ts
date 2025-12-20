@@ -16,3 +16,67 @@ export const NOT_TRANSLATED_CAUTION: string | Multilingual = {
 	en: "This page is not available in your language.",
 	"zh-cn": "此页面不支持您的语言。",
 };
+
+export interface FriendLink {
+	name: string | Multilingual;
+	url: string;
+	avatar: string;
+	description: string | Multilingual;
+}
+
+export const FRIEND_LINKS: FriendLink[] = [
+	{
+		name: { en: "Astro", "zh-cn": "Astro 官方" },
+		url: "https://astro.build",
+		avatar: "https://astro.build/assets/press/astro-icon-light.png",
+		description: {
+			en: "Build fast websites, faster.",
+			"zh-cn": "更快地构建快速网站"
+		}
+	},
+	{
+		name: { en: "MDN Web Docs", "zh-cn": "MDN Web 文档" },
+		url: "https://developer.mozilla.org",
+		avatar: "https://developer.mozilla.org/apple-touch-icon.png",
+		description: {
+			en: "Resources for developers, by developers.",
+			"zh-cn": "为开发者提供的权威 Web 技术文档"
+		}
+	},
+	{
+		name: { en: "GitHub", "zh-cn": "GitHub" },
+		url: "https://github.com",
+		avatar: "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png",
+		description: {
+			en: "Where the world builds software.",
+			"zh-cn": "全球最大的代码托管平台"
+		}
+	},
+	{
+		name: { en: "DEV Community", "zh-cn": "DEV 社区" },
+		url: "https://dev.to",
+		avatar: "https://dev-to-uploads.s3.amazonaws.com/uploads/logos/resized_logo_UQww2soKuUsjaOGNB38o.png",
+		description: {
+			en: "A community of software developers.",
+			"zh-cn": "开发者交流社区"
+		}
+	},
+	{
+		name: { en: "Stack Overflow", "zh-cn": "Stack Overflow" },
+		url: "https://stackoverflow.com",
+		avatar: "https://cdn.sstatic.net/Sites/stackoverflow/Img/apple-touch-icon.png",
+		description: {
+			en: "Where developers learn, share, & build careers.",
+			"zh-cn": "开发者问答社区"
+		}
+	},
+	{
+		name: { en: "CSS-Tricks", "zh-cn": "CSS-Tricks" },
+		url: "https://css-tricks.com",
+		avatar: "https://css-tricks.com/apple-touch-icon.png",
+		description: {
+			en: "Tips, tricks, and techniques on using CSS.",
+			"zh-cn": "CSS 技巧和前端开发资源"
+		}
+	}
+];

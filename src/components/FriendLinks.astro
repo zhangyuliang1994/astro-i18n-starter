@@ -1,0 +1,210 @@
+---
+// FriendLinks component to display friend links in a card-based layout.
+
+import { useTranslations, type Lang } from "@/i18n";
+import { FRIEND_LINKS, type FriendLink } from "@/consts";
+
+const locale = Astro.currentLocale as Lang;
+const t = useTranslations(locale);
+---
+
+<div class="friend-links">
+    {
+        FRIEND_LINKS.map((link: FriendLink) => (
+            <a
+                href={link.url}
+                class="friend-card"
+                target="_blank"
+                rel="noopener noreferrer"
+            >
+                <div class="card-glow" />
+                <div class="card-content">
+                    <div class="avatar-wrapper">
+                        <img
+                            src={link.avatar}
+                            alt={
+                                typeof link.name === "string"
+                                    ? link.name
+                                    : t(link.name)
+                            }
+                            class="avatar"
+                            loading="lazy"
+                        />
+                    </div>
+                    <div class="card-info">
+                        <h3 class="friend-name">
+                            {typeof link.name === "string"
+                                ? link.name
+                                : t(link.name)}
+                        </h3>
+                        <p class="friend-description">
+                            {typeof link.description === "string"
+                                ? link.description
+                                : t(link.description)}
+                        </p>
+                    </div>
+                </div>
+            </a>
+        ))
+    }
+</div>
+
+<style>
+    .friend-links {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: var(--sp-m);
+        margin-block-start: var(--sp-m);
+    }
+
+    .friend-card {
+        position: relative;
+        display: block;
+        padding: var(--sp-m);
+        background: linear-gradient(
+            135deg,
+            var(--color-theme),
+            var(--color-main)
+        );
+        color: var(--color-base);
+        border-radius: 16px;
+        text-decoration: none;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        cursor: pointer;
+
+        &::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        &:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+
+            .card-glow {
+                opacity: 1;
+            }
+
+            .avatar {
+                transform: scale(1.1) rotate(5deg);
+            }
+        }
+
+        &:active {
+            transform: translateY(-2px);
+        }
+    }
+
+    .card-glow {
+        position: absolute;
+        top: -50%;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(
+            ellipse at center top,
+            rgba(255, 255, 255, 0.3) 0%,
+            transparent 70%
+        );
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        z-index: 0;
+    }
+
+    .card-content {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        gap: var(--sp-m);
+        align-items: flex-start;
+    }
+
+    .avatar-wrapper {
+        flex-shrink: 0;
+    }
+
+    .avatar {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        object-fit: cover;
+        background-color: rgba(255, 255, 255, 0.9);
+        padding: 4px;
+        transition: transform 0.3s ease;
+    }
+
+    .card-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .friend-name {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin: 0;
+        margin-block-end: 0.4em;
+        letter-spacing: 0.02em;
+        line-height: 1.3;
+        color: inherit;
+    }
+
+    .friend-description {
+        font-size: 0.9rem;
+        line-height: 1.5;
+        margin: 0;
+        opacity: 0.9;
+        color: inherit;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    @media (max-width: 768px) {
+        .friend-links {
+            grid-template-columns: 1fr;
+            gap: var(--sp-s);
+        }
+
+        .friend-card {
+            padding: var(--sp-s);
+        }
+
+        .avatar {
+            width: 56px;
+            height: 56px;
+        }
+
+        .friend-name {
+            font-size: 1rem;
+        }
+
+        .friend-description {
+            font-size: 0.85rem;
+        }
+    }
+
+    @media (min-width: 769px) and (max-width: 1024px) {
+        .friend-links {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (min-width: 1025px) {
+        .friend-links {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+</style>
