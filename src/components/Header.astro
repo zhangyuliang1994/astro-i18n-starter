@@ -71,15 +71,15 @@ const isActive = (path: string) =>
 
         <li>
           <a
-            href={getRelativeLocaleUrl(locale, "/guestbook")}
-            class={isActive("/guestbook") ? "active" : null}
+            href={getRelativeLocaleUrl(locale, "/projects")}
+            class={isActive("/projects") ? "active" : null}
           >
             {
               t({
-                ja: "ゲストブック",
-                en: "Guestbook",
-                "zh-cn": "留言板",
-                ar: "دفتر الزوار",
+                ja: "プロジェクト",
+                en: "Projects",
+                "zh-cn": "项目",
+                ar: "مشاريع",
               })
             }
           </a>
