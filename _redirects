@@ -1,0 +1,5 @@
+# Cloudflare Pages & Netlify redirect rules
+# This handles the root redirect until the client-side JavaScript loads
+
+# Redirect root to default locale
+/  /en/  302
