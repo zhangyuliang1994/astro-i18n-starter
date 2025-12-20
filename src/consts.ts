@@ -26,12 +26,12 @@ export interface FriendLink {
 
 export const FRIEND_LINKS: FriendLink[] = [
 	{
-		name: { en: "Astro", "zh-cn": "Astro 官方" },
-		url: "https://astro.build",
-		avatar: "https://astro.build/assets/press/astro-icon-light.png",
+		name: { en: "Reading Notes", "zh-cn": "读书笔记" },
+		url: "https://zhangyuliang.notion.site/",
+		avatar: "https://www.notion.so/images/logo-ios.png",
 		description: {
-			en: "Build fast websites, faster.",
-			"zh-cn": "更快地构建快速网站"
+			en: "My personal reading notes and knowledge base.",
+			"zh-cn": "我的个人读书笔记和知识库"
 		}
 	},
 	{
