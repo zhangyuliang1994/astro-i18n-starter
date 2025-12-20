@@ -20,7 +20,7 @@ const getSiteUrl = () => {
     return process.env.CF_PAGES_URL;
   }
   // Fallback for local development or unknown platforms
-  return 'https://astro-i18n-starter.pages.dev';
+  return 'https://zhangyuliang1994.github.io';
 };
 
 export default defineConfig({
