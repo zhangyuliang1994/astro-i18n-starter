@@ -4,9 +4,15 @@ import { defineConfig } from 'astro/config';
 import { DEFAULT_LOCALE_SETTING, LOCALES_SETTING } from './src/locales';
 
 // Dynamic site URL based on deployment environment
-// Vercel: process.env.VERCEL_URL, Cloudflare: uses CF_PAGES_URL
+// GitHub Pages: process.env.SITE_URL (configured via GitHub Actions vars)
+// Vercel: process.env.VERCEL_URL
+// Cloudflare: uses CF_PAGES_URL
 // For sitemap and OGP tags to work properly
 const getSiteUrl = () => {
+  // GitHub Pages (set via workflow vars)
+  if (process.env.SITE_URL) {
+    return process.env.SITE_URL;
+  }
   if (process.env.VERCEL_URL) {
     return `https://${process.env.VERCEL_URL}`;
   }

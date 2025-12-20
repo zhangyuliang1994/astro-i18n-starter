@@ -1,0 +1,84 @@
+name: 自动部署到 GitHub Pages
+
+on:
+  # 在推送到 main 分支时触发
+  push:
+    branches:
+      - main
+
+  # 在发布 release 时触发
+  release:
+    types:
+      - published
+
+  # 允许手动触发
+  workflow_dispatch:
+
+# 设置 GITHUB_TOKEN 的权限以允许部署到 GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 只允许一个并发部署，跳过正在运行和最新排队之间的运行队列
+# 但是，不要取消正在进行的运行，因为我们希望这些生产部署能够完成
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 安装 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: 安装 pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: 获取 pnpm store 目录
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: 缓存 pnpm 依赖
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: 安装依赖
+        run: pnpm install
+
+      - name: 构建 Astro 网站
+        run: pnpm run build
+        env:
+          # 设置正确的 site URL 用于 GitHub Pages
+          # 格式: https://<用户名>.github.io/<仓库名>/
+          # 如果是用户/组织站点（<用户名>.github.io），则不需要仓库名
+          SITE_URL: ${{ vars.SITE_URL }}
+
+      - name: 上传 artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: 部署到 GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
