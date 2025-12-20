@@ -2,6 +2,8 @@
 import { LOCALES, useTranslations, type Lang } from "@/i18n";
 import Layout from "@/layouts/Base.astro";
 import PageHeadline from "@/components/PageHeadline.astro";
+import { Image } from "astro:assets";
+import AvatarImage from "@/assets/about-avatar.png";
 
 const locale = Astro.currentLocale as Lang;
 const t = useTranslations(locale);
@@ -17,9 +19,504 @@ export const getStaticPaths = () =>
     Object.keys(LOCALES).map((lang) => ({
         params: { lang },
     }));
+
+// 翻译内容
+const name = t({
+    ja: "晓风",
+    en: "Xiaofeng",
+    "zh-cn": "晓风",
+    ar: "شياوفنغ",
+});
+
+const role = t({
+    ja: "バックエンドソフトウェアエンジニア",
+    en: "Backend Software Engineer",
+    "zh-cn": "后端软件开发工程师",
+    ar: "مهندس برمجيات خلفية",
+});
+
+const introTitle = t({
+    ja: "👋 こんにちは、私は晓风です",
+    en: "👋 Hello, I'm Xiaofeng",
+    "zh-cn": "👋 你好，我是晓风",
+    ar: "👋 مرحباً، أنا شياوفنغ",
+});
+
+const introContent = t({
+    ja: "私はバックエンドソフトウェアエンジニアで、7年間ソフトウェア開発に従事してきました。私のキャリアは複数の分野にまたがっています。",
+    en: "I'm a backend software developer with 7 years of experience in software development. My career spans multiple domains, including:",
+    "zh-cn":
+        "我是一名后端软件开发工程师，已经从事7年软件相关开发工作。我的职业生涯横跨多个领域，包括：",
+    ar: "أنا مطور برمجيات خلفية مع 7 سنوات من الخبرة في تطوير البرمجيات. تمتد مسيرتي المهنية عبر مجالات متعددة:",
+});
+
+const projectItems = [
+    {
+        title: t({
+            ja: "ERPシステム開発",
+            en: "ERP System Development",
+            "zh-cn": "ERP 系统开发",
+            ar: "تطوير نظام ERP",
+        }),
+        desc: t({
+            ja: "企業向けビジネス管理ソリューションの構築",
+            en: "Building enterprise-level business management solutions",
+            "zh-cn": "构建企业级业务管理解决方案",
+            ar: "بناء حلول إدارة الأعمال على مستوى المؤسسة",
+        }),
+    },
+    {
+        title: t({
+            ja: "火災監視プラットフォーム",
+            en: "Fire Monitoring Platform",
+            "zh-cn": "森林防火/监控平台",
+            ar: "منصة مراقبة الحرائق",
+        }),
+        desc: t({
+            ja: "リアルタイム監視と警報システムの開発",
+            en: "Developing real-time monitoring and early warning systems",
+            "zh-cn": "开发实时监控和预警系统",
+            ar: "تطوير أنظمة المراقبة والإنذار المبكر في الوقت الفعلي",
+        }),
+    },
+    {
+        title: t({
+            ja: "衛星通信システム",
+            en: "Satellite Communication Systems",
+            "zh-cn": "卫星通信系统",
+            ar: "أنظمة الاتصالات الفضائية",
+        }),
+        desc: t({
+            ja: "衛星通信ソフトウェアの設計と実装",
+            en: "Designing and implementing satellite communication software",
+            "zh-cn": "设计和实现卫星通信软件",
+            ar: "تصميم وتنفيذ برامج الاتصالات الفضائية",
+        }),
+    },
+];
+
+const techStackTitle = t({
+    ja: "💻 技術スタック",
+    en: "💻 Tech Stack",
+    "zh-cn": "💻 技术栈",
+    ar: "💻 مكدس التقنيات",
+});
+
+const techStackIntro = t({
+    ja: "私の技術スタックは興味深い進化を遂げてきました：",
+    en: "My tech stack has gone through an interesting evolution:",
+    "zh-cn": "我的技术栈经历了一个有趣的演变过程：",
+    ar: "مر مكدس التقنيات الخاص بي بتطور مثير للاهتمام:",
+});
+
+const techItems = [
+    {
+        stage: t({
+            ja: "初期段階",
+            en: "Early Stage",
+            "zh-cn": "早期阶段",
+            ar: "المرحلة المبكرة",
+        }),
+        desc: t({
+            ja: "C#/.NETを使用した開発",
+            en: "Development using C#/.NET",
+            "zh-cn": "主要使用 C#/.NET 进行开发",
+            ar: "التطوير باستخدام C#/.NET",
+        }),
+        tech: ["C#", ".NET"],
+    },
+    {
+        stage: t({
+            ja: "中期〜現在",
+            en: "Mid-term to Now",
+            "zh-cn": "中期至今",
+            ar: "من منتصف الفترة حتى الآن",
+        }),
+        desc: t({
+            ja: "Javaスタックへの深堀り、企業向けアプリケーションの構築",
+            en: "Deep diving into Java stack, building enterprise applications",
+            "zh-cn": "深入 Java 技术栈，构建企业级应用",
+            ar: "الغوص في مكدس Java، بناء تطبيقات المؤسسات",
+        }),
+        tech: ["Java"],
+    },
+    {
+        stage: t({
+            ja: "AI時代",
+            en: "AI Era",
+            "zh-cn": "AI 时代",
+            ar: "عصر الذكاء الاصطناعي",
+        }),
+        desc: t({
+            ja: "AIツールを活用して新技術を探求",
+            en: "Exploring new technologies with AI tools",
+            "zh-cn": "借助 AI 工具探索新技术，拥抱新技术",
+            ar: "استكشاف التقنيات الجديدة بأدوات الذكاء الاصطناعي",
+        }),
+        tech: ["Go", "Vue", "Next.js"],
+    },
+];
+
+const blogTitle = t({
+    ja: "🌟 このブログについて",
+    en: "🌟 About This Blog",
+    "zh-cn": "🌟 关于这个博客",
+    ar: "🌟 حول هذه المدونة",
+});
+
+const blogIntro = t({
+    ja: "このウェブサイトは、私が海外サイトの成長過程を記録する場所です。主に共有しているのは：",
+    en: "This website is where I document the growth journey of my overseas site building. I mainly share:",
+    "zh-cn": "这个网站是我记录出海网站成长历程的地方，主要分享：",
+    ar: "هذا الموقع هو المكان الذي أوثق فيه رحلة نمو بناء موقعي في الخارج. أشارك بشكل رئيسي:",
+});
+
+const blogItems = [
+    t({
+        ja: "開発プロセス中に遭遇した技術的な課題と解決策",
+        en: "Technical challenges and solutions encountered during development",
+        "zh-cn": "开发过程中遇到的技术难题和解决方案",
+        ar: "التحديات والحلول التقنية التي واجهتها أثناء التطوير",
+    }),
+    t({
+        ja: "実用的な開発ツールと効率化テクニック",
+        en: "Practical development tools and efficiency tips",
+        "zh-cn": "实用的开发工具和效率提升技巧",
+        ar: "أدوات التطوير العملية ونصائح الكفاءة",
+    }),
+    t({
+        ja: "SEO最適化戦略と実践経験",
+        en: "SEO optimization strategies and practical experience",
+        "zh-cn": "SEO 优化策略和实践经验",
+        ar: "استراتيجيات تحسين محركات البحث والخبرة العملية",
+    }),
+];
+
+const contactTitle = t({
+    ja: "📮 連絡先",
+    en: "📮 Contact Me",
+    "zh-cn": "📮 联系我",
+    ar: "📮 تواصل معي",
+});
+
+const contactIntro = t({
+    ja: "私の記事やプロジェクトに興味がある場合は、以下の方法でお気軽にご連絡ください：",
+    en: "If you're interested in my articles or projects, feel free to reach out:",
+    "zh-cn": "如果你对我的文章或者项目感兴趣，欢迎通过以下方式联系我：",
+    ar: "إذا كنت مهتمًا بمقالاتي أو مشاريعي، لا تتردد في التواصل:",
+});
+
+const email = "zhangyuliang9425@gmail.com";
+const github = "zhangyuliang1994";
 ---
 
 <Layout {title}>
     <PageHeadline {title} />
-    <p>About page content goes here.</p>
+
+    <div class="about-container">
+        <!-- Profile Section -->
+        <section class="profile-section">
+            <div class="avatar-wrapper">
+                <Image src={AvatarImage} alt={name} class="avatar" />
+            </div>
+            <h2 class="profile-name">{name}</h2>
+            <p class="profile-role">{role}</p>
+            <div class="social-links">
+                <a href={`mailto:${email}`} class="social-link" title="Email">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        ><rect width="20" height="16" x="2" y="4" rx="2"
+                        ></rect><path
+                            d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"
+                        ></path></svg
+                    >
+                </a>
+                <a
+                    href={`https://github.com/${github}`}
+                    class="social-link"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title="GitHub"
+                >
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        ><path
+                            d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"
+                        ></path></svg
+                    >
+                </a>
+            </div>
+        </section>
+
+        <!-- Introduction Section -->
+        <section class="content-section">
+            <h3 class="section-title">{introTitle}</h3>
+            <p class="section-text">{introContent}</p>
+            <ul class="feature-list">
+                {
+                    projectItems.map((item) => (
+                        <li>
+                            <strong>{item.title}</strong> - {item.desc}
+                        </li>
+                    ))
+                }
+            </ul>
+        </section>
+
+        <!-- Tech Stack Section -->
+        <section class="content-section">
+            <h3 class="section-title">{techStackTitle}</h3>
+            <p class="section-text">{techStackIntro}</p>
+            <ul class="feature-list">
+                {
+                    techItems.map((item) => (
+                        <li>
+                            <strong>{item.stage}</strong> - {item.desc}
+                            <span class="tech-tags">
+                                {item.tech.map((t) => (
+                                    <code class="tech-tag">{t}</code>
+                                ))}
+                            </span>
+                        </li>
+                    ))
+                }
+            </ul>
+        </section>
+
+        <!-- Blog Section -->
+        <section class="content-section">
+            <h3 class="section-title">{blogTitle}</h3>
+            <p class="section-text">{blogIntro}</p>
+            <ul class="feature-list bullet">
+                {blogItems.map((item) => <li>{item}</li>)}
+            </ul>
+        </section>
+
+        <!-- Contact Section -->
+        <section class="content-section">
+            <h3 class="section-title">{contactTitle}</h3>
+            <p class="section-text">{contactIntro}</p>
+            <ul class="contact-list">
+                <li>
+                    <span class="contact-label">Email:</span>
+                    <a href={`mailto:${email}`}>{email}</a>
+                </li>
+                <li>
+                    <span class="contact-label">GitHub:</span>
+                    <a
+                        href={`https://github.com/${github}`}
+                        target="_blank"
+                        rel="noopener noreferrer">@{github}</a
+                    >
+                </li>
+            </ul>
+        </section>
+    </div>
 </Layout>
+
+<style>
+    .about-container {
+        max-width: 720px;
+        margin: 0 auto;
+    }
+
+    /* Profile Section */
+    .profile-section {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: var(--sp-l);
+        text-align: center;
+    }
+
+    .avatar-wrapper {
+        width: 140px;
+        height: 140px;
+        border-radius: 50%;
+        overflow: hidden;
+        border: 4px solid var(--color-theme);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        margin-bottom: var(--sp-m);
+    }
+
+    .avatar {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .profile-name {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin: 0 0 0.5rem 0;
+        color: var(--color-main);
+    }
+
+    .profile-role {
+        font-size: 1rem;
+        color: color-mix(in srgb, var(--color-main) 70%, transparent);
+        margin: 0 0 1rem 0;
+    }
+
+    .social-links {
+        display: flex;
+        gap: var(--sp-s);
+    }
+
+    .social-link {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        background: color-mix(in srgb, var(--color-theme) 15%, transparent);
+        color: var(--color-theme);
+        transition: all 0.25s ease;
+    }
+
+    .social-link:hover {
+        background: var(--color-theme);
+        color: var(--color-base);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px
+            color-mix(in srgb, var(--color-theme) 40%, transparent);
+    }
+
+    .social-link svg {
+        width: 22px;
+        height: 22px;
+    }
+
+    /* Content Sections */
+    .content-section {
+        margin-bottom: var(--sp-l);
+        padding: var(--sp-m);
+        background: color-mix(in srgb, var(--color-main) 5%, transparent);
+        border-radius: 12px;
+        border: 1px solid color-mix(in srgb, var(--color-main) 10%, transparent);
+    }
+
+    .section-title {
+        font-size: 1.4rem;
+        font-weight: 700;
+        margin: 0 0 0.8rem 0;
+        color: var(--color-theme);
+    }
+
+    .section-text {
+        margin: 0 0 1rem 0;
+        line-height: 1.8;
+    }
+
+    .feature-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .feature-list li {
+        padding: 0.6rem 0;
+        padding-inline-start: 1.5rem;
+        position: relative;
+    }
+
+    .feature-list li::before {
+        content: "•";
+        position: absolute;
+        inset-inline-start: 0;
+        color: var(--color-theme);
+        font-weight: bold;
+    }
+
+    .feature-list.bullet li::before {
+        content: "•";
+    }
+
+    .feature-list li strong {
+        color: var(--color-theme);
+    }
+
+    .tech-tags {
+        display: inline-flex;
+        gap: 0.4rem;
+        margin-inline-start: 0.5rem;
+    }
+
+    .tech-tag {
+        font-size: 0.85rem;
+        padding: 0.15rem 0.5rem;
+        background: color-mix(in srgb, var(--color-accent) 20%, transparent);
+        border-radius: 4px;
+        color: var(--color-theme);
+        font-family: var(--english-font);
+    }
+
+    /* Contact List */
+    .contact-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .contact-list li {
+        padding: 0.6rem 0;
+        padding-inline-start: 1.5rem;
+        position: relative;
+    }
+
+    .contact-list li::before {
+        content: "•";
+        position: absolute;
+        inset-inline-start: 0;
+        color: var(--color-theme);
+        font-weight: bold;
+    }
+
+    .contact-label {
+        font-weight: 600;
+        margin-inline-end: 0.5rem;
+    }
+
+    .contact-list a {
+        color: var(--color-theme);
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+    .contact-list a:hover {
+        text-decoration: underline;
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+        .content-section {
+            padding: var(--sp-s);
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+        }
+
+        .avatar-wrapper {
+            width: 120px;
+            height: 120px;
+        }
+
+        .profile-name {
+            font-size: 1.5rem;
+        }
+    }
+</style>
