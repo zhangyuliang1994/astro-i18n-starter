@@ -11,13 +11,36 @@ const posts = (await getCollection("blog")).filter(
     (post) => post.id.split("/")[0] === locale,
 );
 
-const tags = [...new Set(posts.flatMap((post) => post.data.tags || []))].sort();
+// 统计每个标签的文章数量
+const tagCounts = new Map<string, number>();
+posts.forEach((post) => {
+    (post.data.tags || []).forEach((tag) => {
+        tagCounts.set(tag, (tagCounts.get(tag) || 0) + 1);
+    });
+});
+
+// 按文章数量排序
+const tags = [...tagCounts.entries()].sort((a, b) => b[1] - a[1]);
 
 const title = t({
     ja: "タグ",
     en: "Tags",
     "zh-cn": "标签",
     ar: "الوسوم",
+});
+
+const description = t({
+    ja: "すべてのタグを閲覧し、興味のあるトピックを見つけてください。",
+    en: "Browse all tags and find topics that interest you.",
+    "zh-cn": "浏览所有标签，找到你感兴趣的话题。",
+    ar: "تصفح جميع الوسوم وابحث عن المواضيع التي تهمك.",
+});
+
+const postsText = t({
+    ja: "件",
+    en: "posts",
+    "zh-cn": "篇",
+    ar: "مقال",
 });
 
 export const getStaticPaths = () =>
@@ -28,7 +51,123 @@ export const getStaticPaths = () =>
 
 <Layout {title}>
     <PageHeadline {title} />
-    <ul>
-        {tags.map((tag) => <li>{tag}</li>)}
-    </ul>
+
+    <p class="page-description">{description}</p>
+
+    <div class="tags-container">
+        {
+            tags.length > 0 ? (
+                <ul class="tags-grid">
+                    {tags.map(([tag, count]) => (
+                        <li>
+                            <a
+                                href={`/${locale}/tags/${tag}/`}
+                                class="tag-card"
+                            >
+                                <span class="tag-name">{tag}</span>
+                                <span class="tag-count">
+                                    {count} {postsText}
+                                </span>
+                            </a>
+                        </li>
+                    ))}
+                </ul>
+            ) : (
+                <p class="no-tags">
+                    {t({
+                        ja: "まだタグがありません",
+                        en: "No tags yet",
+                        "zh-cn": "暂无标签",
+                        ar: "لا توجد وسوم بعد",
+                    })}
+                </p>
+            )
+        }
+    </div>
 </Layout>
+
+<style>
+    .page-description {
+        color: color-mix(in srgb, var(--color-main) 70%, transparent);
+        margin-block: var(--sp-s) var(--sp-l);
+        font-size: 1rem;
+    }
+
+    .tags-container {
+        margin-block-start: var(--sp-m);
+    }
+
+    .tags-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--sp-s);
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .tag-card {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem 1.25rem;
+        background: linear-gradient(
+            135deg,
+            color-mix(in srgb, var(--color-theme) 8%, transparent),
+            color-mix(in srgb, var(--color-theme) 15%, transparent)
+        );
+        border: 1px solid
+            color-mix(in srgb, var(--color-theme) 20%, transparent);
+        border-radius: 50px;
+        text-decoration: none;
+        color: var(--color-main);
+        transition: all 0.3s ease;
+    }
+
+    .tag-card:hover {
+        background: linear-gradient(
+            135deg,
+            color-mix(in srgb, var(--color-theme) 15%, transparent),
+            color-mix(in srgb, var(--color-theme) 25%, transparent)
+        );
+        border-color: var(--color-theme);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px
+            color-mix(in srgb, var(--color-theme) 20%, transparent);
+    }
+
+    .tag-name {
+        font-weight: 600;
+        font-size: 0.95rem;
+        color: var(--color-theme);
+    }
+
+    .tag-count {
+        font-size: 0.8rem;
+        padding: 0.2rem 0.6rem;
+        background: color-mix(in srgb, var(--color-theme) 20%, transparent);
+        border-radius: 20px;
+        color: color-mix(in srgb, var(--color-main) 80%, transparent);
+    }
+
+    .no-tags {
+        text-align: center;
+        padding: var(--sp-xl);
+        color: color-mix(in srgb, var(--color-main) 50%, transparent);
+        font-size: 1.1rem;
+    }
+
+    @media (max-width: 600px) {
+        .tags-grid {
+            gap: 0.5rem;
+        }
+
+        .tag-card {
+            padding: 0.6rem 1rem;
+        }
+
+        .tag-name {
+            font-size: 0.9rem;
+        }
+    }
+</style>

@@ -11,9 +11,16 @@ const posts = (await getCollection("blog")).filter(
     (post) => post.id.split("/")[0] === locale,
 );
 
-const categories = [
-    ...new Set(posts.flatMap((post) => post.data.categories || [])),
-].sort();
+// 统计每个分类的文章数量
+const categoryCounts = new Map<string, number>();
+posts.forEach((post) => {
+    (post.data.categories || []).forEach((category) => {
+        categoryCounts.set(category, (categoryCounts.get(category) || 0) + 1);
+    });
+});
+
+// 按文章数量排序
+const categories = [...categoryCounts.entries()].sort((a, b) => b[1] - a[1]);
 
 const title = t({
     ja: "カテゴリー",
@@ -21,6 +28,39 @@ const title = t({
     "zh-cn": "分类",
     ar: "التصنيفات",
 });
+
+const description = t({
+    ja: "すべてのカテゴリーを閲覧し、興味のあるコンテンツを見つけてください。",
+    en: "Browse all categories and find content that interests you.",
+    "zh-cn": "浏览所有分类，找到你感兴趣的内容。",
+    ar: "تصفح جميع التصنيفات وابحث عن المحتوى الذي يهمك.",
+});
+
+const postsText = t({
+    ja: "件",
+    en: "posts",
+    "zh-cn": "篇",
+    ar: "مقال",
+});
+
+// 分类图标映射
+const categoryIcons: Record<string, string> = {
+    线下活动: "groups",
+    "Offline Events": "groups",
+    技术: "code",
+    Technology: "code",
+    Tech: "code",
+    SEO: "trending_up",
+    工具: "build",
+    Tools: "build",
+    教程: "school",
+    Tutorial: "school",
+    Tutorials: "school",
+    出海: "public",
+    "Going Global": "public",
+};
+
+const getIcon = (category: string) => categoryIcons[category] || "folder";
 
 export const getStaticPaths = () =>
     Object.keys(LOCALES).map((lang) => ({
@@ -30,7 +70,172 @@ export const getStaticPaths = () =>
 
 <Layout {title}>
     <PageHeadline {title} />
-    <ul>
-        {categories.map((category) => <li>{category}</li>)}
-    </ul>
+
+    <p class="page-description">{description}</p>
+
+    <div class="categories-container">
+        {
+            categories.length > 0 ? (
+                <ul class="categories-grid">
+                    {categories.map(([category, count]) => (
+                        <li>
+                            <a
+                                href={`/${locale}/categories/${category}/`}
+                                class="category-card"
+                            >
+                                <div class="category-icon">
+                                    <span class="material-icons-sharp">
+                                        {getIcon(category)}
+                                    </span>
+                                </div>
+                                <div class="category-info">
+                                    <span class="category-name">
+                                        {category}
+                                    </span>
+                                    <span class="category-count">
+                                        {count} {postsText}
+                                    </span>
+                                </div>
+                                <span class="category-arrow material-icons-sharp">
+                                    arrow_forward
+                                </span>
+                            </a>
+                        </li>
+                    ))}
+                </ul>
+            ) : (
+                <p class="no-categories">
+                    {t({
+                        ja: "まだカテゴリーがありません",
+                        en: "No categories yet",
+                        "zh-cn": "暂无分类",
+                        ar: "لا توجد تصنيفات بعد",
+                    })}
+                </p>
+            )
+        }
+    </div>
 </Layout>
+
+<style>
+    .page-description {
+        color: color-mix(in srgb, var(--color-main) 70%, transparent);
+        margin-block: var(--sp-s) var(--sp-l);
+        font-size: 1rem;
+    }
+
+    .categories-container {
+        margin-block-start: var(--sp-m);
+    }
+
+    .categories-grid {
+        display: grid;
+        gap: var(--sp-m);
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .category-card {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1.25rem;
+        background: linear-gradient(
+            135deg,
+            color-mix(in srgb, var(--color-accent) 8%, transparent),
+            color-mix(in srgb, var(--color-accent) 15%, transparent)
+        );
+        border: 1px solid
+            color-mix(in srgb, var(--color-accent) 20%, transparent);
+        border-radius: 12px;
+        text-decoration: none;
+        color: var(--color-main);
+        transition: all 0.3s ease;
+    }
+
+    .category-card:hover {
+        background: linear-gradient(
+            135deg,
+            color-mix(in srgb, var(--color-theme) 15%, transparent),
+            color-mix(in srgb, var(--color-theme) 25%, transparent)
+        );
+        border-color: var(--color-theme);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px
+            color-mix(in srgb, var(--color-theme) 15%, transparent);
+    }
+
+    .category-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 48px;
+        height: 48px;
+        background: color-mix(in srgb, var(--color-theme) 15%, transparent);
+        border-radius: 12px;
+        flex-shrink: 0;
+    }
+
+    .category-icon .material-icons-sharp {
+        font-size: 1.5rem;
+        color: var(--color-theme);
+    }
+
+    .category-info {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .category-name {
+        font-weight: 600;
+        font-size: 1.05rem;
+        color: var(--color-main);
+    }
+
+    .category-count {
+        font-size: 0.85rem;
+        color: color-mix(in srgb, var(--color-main) 60%, transparent);
+    }
+
+    .category-arrow {
+        font-size: 1.25rem;
+        color: color-mix(in srgb, var(--color-main) 30%, transparent);
+        transition: all 0.3s ease;
+    }
+
+    .category-card:hover .category-arrow {
+        color: var(--color-theme);
+        transform: translateX(4px);
+    }
+
+    .no-categories {
+        text-align: center;
+        padding: var(--sp-xl);
+        color: color-mix(in srgb, var(--color-main) 50%, transparent);
+        font-size: 1.1rem;
+    }
+
+    @media (max-width: 600px) {
+        .categories-grid {
+            grid-template-columns: 1fr;
+            gap: var(--sp-s);
+        }
+
+        .category-card {
+            padding: 1rem;
+        }
+
+        .category-icon {
+            width: 42px;
+            height: 42px;
+        }
+
+        .category-name {
+            font-size: 1rem;
+        }
+    }
+</style>
