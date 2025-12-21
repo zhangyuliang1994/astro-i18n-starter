@@ -26,6 +26,24 @@ export interface FriendLink {
 
 export const FRIEND_LINKS: FriendLink[] = [
 	{
+		name: { en: "Yuikij's Blog", "zh-cn": "Yuikij's Blog" },
+		url: "https://blog.yuisama.top:8000/kibou/",
+		avatar: "https://blog.yuisama.top:8000/kibou/img/avatar.jpg",
+		description: {
+			en: "おとといはウサギお見たの、昨日は鹿、今日はあなた",
+			"zh-cn": "おとといはウサギお見たの、昨日は鹿、今日はあなた"
+		}
+	},
+	{
+		name: { en: "Jason Xu", "zh-cn": "Jason Xu" },
+		url: "https://www.xhjvyq.cn/",
+		avatar: "https://www.xhjvyq.cn/favicon.ico",
+		description: {
+			en: "欲买桂花同载酒，终不似，少年游。",
+			"zh-cn": "欲买桂花同载酒，终不似，少年游。"
+		}
+	},
+	{
 		name: { en: "Reading Notes", "zh-cn": "读书笔记" },
 		url: "https://zhangyuliang.notion.site/",
 		avatar: "https://www.notion.so/images/logo-ios.png",
@@ -35,48 +53,22 @@ export const FRIEND_LINKS: FriendLink[] = [
 		}
 	},
 	{
-		name: { en: "MDN Web Docs", "zh-cn": "MDN Web 文档" },
-		url: "https://developer.mozilla.org",
-		avatar: "https://developer.mozilla.org/apple-touch-icon.png",
+		name: { en: "Baoyu's Sharing", "zh-cn": "宝玉的分享" },
+		url: "https://baoyu.io/",
+		avatar: "https://baoyu.io/images/avatar.jpg",
 		description: {
-			en: "Resources for developers, by developers.",
-			"zh-cn": "为开发者提供的权威 Web 技术文档"
+			en: "Sharing on LLM, Prompt Engineering, Software Engineering and more.",
+			"zh-cn": "大语言模型、Prompt Engineering、软件工程、工程管理、前端等领域的分享"
 		}
 	},
 	{
-		name: { en: "GitHub", "zh-cn": "GitHub" },
-		url: "https://github.com",
-		avatar: "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png",
+		name: { en: "Ruan Yifeng", "zh-cn": "阮一峰的个人网站" },
+		url: "https://www.ruanyifeng.com/",
+		avatar: "https://www.ruanyifeng.com/favicon.ico",
 		description: {
-			en: "Where the world builds software.",
-			"zh-cn": "全球最大的代码托管平台"
-		}
-	},
-	{
-		name: { en: "DEV Community", "zh-cn": "DEV 社区" },
-		url: "https://dev.to",
-		avatar: "https://dev-to-uploads.s3.amazonaws.com/uploads/logos/resized_logo_UQww2soKuUsjaOGNB38o.png",
-		description: {
-			en: "A community of software developers.",
-			"zh-cn": "开发者交流社区"
-		}
-	},
-	{
-		name: { en: "Stack Overflow", "zh-cn": "Stack Overflow" },
-		url: "https://stackoverflow.com",
-		avatar: "https://cdn.sstatic.net/Sites/stackoverflow/Img/apple-touch-icon.png",
-		description: {
-			en: "Where developers learn, share, & build careers.",
-			"zh-cn": "开发者问答社区"
-		}
-	},
-	{
-		name: { en: "CSS-Tricks", "zh-cn": "CSS-Tricks" },
-		url: "https://css-tricks.com",
-		avatar: "https://css-tricks.com/apple-touch-icon.png",
-		description: {
-			en: "Tips, tricks, and techniques on using CSS.",
-			"zh-cn": "CSS 技巧和前端开发资源"
+			en: "Ruan Yifeng's Personal Website - Blog, Essays, and more.",
+			"zh-cn": "网络日志、文集、技术分享"
 		}
 	}
 ];
+
