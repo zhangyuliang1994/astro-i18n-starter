@@ -1,0 +1,290 @@
+---
+title: 'Mac 上的 Kafka 工具与 SpringWolf 接口文档'
+description: '介绍 Mac 上好用的 Kafka 连接工具，以及如何在 SpringBoot 项目中使用 SpringWolf 生成 AsyncAPI 文档'
+date: 2025-12-27
+tags: ["SpringBoot", "Kafka"]
+categories: ["技术分享"]
+---
+
+> 本文介绍 Mac 上常用的 Kafka 连接工具，以及如何在 SpringBoot 项目中集成 SpringWolf 来为异步消息接口生成文档。
+
+## 一、Mac 上的 Kafka 连接工具
+
+在 Mac 上管理和调试 Kafka 时，一个好用的 GUI 工具能大大提升效率。下面推荐几款常用的 Kafka 客户端工具：
+
+### 1.1 Offset Explorer (原 Kafka Tool)
+
+[Offset Explorer](https://www.kafkatool.com/) 是一款老牌的 Kafka GUI 工具，特点如下：
+
+- **免费使用**（个人版）
+- 支持查看 Topic、Partition、Consumer Group
+- 可以浏览消息内容
+- 支持多种序列化格式（String、JSON、Avro 等）
+
+**安装方式：**
+```bash
+# 直接从官网下载 DMG 安装包
+# https://www.kafkatool.com/download.html
+```
+
+### 1.2 Conduktor
+
+[Conduktor](https://www.conduktor.io/) 是一款功能强大的 Kafka Desktop 工具：
+
+- 现代化的 UI 设计
+- 支持 Schema Registry
+- 内置 SQL 查询功能
+- 支持 Kafka Connect 管理
+
+**安装方式：**
+```bash
+brew install --cask conduktor
+```
+
+### 1.3 AKHQ (原 KafkaHQ)
+
+[AKHQ](https://github.com/tchiotludo/akhq) 是一款开源的 Web UI 工具：
+
+- 完全开源免费
+- 基于 Web，跨平台
+- 支持多集群管理
+- 轻量级，Docker 部署简单
+
+**快速启动：**
+```bash
+docker run -d \
+  -p 8080:8080 \
+  -e AKHQ_CONFIGURATION="akhq.connections.docker-kafka-server.properties.bootstrap.servers=host.docker.internal:9092" \
+  tchiotludo/akhq
+```
+
+### 1.4 kcat (原 kafkacat)
+
+[kcat](https://github.com/edenhill/kcat) 是一款强大的命令行工具，适合喜欢 CLI 的开发者：
+
+**安装方式：**
+```bash
+brew install kcat
+```
+
+**常用命令：**
+```bash
+# 列出所有 Topic
+kcat -L -b localhost:9092
+
+# 消费消息
+kcat -C -b localhost:9092 -t my-topic
+
+# 生产消息
+echo "Hello Kafka" | kcat -P -b localhost:9092 -t my-topic
+```
+
+### 1.5 工具对比
+
+| 工具 | 类型 | 开源 | 价格 | 推荐场景 |
+|------|------|------|------|----------|
+| Offset Explorer | Desktop | 否 | 免费/付费 | 日常开发调试 |
+| Conduktor | Desktop | 否 | 免费/付费 | 企业级功能需求 |
+| AKHQ | Web | 是 | 免费 | 团队共享、Docker 环境 |
+| kcat | CLI | 是 | 免费 | 脚本自动化、快速调试 |
+
+---
+
+## 二、SpringBoot 集成 SpringWolf
+
+[SpringWolf](https://www.springwolf.dev/) 是一个为 Spring 项目自动生成 AsyncAPI 文档的工具，类似于 Swagger/OpenAPI 对于 REST API 的作用，但专门用于异步消息（如 Kafka、RabbitMQ 等）。
+
+### 2.1 为什么需要 SpringWolf？
+
+在微服务架构中，服务之间通过消息队列通信非常常见。但与 REST API 不同，异步消息接口往往缺乏文档化，导致：
+
+- 其他团队不清楚消息格式
+- 难以维护和调试
+- 缺乏统一的接口规范
+
+SpringWolf 通过自动扫描项目中的 Kafka 监听器，生成标准的 AsyncAPI 文档。
+
+### 2.2 添加依赖
+
+在 `pom.xml` 中添加 SpringWolf 依赖：
+
+```xml
+<dependency>
+    <groupId>io.github.springwolf</groupId>
+    <artifactId>springwolf-kafka</artifactId>
+    <version>1.8.0</version>
+</dependency>
+
+<!-- 可选：启用 UI -->
+<dependency>
+    <groupId>io.github.springwolf</groupId>
+    <artifactId>springwolf-ui</artifactId>
+    <version>1.8.0</version>
+</dependency>
+```
+
+如果使用 Gradle：
+
+```groovy
+implementation 'io.github.springwolf:springwolf-kafka:1.8.0'
+implementation 'io.github.springwolf:springwolf-ui:1.8.0'
+```
+
+### 2.3 配置 SpringWolf
+
+在 `application.yml` 中添加配置：
+
+```yaml
+springwolf:
+  docket:
+    info:
+      title: 订单服务 AsyncAPI 文档
+      version: 1.0.0
+      description: 订单服务的 Kafka 消息接口文档
+      contact:
+        name: 开发团队
+        email: dev@example.com
+    servers:
+      kafka:
+        protocol: kafka
+        host: localhost:9092
+    base-package: com.example.order
+```
+
+### 2.4 编写 Kafka 监听器
+
+使用 `@AsyncListener` 和 `@AsyncOperation` 注解为你的 Kafka 消费者添加文档：
+
+```java
+import io.github.springwolf.bindings.kafka.annotations.KafkaAsyncOperationBinding;
+import io.github.springwolf.core.asyncapi.annotations.AsyncListener;
+import io.github.springwolf.core.asyncapi.annotations.AsyncOperation;
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.stereotype.Service;
+
+@Service
+public class OrderConsumer {
+
+    @AsyncListener(
+        operation = @AsyncOperation(
+            channelName = "order-created",
+            description = "接收订单创建事件",
+            payloadType = OrderCreatedEvent.class
+        )
+    )
+    @KafkaAsyncOperationBinding(groupId = "order-service")
+    @KafkaListener(topics = "order-created", groupId = "order-service")
+    public void handleOrderCreated(OrderCreatedEvent event) {
+        // 处理订单创建事件
+        System.out.println("收到订单: " + event.getOrderId());
+    }
+}
+```
+
+### 2.5 定义消息体
+
+```java
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Data;
+
+@Data
+@Schema(description = "订单创建事件")
+public class OrderCreatedEvent {
+    
+    @Schema(description = "订单ID", example = "ORD-2024-001")
+    private String orderId;
+    
+    @Schema(description = "用户ID", example = "USER-123")
+    private String userId;
+    
+    @Schema(description = "订单金额", example = "99.99")
+    private double amount;
+    
+    @Schema(description = "创建时间", example = "2024-12-27T10:00:00Z")
+    private String createdAt;
+}
+```
+
+### 2.6 发布消息的文档
+
+对于生产者，使用 `@AsyncPublisher` 注解：
+
+```java
+import io.github.springwolf.core.asyncapi.annotations.AsyncPublisher;
+import io.github.springwolf.core.asyncapi.annotations.AsyncOperation;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.stereotype.Service;
+
+@Service
+public class OrderProducer {
+    
+    private final KafkaTemplate<String, Object> kafkaTemplate;
+    
+    public OrderProducer(KafkaTemplate<String, Object> kafkaTemplate) {
+        this.kafkaTemplate = kafkaTemplate;
+    }
+    
+    @AsyncPublisher(
+        operation = @AsyncOperation(
+            channelName = "order-shipped",
+            description = "发送订单发货事件"
+        )
+    )
+    public void sendOrderShipped(OrderShippedEvent event) {
+        kafkaTemplate.send("order-shipped", event);
+    }
+}
+```
+
+### 2.7 访问文档
+
+启动应用后，可以通过以下地址访问：
+
+- **AsyncAPI JSON**: `http://localhost:8080/springwolf/docs`
+- **UI 界面**: `http://localhost:8080/springwolf/asyncapi-ui.html`
+
+### 2.8 完整项目结构
+
+```
+src/main/java/com/example/order/
+├── OrderApplication.java
+├── config/
+│   └── KafkaConfig.java
+├── consumer/
+│   └── OrderConsumer.java
+├── producer/
+│   └── OrderProducer.java
+└── event/
+    ├── OrderCreatedEvent.java
+    └── OrderShippedEvent.java
+```
+
+---
+
+## 三、最佳实践
+
+### 3.1 消息命名规范
+
+- Topic 名称使用小写中划线：`order-created`, `payment-completed`
+- 事件类名使用过去分词：`OrderCreatedEvent`, `PaymentCompletedEvent`
+
+### 3.2 文档维护
+
+- 保持 `@Schema` 注解与实际字段一致
+- 定期检查 AsyncAPI 文档的准确性
+- 在 CI/CD 中集成文档导出
+
+### 3.3 版本管理
+
+- 使用版本号区分不同的消息格式
+- 向后兼容：新增字段可选，不删除已有字段
+
+---
+
+## 四、总结
+
+- **Mac Kafka 工具推荐**：日常开发用 Offset Explorer，团队协作用 AKHQ，命令行爱好者用 kcat
+- **SpringWolf 优势**：自动生成 AsyncAPI 文档，提供可视化 UI，与 Spring Kafka 无缝集成
+- **文档即代码**：通过注解方式维护文档，减少文档与代码不一致的问题
+
+希望这篇文章能帮助你在 Kafka 开发中更加高效！
