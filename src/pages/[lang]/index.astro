@@ -299,14 +299,17 @@ export const getStaticPaths = () =>
     background: #f8f9fa; /* Light grey bg */
     border-radius: 12px;
     text-decoration: none;
-    color: var(--color-text);
+    color: var(--color-main);
     transition:
       background 0.2s,
       transform 0.2s;
   }
 
-  :global(html.dark) .quick-link-card {
-    background: #1a1a1a; /* Dark bg for dark mode */
+  @media (prefers-color-scheme: dark) {
+    .quick-link-card {
+      background: #1a1a1a; /* Dark bg for dark mode */
+      color: #faf9f6; /* Light text for dark mode */
+    }
   }
 
   .quick-link-card:hover {
