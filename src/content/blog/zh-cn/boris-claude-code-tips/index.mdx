@@ -1,0 +1,200 @@
+---
+title: 'Claude Code 之父 Boris 分享的 AI 编程技巧'
+description: 'Claude Code 创始人 Boris 亲自分享他是如何使用 Claude Code 的，包括并行运行、Plan 模式、子代理等高级技巧'
+date: 2026-01-07
+tags: ["Claude Code", "AI", "效率工具"]
+categories: ["技术分享"]
+---
+
+> 我是 Boris，Claude Code 的创造者。很多人问我是如何使用 Claude Code 的，所以我想展示一下我的使用方式。
+
+我的设置可能出乎意料地简单！Claude Code 开箱即用就很棒，所以我个人并没有做太多自定义。使用 Claude Code 没有唯一正确的方式：我们特意将它设计成可以按照你喜欢的方式使用、自定义和修改。Claude Code 团队中的每个人使用方式都非常不同。
+
+下面是我的使用技巧：
+
+---
+
+## 1. 并行运行 5 个 Claude
+
+我在终端中并行运行 5 个 Claude。我将标签页编号为 1-5，并使用系统通知来知道何时需要输入。
+
+📖 [iTerm2 系统通知配置](https://code.claude.com/docs/en/terminal-config#iterm-2-system-notifications)
+
+---
+
+## 2. 本地 + Web 并行协作
+
+我还在 [claude.ai/code](https://claude.ai/code) 上并行运行 5-10 个 Claude，与本地 Claude 同时使用。
+
+![Web Sessions 列表](/images/blog/boris-claude-code-tips/cc-2.jpeg)
+
+在终端编码时，我经常会：
+- 使用 `&` 将本地会话交接到 Web
+- 在 Chrome 中手动启动会话
+- 使用 `--teleport` 在两者之间来回切换
+
+我每天早上和全天都会从手机（Claude iOS 应用）启动一些会话，稍后再检查它们的进度。
+
+---
+
+## 3. 始终使用 Opus 4.5 + Thinking
+
+我所有工作都使用 **Opus 4.5 with thinking**。这是我用过的最好的编码模型，尽管它比 Sonnet 更大更慢，但由于你需要更少的引导，而且它的工具使用能力更强，最终几乎总是比使用小模型更快。
+
+![深度思考模式](/images/blog/boris-claude-code-tips/cc-12.jpeg)
+
+---
+
+## 4. 团队共享 CLAUDE.md
+
+我们团队为 Claude Code 仓库共享一个 `CLAUDE.md` 文件。我们将它检入 git，整个团队每周都会贡献多次。
+
+![CLAUDE.md 示例](/images/blog/boris-claude-code-tips/cc-4.jpeg)
+
+**关键实践**：每当我们看到 Claude 做错事情时，我们就把它添加到 `CLAUDE.md`，这样 Claude 下次就知道不要这样做了。
+
+其他团队维护他们自己的 `CLAUDE.md`，每个团队负责保持他们的文件是最新的。
+
+---
+
+## 5. 代码审查中使用 @claude
+
+在代码审查时，我经常会在同事的 PR 上标记 `@claude`，让它将某些内容添加到 `CLAUDE.md` 中作为 PR 的一部分。
+
+![Claude 更新 CLAUDE.md](/images/blog/boris-claude-code-tips/cc-5.jpeg)
+
+我们使用 Claude Code GitHub Action（`/install-github-action`）来实现这一点。这是我们版本的 **复合工程**（Compounding Engineering）。
+
+---
+
+## 6. 大多数会话从 Plan 模式开始
+
+大多数会话从 **Plan 模式**开始（`Shift + Tab` 按两次）。
+
+![Plan 模式](/images/blog/boris-claude-code-tips/cc-6.png)
+
+如果我的目标是写一个 Pull Request，我会：
+1. 使用 Plan 模式
+2. 与 Claude 来回讨论直到我满意它的计划
+3. 然后切换到自动接受编辑模式
+4. Claude 通常可以一次性完成
+
+![自动编辑模式](/images/blog/boris-claude-code-tips/cc-1.jpeg)
+
+**一个好的计划真的很重要！**
+
+---
+
+## 7. 使用斜杠命令处理重复工作流
+
+我为每天执行多次的"内循环"工作流使用斜杠命令。这避免了重复提示，也让 Claude 可以使用这些工作流。
+
+命令被检入 git，放在 `.claude/commands/` 目录下。
+
+![斜杠命令示例](/images/blog/boris-claude-code-tips/cc-7.jpeg)
+
+**示例**：Claude 和我每天使用 `/commit-push-pr` 斜杠命令数十次。该命令使用内联 bash 来预计算 git status 和其他信息，使命令运行更快，避免与模型来回交互。
+
+📖 [Bash 命令执行](https://code.claude.com/docs/en/slash-commands#bash-command-execution)
+
+---
+
+## 8. 定期使用子代理
+
+我定期使用一些子代理（Subagents）：
+
+| 子代理 | 用途 |
+|--------|------|
+| `code-simplifier` | 在 Claude 完成工作后简化代码 |
+| `verify-app` | 包含端到端测试 Claude Code 的详细说明 |
+
+![Agents 目录结构](/images/blog/boris-claude-code-tips/cc-8.png)
+
+类似于斜杠命令，我将子代理视为自动化大多数 PR 中最常见的工作流。
+
+📖 [子代理文档](https://code.claude.com/docs/en/sub-agents)
+
+---
+
+## 9. 使用 PostToolUse Hook 格式化代码
+
+我们使用 **PostToolUse Hook** 来格式化 Claude 的代码。
+
+![Hooks 配置示例](/images/blog/boris-claude-code-tips/cc-9.jpeg)
+
+Claude 通常开箱即用就能生成格式良好的代码，Hook 处理最后 10%，以避免后续 CI 中的格式化错误。
+
+---
+
+## 10. 预授权常用命令而非跳过权限
+
+我不使用 `--dangerously-skip-permissions`。相反，我使用 `/permissions` 来预先允许我知道在我的环境中是安全的常用 bash 命令，以避免不必要的权限提示。
+
+![权限配置界面](/images/blog/boris-claude-code-tips/cc-10.jpeg)
+
+这些大多被检入 `.claude/settings.json` 并与团队共享。
+
+---
+
+## 11. Claude Code 使用我所有的工具
+
+Claude Code 为我使用所有工具：
+
+- 通过 MCP 服务器搜索和发布到 **Slack**
+- 运行 **BigQuery** 查询来回答分析问题（使用 bq CLI）
+- 从 **Sentry** 获取错误日志
+- 等等...
+
+![MCP 配置示例](/images/blog/boris-claude-code-tips/cc-11.jpeg)
+
+Slack MCP 配置被检入我们的 `.mcp.json` 并与团队共享。
+
+---
+
+## 12. 处理长时间运行的任务
+
+对于非常长时间运行的任务，我会：
+
+1. 提示 Claude 在完成后用后台代理验证其工作
+2. 使用 **Agent Stop Hook** 更确定性地做到这一点
+3. 使用 [ralph-wiggum 插件](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/ralph-wiggum)
+
+我还会使用 `--permission-mode=dontAsk` 或 `--dangerously-skip-permissions`（在沙箱中）来避免会话中的权限提示，这样 Claude 可以在不被我阻塞的情况下持续工作。
+
+📖 [Hooks 指南](https://code.claude.com/docs/en/hooks-guide)
+
+---
+
+## 13. 最重要的技巧：给 Claude 验证工作的方式
+
+可能从 Claude Code 获得出色结果最重要的事情是——**给 Claude 一种验证其工作的方式**。
+
+如果 Claude 有这个反馈循环，它将使最终结果的质量提高 **2-3 倍**。
+
+Claude 使用 Chrome 扩展测试我提交到 claude.ai/code 的每一个更改。它打开浏览器，测试 UI，并迭代直到代码工作且用户体验良好。
+
+**验证对于每个领域看起来都不同**：
+- 可能简单到运行一个 bash 命令
+- 或运行测试套件
+- 或在浏览器或手机模拟器中测试应用
+
+确保投资使验证机制非常可靠。
+
+📖 [Chrome 扩展](https://code.claude.com/docs/en/chrome)
+
+---
+
+## 总结
+
+| 技巧 | 说明 |
+|------|------|
+| 并行运行 | 终端 5 个 + Web 5-10 个 Claude |
+| 使用最强模型 | Opus 4.5 with thinking |
+| 团队协作 | 共享 CLAUDE.md，持续更新 |
+| Plan 模式 | 先规划，再执行 |
+| 斜杠命令 | 自动化重复工作流 |
+| 子代理 | 自动化常见任务 |
+| Hooks | 自动格式化代码 |
+| 验证机制 | 给 Claude 反馈循环 |
+
+希望这些技巧对你有帮助！你有什么使用 Claude Code 的技巧？
