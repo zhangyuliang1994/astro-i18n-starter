@@ -1,0 +1,220 @@
+---
+title: 'Claude Code Tips & Tricks'
+description: 'A comprehensive guide to Claude Code commands, shortcuts, and advanced techniques to boost your AI programming efficiency'
+date: 2026-01-07
+tags: ["Claude Code", "AI", "Productivity"]
+categories: ["Tech Sharing"]
+---
+
+> This article covers common commands, shortcuts, and advanced techniques for Claude Code to help you use this AI programming assistant more efficiently.
+
+## 1. Common Commands
+
+### 1.1 Basic Commands
+
+```bash
+# Help command
+claude --help
+
+# Check version
+claude --version
+```
+
+### 1.2 MCP Related
+
+```bash
+# List MCP
+claude mcp list
+
+# MCP help
+claude mcp --help
+```
+
+### 1.3 Configuration Related
+
+```bash
+# Config help
+claude config --help
+
+# List configurations
+claude config list
+```
+
+### 1.4 Session Commands
+
+| Command | Description | Use Case |
+|---------|-------------|----------|
+| `/clear` | Clear context | When you need to start fresh, or feel the AI can no longer solve the problem |
+| `/compact` | Compress conversation | Restart conversation without losing previous memory |
+| `/cost` | Show costs | Max users don't need this, API users can check their usage |
+| `/login` `/logout` | Login/Logout | Switch accounts etc. |
+| `/model` | Switch model | $200 tier can switch to Opus model, $100 tier has no choice |
+| `/status` | Status | Check current CC status |
+| `/doctor` | Diagnose | Check CC installation status |
+
+---
+
+## 2. Auto-Edit Mode
+
+**Use Case**: When you don't want to confirm every file creation
+
+**How to Use**: Press `Shift + Tab` once to enter this mode
+
+---
+
+## 3. Specify Files
+
+**Use Case**: When you need to operate on a specific file
+
+**How to Use**: Use the `@` symbol to specify files directly
+
+---
+
+## 4. Deep Thinking
+
+**Use Case**: When facing difficult problems, planning solutions, refactoring code, or solving complex bugs
+
+**How to Use**: Use keywords like `ultrathink` or `think deeply` in your prompts
+
+---
+
+## 5. Plan Mode
+
+**Use Case**: When planning projects in early stages or solving complex issues
+
+**How to Use**: Press `Shift + Tab` twice to see this option
+
+It will ask if you want to continue:
+- If unsatisfied, choose **No** and continue explaining your requirements
+- If it looks good, choose **Yes** and it will start working
+
+---
+
+## 6. Paste Images
+
+**Use Case**: When adjusting page structure or troubleshooting errors
+
+**How to Use**:
+- On Mac, use `Command + V` to paste images directly
+- You can also drag and drop image files into the terminal
+
+---
+
+## 7. YOLO Mode
+
+**Use Case**: Refactoring code, new projects, or fixing bugs
+
+**How to Use**:
+
+```bash
+claude --dangerously-skip-permissions
+```
+
+> 💡 After entering this mode, you can still adjust it using the `Shift + Tab` shortcut
+
+---
+
+## 8. Memory Files
+
+### 8.1 Global Memory File
+
+**Location**: `~/.claude/CLAUDE.md`
+
+### 8.2 Project Memory File
+
+**Location**: `CLAUDE.md` file in your project directory
+
+> 💡 For existing projects with code, it's recommended to use the `/init` command to auto-generate
+
+---
+
+## 9. Use Previous Message Prompts
+
+**Use Case**: When you want to restore a previous conversation
+
+**How to Use**: Press `Esc` twice
+
+---
+
+## 10. How to Restore Code
+
+**Use Case**: When you regret the code changes and want to revert
+
+**How to Use**:
+- Directly ask Claude Code to roll back to the previous version
+- Or use Git to revert versions
+
+---
+
+## 11. Resume Conversation / View Chat History
+
+**How to Use**:
+
+```bash
+# Use /resume command
+/resume
+
+# Or use these flags
+claude -c  # Continue last conversation
+claude -r  # Resume conversation
+```
+
+---
+
+## 12. Execute Terminal Commands
+
+**Use Case**: Check current directory or execute special commands
+
+**How to Use**: Use `!` (exclamation mark) to enter command mode
+
+```bash
+# Check current directory
+! pwd
+
+# List files
+! ll
+```
+
+---
+
+## 13. Monitor Usage
+
+```bash
+# Check usage
+npx ccusage@latest
+
+# Real-time usage monitoring
+npx ccusage@latest blocks --live
+```
+
+---
+
+## 14. Background Service
+
+**Use Case**: When completing features, Claude Code usually starts a service for accessing interfaces or UI. Without background service capability, Claude Code stays stuck on the service startup screen, preventing other conversation needs.
+
+**How to Use**: `Ctrl + B`
+
+---
+
+## 15. Other Shortcuts
+
+| Shortcut | Function |
+|----------|----------|
+| `Ctrl + J` | New line |
+| `Ctrl + B` | Background service |
+| `Shift + Tab` | Switch modes (once for auto-edit, twice for Plan mode) |
+| `Esc` × 2 | Use previous message prompts |
+
+---
+
+## Summary
+
+Mastering these Claude Code techniques can significantly boost your AI programming efficiency:
+
+- **Basic Commands**: Familiarize yourself with `/clear`, `/compact`, `/status`, etc.
+- **Shortcuts**: Make good use of `Shift + Tab`, `Ctrl + B`, etc.
+- **Advanced Features**: Utilize YOLO mode, deep thinking, Plan mode
+- **Memory Files**: Properly configure global and project-level `CLAUDE.md`
+
+Hope this article helps you use Claude Code more effectively!
