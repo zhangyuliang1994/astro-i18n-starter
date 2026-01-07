@@ -30,6 +30,10 @@ claude mcp list
 claude mcp --help
 ```
 
+MCP configuration file example (`.mcp.json`):
+
+![MCP Configuration Example](/images/blog/claude-code-tips/cc-11.jpeg)
+
 ### 1.3 Configuration Related
 
 ```bash
@@ -39,6 +43,10 @@ claude config --help
 # List configurations
 claude config list
 ```
+
+Permissions configuration interface (`/permissions`):
+
+![Permissions Configuration Interface](/images/blog/claude-code-tips/cc-10.jpeg)
 
 ### 1.4 Session Commands
 
@@ -52,6 +60,10 @@ claude config list
 | `/status` | Status | Check current CC status |
 | `/doctor` | Diagnose | Check CC installation status |
 
+Slash command example:
+
+![Slash Command Example](/images/blog/claude-code-tips/cc-7.jpeg)
+
 ---
 
 ## 2. Auto-Edit Mode
@@ -59,6 +71,8 @@ claude config list
 **Use Case**: When you don't want to confirm every file creation
 
 **How to Use**: Press `Shift + Tab` once to enter this mode
+
+![Auto-Edit Mode](/images/blog/claude-code-tips/cc-1.jpeg)
 
 ---
 
@@ -76,6 +90,8 @@ claude config list
 
 **How to Use**: Use keywords like `ultrathink` or `think deeply` in your prompts
 
+![Deep Thinking Mode](/images/blog/claude-code-tips/cc-12.jpeg)
+
 ---
 
 ## 5. Plan Mode
@@ -83,6 +99,8 @@ claude config list
 **Use Case**: When planning projects in early stages or solving complex issues
 
 **How to Use**: Press `Shift + Tab` twice to see this option
+
+![Plan Mode](/images/blog/claude-code-tips/cc-6.png)
 
 It will ask if you want to continue:
 - If unsatisfied, choose **No** and continue explaining your requirements
@@ -124,7 +142,25 @@ claude --dangerously-skip-permissions
 
 **Location**: `CLAUDE.md` file in your project directory
 
+![CLAUDE.md Example](/images/blog/claude-code-tips/cc-4.jpeg)
+
 > 💡 For existing projects with code, it's recommended to use the `/init` command to auto-generate
+
+Claude will automatically adjust its behavior based on the CLAUDE.md content:
+
+![Claude Updating CLAUDE.md](/images/blog/claude-code-tips/cc-5.jpeg)
+
+### 8.3 Agents Configuration
+
+You can also configure multiple agents in the `.claude/agents` directory:
+
+![Agents Directory Structure](/images/blog/claude-code-tips/cc-8.png)
+
+### 8.4 Hooks Configuration
+
+You can configure hooks to automatically execute commands:
+
+![Hooks Configuration Example](/images/blog/claude-code-tips/cc-9.jpeg)
 
 ---
 
@@ -158,6 +194,10 @@ claude --dangerously-skip-permissions
 claude -c  # Continue last conversation
 claude -r  # Resume conversation
 ```
+
+You can also view historical sessions in the web interface:
+
+![Sessions List](/images/blog/claude-code-tips/cc-2.jpeg)
 
 ---
 
