@@ -5,7 +5,8 @@ import { Image } from "astro:assets";
 import { getCollection } from "astro:content";
 import PageHeadline from "@/components/PageHeadline.astro";
 
-const locale = Astro.currentLocale as Lang;
+// 使用路由参数中的 lang，而不是 Astro.currentLocale，避免某些环境下语言不一致导致文章被过滤掉
+const locale = Astro.params.lang as Lang;
 const t = useTranslations(locale);
 
 const posts = (await getCollection("blog"))

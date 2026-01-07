@@ -1,0 +1,139 @@
+---
+title: "Java 通过 SSH 连接路由器，输入命令并读取响应"
+description: "使用 mwiede/jsch 在 Java 中通过 SSH 连接华为路由器，发送命令并读取响应的完整示例。"
+date: 2024-02-20
+tags: ["Java", "SSH", "网络设备"]
+categories: ["Java"]
+---
+
+> 最近需要读取和修改华为路由器的配置，使用 Java 语言开发，通过 SSH 连接，输入命令并读取响应。
+
+### 1. 添加 `mwiede/jsch` 依赖
+
+如果使用 Maven，可以在 `pom.xml` 文件中添加以下依赖：
+
+```xml
+<dependencies>
+    <dependency>
+        <groupId>com.github.mwiede</groupId>
+        <artifactId>jsch</artifactId>
+        <version>0.2.15</version>
+    </dependency>
+</dependencies>
+```
+
+如果使用 Gradle，则添加到 `build.gradle` 文件：
+
+```groovy
+dependencies {
+    implementation 'com.github.mwiede:jsch:0.2.15'
+}
+```
+
+### 2. 使用 `JSch` 创建 SSH 连接，输入命令并返回响应
+
+```java
+/**
+ * 获取 SSH 命令响应
+ * @param userName    用户名
+ * @param password    密码
+ * @param host        IP 地址
+ * @param port        端口
+ * @param commandList 命令列表
+ */
+public String getShellCmdRes(String userName, String password, String host, Integer port, List<String> commandList)
+        throws JSchException, IOException {
+    StringBuilder stringBuilder = new StringBuilder();
+    JSch jsch = new JSch();
+    Session session = jsch.getSession(userName, host, port);
+    session.setPassword(password);
+    session.setConfig("StrictHostKeyChecking", "no");
+    session.connect();
+
+    ChannelShell channel = (ChannelShell) session.openChannel("shell");
+
+    // 获取输入输出流
+    OutputStream inputStreamForTheChannel = channel.getOutputStream();
+    InputStream outputStreamForTheChannel = channel.getInputStream();
+
+    // 连接通道
+    channel.connect();
+
+    PrintStream commander = new PrintStream(inputStreamForTheChannel, true);
+
+    byte[] tmp = new byte[1024];
+    while (true) {
+        while (outputStreamForTheChannel.available() > 0) {
+            int i = outputStreamForTheChannel.read(tmp, 0, 1024);
+            if (i < 0) {
+                break;
+            }
+            String output = new String(tmp, 0, i);
+            // 读取响应
+            stringBuilder.append(output);
+            stringBuilder.append(System.lineSeparator());
+            // 发送命令
+            commandList.forEach(commander::println);
+        }
+        if (channel.isClosed()) {
+            if (outputStreamForTheChannel.available() > 0) {
+                continue;
+            }
+            break;
+        }
+        try {
+            Thread.sleep(10);
+        } catch (Exception ignored) {
+        }
+    }
+
+    // 关闭通道和会话
+    channel.disconnect();
+    session.disconnect();
+    return stringBuilder.toString();
+}
+```
+
+### 3. 调用上文方法
+
+#### 3.1 单条命令
+
+记得结束时加入退出语句，这里以路由器为例，用 `quit` 退出：
+
+```java
+List<String> commandList = new ArrayList<>();
+// 查看
+commandList.add("display bfd session all");
+// 退出会话
+commandList.add("quit");
+// 获取响应
+String response = getShellCmdRes("admin", "admin", "1.1.1.1", 22, commandList);
+```
+
+![单条命令示意](/images/blog/java-ssh-router-commands/java-ssh-single.jpg)
+
+#### 3.2 多条命令
+
+如果是多条命令，每进入一个会话，就多一个退出语句：
+
+```java
+List<String> commandList = new ArrayList<>();
+// 进入 system-view
+commandList.add("system-view");
+// 进入 Tunnel 0/0/5
+commandList.add("interface Tunnel 0/0/5");
+// 查看信息
+commandList.add("display this");
+// 退出 Tunnel 0/0/5
+commandList.add("quit");
+// 退出 system-view
+commandList.add("quit");
+// 退出会话
+commandList.add("quit");
+// 获取响应
+String response = getShellCmdRes("admin", "admin", "1.1.1.1", 22, commandList);
+```
+
+![多条命令示意](/images/blog/java-ssh-router-commands/java-ssh-multi.jpg)
+
+
