@@ -1,0 +1,108 @@
+---
+title: "Ubuntu 安装翻墙软件"
+description: "介绍在 Ubuntu 系统上安装 v2ray 和 v2rayA 的详细步骤，包括内核安装、GUI 界面配置和透明代理设置。"
+date: 2024-11-29
+tags: ["linux"]
+categories: ["工具"]
+---
+
+### 一、安装背景
+
+最近在云服务器上安装了 Jenkins，需要从 Github 拉取代码。但是经常会出现超时，于是便有了安装代理的想法。
+
+上网搜索一通后选择了 `v2ray`，毕竟 Windows 上用过类似产品。
+
+### 二、安装步骤
+
+#### 2.1 安装 V2ray 内核
+
+```shell
+curl -Ls https://mirrors.v2raya.org/go.sh | sudo bash
+```
+
+#### 2.2 安装 V2rayA
+
+1. 添加公钥
+
+```shell
+wget -qO - https://apt.v2raya.org/key/public-key.asc | sudo tee /etc/apt/trusted.gpg.d/v2raya.asc   #添加公钥
+```
+
+```shell
+echo "deb https://apt.v2raya.org/ v2raya main" | sudo tee /etc/apt/sources.list.d/v2raya.list    #添加v2rayA软件源
+sudo apt update    #更新软件源
+```
+
+2. 安装 v2rayA
+
+```shell
+sudo apt install v2raya
+```
+
+3. 启动 v2rayA
+
+```shell
+sudo systemctl start v2raya.service
+```
+
+参考文章到这里就安装完成了，但是我的打开页面却报错——检测到 geosite.dat, geoip.dat 文件或 v2ray-core 可能未正确安装，需要下载安装 v2ray / xray core，我选择安装 v2ray。
+
+4. 安装 v2ray
+
+```shell
+wget https://github.com/v2fly/v2ray-core/releases/latest/download/v2ray-linux-64.zip 
+
+unzip v2ray-linux-64.zip -d ./v2ray 
+
+sudo mkdir -p /usr/local/share/v2ray 
+
+sudo cp ./v2ray/*dat /usr/local/share/v2ray 
+
+sudo install -Dm755 ./v2ray/v2ray /usr/local/bin/v2ray
+```
+
+## 三、GUI 界面配置
+
+通过 2017 端口进入 web 管理界面
+
+[http://localhost:2017](http://localhost:2017/)
+
+如果无法访问请检查服务是否启动！
+
+![v2rayA 管理界面](/images/blog/ubuntu-install-v2ray/v2raya-admin-interface.png)
+
+第一次进入创建一个管理员账号和密码。后续重置可以通过命令：
+
+```shell
+sudo v2raya --reset-password  #重置密码
+```
+
+第一次进入之后导入你的订阅链接，或是输入自己部署的节点！
+
+导入之后点击更新，之后切换标签至你的节点处查看你的全部节点情况
+
+![节点列表](/images/blog/ubuntu-install-v2ray/node-list.png)
+
+在未启动服务时，连接的节点呈现柚红色。我们在左上角点击相应按钮启动服务。
+
+选择一个或多个节点连接。这里不建议选择过多的节点，4 个以内为佳。之后启动服务！启动之后启动的节点呈现蓝色，左上角的图标也显示为蓝色的正在运行。启动成功。
+
+![服务启动](/images/blog/ubuntu-install-v2ray/service-running.png)
+
+配置代理
+
+默认情况下 v2rayA 会通过核心开放 20170(socks5), 20171(http), 20172(带分流规则的http) 端口。
+
+![代理配置](/images/blog/ubuntu-install-v2ray/proxy-config.png)
+
+这种方法是 v2rayA 推荐的方法。它相比于其他方法具有诸多优势，v2rayA 可以一键开启透明代理，为所有程序提供代理服务。
+
+在设置中选择透明代理的分流方式，以及实现方式，然后保存即可。
+
+注意，如需选择 GFWList，需要下载对应的规则库，请点击右上角的更新以完成下载。
+
+## 四、参考链接
+
+- 参考一：https://github.com/ningmoon/v2ray
+- 参考二：https://aisikao.ren/22633/
+

@@ -1,0 +1,71 @@
+---
+title: "自定义校验注解"
+description: "介绍如何自定义校验注解，实现对 BigDecimal 类型的范围校验，包括注解定义、校验器实现和使用示例。"
+date: 2024-05-11
+tags: ["java", "spring"]
+categories: ["spring"]
+---
+
+### 一、背景
+
+近期在用 `javax.validation` 做校验的时候发现没有对 `BigDecimal` 类型进行校验的注解，便自己动手写了一个。
+
+### 二、定义注解及校验类
+
+#### 2.1 注解类
+
+```java
+@Documented
+@Constraint(validatedBy = BigDecimalRangeValidator.class)
+@Target(ElementType.FIELD)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface BigDecimalRange {
+    double min() default Double.MIN_VALUE;
+
+    double max() default Double.MAX_VALUE;
+
+    String message() default "Validation failed";
+
+    Class<?>[] groups() default {};
+
+    Class<? extends Payload>[] payload() default {};
+}
+```
+
+#### 2.2 校验类
+
+```java
+public class BigDecimalRangeValidator implements ConstraintValidator<BigDecimalRange, BigDecimal> {
+
+    private BigDecimal minValue;
+    private BigDecimal maxValue;
+
+    @Override
+    public void initialize(BigDecimalRange constraintAnnotation) {
+        minValue = new BigDecimal(constraintAnnotation.min());
+        maxValue = new BigDecimal(constraintAnnotation.max());
+    }
+
+    @Override
+    public boolean isValid(BigDecimal value, ConstraintValidatorContext constraintValidatorContext) {
+        if (value == null) {
+            return true;
+        }
+        return value.compareTo(minValue) >= 0 && value.compareTo(maxValue) <= 0;
+    }
+}
+```
+
+### 三、使用注解
+
+```java
+public class Example {
+
+    /**
+     * 测试字段
+     */
+    @BigDecimalRange(min = 0.1, max = 9.9, message = "测试字段的范围为0.1~9.9")
+    private BigDecimal testValue;
+}
+```
+

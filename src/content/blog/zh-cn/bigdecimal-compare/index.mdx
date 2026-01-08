@@ -1,0 +1,29 @@
+---
+title: "BigDecimal 比较大小"
+description: "介绍 Java 中 BigDecimal 类的大小和相等判断方法，使用 compareTo 进行精确比较。"
+date: 2024-02-22
+tags: ["Java"]
+categories: ["Java"]
+---
+
+> 这个类是 Java 里精确计算的类，下面说一下 BigDecimal 大小、相等的判断。
+
+```java
+BigDecimal a = new BigDecimal(1.0);
+BigDecimal b = BigDecimal.valueOf(1.000);
+```
+
+### 一、比较方法
+
+```java
+int result = a.compareTo(b);
+```
+
+### 二、比较结果
+
+- `-1` 小于
+- `0` 等于
+- `1` 大于
+
+> 判断时以大于 0、小于 0、等于 0 为条件。
+

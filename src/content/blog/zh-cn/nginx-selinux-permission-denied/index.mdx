@@ -1,0 +1,44 @@
+---
+title: "解决 Nginx 的 failed 13 Permission denied while connecting to upstream"
+description: "解决 Nginx 反向代理时遇到的 SELinux 权限问题，提供关闭 SELinux 限制和设置 httpd_can_network_connect 的解决方案。"
+date: 2024-02-20
+tags: ["nginx"]
+categories: ["nginx"]
+---
+
+### 一、问题
+
+最近在用 nginx 做反向代理的时候遇到这样一个问题：
+
+```shell
+2024/02/19 17:15:32 [crit] 3025#3025: *2 connect() to 127.0.0.1:19010 failed (13: Permission denied) while connecting to upstream, client: 10.64.68.30, server: , request: "POST /opticTransceiver/addDeviceList HTTP/1.1", upstream: "http://127.0.0.1:19010/opticTransceiver/addDeviceList", host: "localhost:8080", referrer: "http://localhost:8080/device-connect"
+```
+
+### 二、原因
+
+是因为 SELinux 的限制。
+
+### 三、解决
+
+#### 1. 关闭 SELinux 的限制
+
+##### 1) 临时关闭（不用重启机器）
+
+```shell
+setenforce 0 ##设置SELinux 成为permissive模式
+```
+
+##### 2) 修改配置文件（需要重启机器）
+
+修改 `/etc/selinux/config` 文件
+
+将 `SELINUX=enforcing` 改为 `SELINUX=disabled`
+
+重启机器即可
+
+#### 2. 执行下面的命令
+
+```shell
+setsebool -P httpd_can_network_connect 1
+```
+

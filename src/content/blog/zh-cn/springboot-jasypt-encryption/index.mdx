@@ -1,0 +1,75 @@
+---
+title: "springboot 使用 jasypt 加密解密"
+description: "介绍如何在 Spring Boot 项目中使用 jasypt 对敏感配置（如数据库密码）进行加密和解密，包括依赖引入、配置文件和加密解密方法。"
+date: 2024-05-26
+tags: ["springboot"]
+categories: ["spring"]
+---
+
+> 项目上有些配置需要加密，比如数据库的密码，jasypt 可以实现加密解密功能。
+
+### 一、引入依赖
+
+```xml
+<dependency>
+    <groupId>com.github.ulisesbocchio</groupId>
+    <artifactId>jasypt-spring-boot-starter</artifactId>
+    <version>3.0.5</version>
+</dependency>
+```
+
+### 二、配置文件
+
+#### 加密前
+
+```yml
+spring:
+  datasource:
+    password: 123456
+```
+
+#### 加密后
+
+```yml
+spring:
+  datasource:
+    password: ENC(slZULLmbudl1M6/43iq6y8100XQ4DlqnxtToLxtUODxqlsCm02M2ujbx6ayy4j92)
+```
+
+### 三、加密
+
+这里以 AES256 为例
+
+```java
+// 指定算法
+AES256TextEncryptor textEncryptor = new AES256TextEncryptor();
+// 指定秘钥
+textEncryptor.setPassword("test");
+// 生成加密数据
+String encrypt = textEncryptor.encrypt("123456");
+System.out.println(encrypt);
+// slZULLmbudl1M6/43iq6y8100XQ4DlqnxtToLxtUODxqlsCm02M2ujbx6ayy4j92
+```
+
+### 四、解密
+
+#### 4.1 IDE 设置
+
+vm options 加入如下代码:
+
+```shell
+-Djasypt.encryptor.password=test
+```
+
+![IDEA 配置 jasypt](/images/blog/springboot-jasypt-encryption/jasypt-idea-config.png)
+
+#### 4.2 运行
+
+```shell
+java -jar -Djasypt.encryptor.password=test xxx.jar
+```
+
+#### 4.3 测试类
+
+对于需要单元测试的类，只要在类上加 `@Import(EnableEncryptableProperties.class)` 注解即可
+

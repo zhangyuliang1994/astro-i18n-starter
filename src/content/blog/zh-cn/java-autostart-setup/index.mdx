@@ -1,0 +1,87 @@
+---
+title: "Java 程序设置为开机自启"
+description: "介绍如何在 Windows 和 Linux 系统上将 Java 程序设置为开机自启动，包括 WinSW 工具配置和 systemd 服务配置。"
+date: 2024-07-06
+tags: ["java"]
+categories: ["开发相关"]
+---
+
+### 一、Windows
+
+使用 WinSW 工具，下载地址：https://github.com/winsw/winsw/releases
+
+#### 1.1 新建一个文件夹目录，命名随意，这个文件夹下放你的 jar 包和下载的 WinSW.exe 工具
+
+将 WinSW.exe 改名为 myJava-service.exe
+
+#### 1.2 新建一个 xml 配置文件
+
+```xml
+<service>
+  <id>myJava</id>
+  <name>myJava</name>
+  <description>This service runs myJava continuous integration system.</description>
+  <executable>java</executable>
+  <arguments>-Xrs -Xmx256m -jar "%BASE%\jenkins.jar"</arguments>
+</service>
+```
+
+保存配置文件，文件名与步骤一的名称一致，myJava-service.xml
+
+#### 1.3 安装服务
+
+cmd 到当前目录下，执行 `myJava-service.exe install`
+
+如果命令行窗口显示提示类似 successfully 表示安装成功
+
+此时打开 `服务`，便能看到名为 `myJava` 的后台服务，启动类型为 `自动`，默认开机自启。
+
+### 二、Linux
+
+#### 2.1 创建服务文件
+
+```shell
+cd /etc/systemd/system
+touch myapp.service
+```
+
+#### 2.2 配置服务文件
+
+vi /etc/systemd/system/myapp.service
+
+```shell
+[Unit]
+Description=My Spring Boot Application
+After=syslog.target
+[Service]
+User=your-username
+ExecStart=/usr/bin/java -jar /path/to/your/application.jar
+SuccessExitStatus=143
+[Install]
+WantedBy=multi-user.target
+```
+
+保存并关闭文件。确保替换 "your-username" 和 "/path/to/your/application.jar" 为实际的用户名和应用程序路径。
+
+#### 2.3 安装服务
+
+重新加载 Systemd 配置文件，以便它可以识别新的服务文件：
+
+```shell
+sudo systemctl daemon-reload
+```
+
+启动服务并将其设置为自动启动：
+
+```shell
+sudo systemctl start myapp.service
+sudo systemctl enable myapp.service
+```
+
+可以使用以下命令来停止或重启服务：
+
+```shell
+sudo systemctl stop myapp.service
+sudo systemctl restart myapp.service
+```
+

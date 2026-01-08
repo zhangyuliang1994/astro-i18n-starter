@@ -1,0 +1,84 @@
+---
+title: "hexo 常用语法与命令"
+description: "总结 Hexo 博客框架的常用命令和语法，包括新建文章、站内链接、置顶和折叠内容等。"
+date: 2024-06-05
+tags: ["hexo"]
+categories: ["建站相关"]
+---
+
+### 一、常用指令
+
+#### 1.1 新建文章
+
+```shell
+hexo new [layout] <title>
+```
+
+e.g
+
+```shell
+hexo new "post title with whitespace"
+```
+
+#### 1.2 在子目录下创建文章
+
+默认新建的文件都在 `_posts` 目录下，文章多了，不方便查找，可以在 `_posts` 目录下建立一个目录，如 `dir`，那么就可以使用如下命令在 `_posts/dir` 目录下新建文章
+
+```shell
+hexo new -p dir/test -s "test" "测试"
+# test是文章名称
+# 测试是文章标题
+
+# -p, --path	自定义新文章的路径
+# -s, --slug	文章的 Slug，作为新文章的文件名和发布后的 URL
+```
+
+### 二、常用语法
+
+#### 2.1 站内文章跳转方法
+
+```text
+{% post_link 文章标题 %}
+```
+
+e.g
+
+```text
+{% post_link nginx常用命令 %}
+```
+
+> **注意**：`{% post_link %}` 是 Hexo 特有的标签语法，在 Astro/MDX 中需要使用 Markdown 链接语法，例如：`[nginx常用命令](/zh-cn/blog/nginx-common-commands/)`
+
+#### 2.2 单篇文章置顶
+
+```yaml
+sticky: 1
+```
+
+> **注意**：`sticky` 是 Hexo 的 frontmatter 字段，在 Astro 中可以通过自定义字段实现类似功能。
+
+#### 2.3 折叠内容
+
+Hexo 中使用 `<details>` 标签实现折叠：
+
+```html
+<details><summary>缩略内容</summary>
+
+(上面空一行)这里是想要展开的实际内容。
+</details>
+```
+
+或者使用 `{% spoiler %}` 标签：
+
+```text
+{% spoiler Answer %}
+参考答案
+{% endspoiler %}
+
+{% spoiler "Several spaces in the title" %}
+content
+{% endspoiler %}
+```
+
+> **注意**：`{% spoiler %}` 是 Hexo 特有的标签语法，在 Astro/MDX 中可以使用 HTML `<details>` 标签实现相同的折叠效果。
+

@@ -1,0 +1,82 @@
+---
+title: "使用 liquibase 管理数据库变更"
+description: "介绍如何在 Spring Boot 项目中使用 Liquibase 管理数据库变更，包括依赖引入、配置文件设置和 SQL 文件管理的最佳实践。"
+date: 2024-05-30
+tags: ["springboot"]
+categories: ["spring"]
+---
+
+> 项目更新或升级时，总会因为缺失数据库字段导致部分功能无法正常使用。
+> liquibase 可以很好的解决这个问题。网上对于其使用有很多例子，但我更喜欢的还是根据 sql 文件来记录变更。
+
+### 一、引入依赖
+
+```xml
+<dependency>
+    <groupId>org.liquibase</groupId>
+    <artifactId>liquibase-core</artifactId>
+</dependency>
+```
+
+### 二、文件配置
+
+#### 2.1 spring 配置
+
+```yml
+spring:
+  liquibase:
+    enabled: true
+    change-log: sql/changelog.yml
+```
+
+- `enabled` 属性设置为 true
+- `change-log` 属性设置 sql 变更的配置文件
+
+#### 2.2 change-log 文件配置
+
+```yml
+databaseChangeLog:
+  - changeSet:
+      id: init
+      author: zhangyuliang
+      comment: 初始化
+      changes:
+        - sqlFile:
+            splitStatements: true
+            stripComments: false
+            path: sql/init.sql
+        - tagDatabase:
+            tag: 1.0.0
+  - changeSet:
+      id: init.data
+      author: zhangyuliang
+      comment: 初始化数据
+      changes:
+        - sqlFile:
+            splitStatements: true
+            stripComments: false
+            path: sql/init.data.sql
+        - tagDatabase:
+            tag: 1.0.0
+```
+
+#### 2.3 change-log 文件及 sql 文件在项目中的展示
+
+![IDEA 中展示](/images/blog/liquibase-database-migration/liquibase-idea-show.png)
+
+### 三、sql 执行
+
+liquibase 开启后，会在项目启动的时候执行，注意 sql 文件不要报错，否则会启动失败。
+
+另外，sql 文件建立后千万不要修改文件，否则 liquibase 会认为是相同 id 的 sql 变更，会重新执行，而 `changeSet` 的 id 相同会执行失败，导致启动失败。
+
+建议以追加 sql 文件的形式来进行数据库变更，任何字段的修改都遵循这一原则，这样即使不同版本的项目进行更新时，都能根据 `changeSet` 补全 sql 变更。
+
+![数据源展示](/images/blog/liquibase-database-migration/liquibase-data-source.png)
+
+sql 执行成功后，数据库会多两张表，`DATABASECHANGELOG` 和 `DATABASECHANGELOGLOCK`。
+
+`DATABASECHANGELOG` 表里记录了 sql 的变更日志。
+
+如果确实要修改 sql 文件，则需要在数据库里删除 ID = `changeSet` 的记录。
+

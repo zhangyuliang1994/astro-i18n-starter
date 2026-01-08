@@ -1,0 +1,51 @@
+---
+title: "Jira 配置 Ldap 服务器进行用户认证"
+description: "介绍如何在 Jira 中配置 LDAP 服务器进行用户认证，包括添加目录、配置服务器、设置用户和组模式等步骤。"
+date: 2024-03-07
+tags: ["ldap", "jira"]
+categories: ["开发相关"]
+---
+
+> Jira 需要通过公司的域账号来登录，配置过程中踩了点坑，记录一下。
+
+### 一、配置步骤
+
+#### 1.1 添加 LDAP 认证
+
+用管理员账户登录 Jira 页面，在配置页面，找到"用户管理" -> 点击"用户目录" -> 点击"添加目录" -> 选择"内部 LDAP 认证"
+
+![添加 LDAP 目录](/images/blog/jira-ldap-authentication/jira-ldap-add.png)
+
+#### 1.2 配置服务器
+
+目录类型选择"OpenLDAP"，填写主机名、端口、用户名及密码，提前创建组，并在"默认组成员"输入框内填写该组名，防止域账户没有权限登录 Jira 系统
+
+![配置服务器](/images/blog/jira-ldap-authentication/jira-ldap-server.png)
+
+#### 1.3 设置基本 DN 和用户名属性
+
+这里要看 ldap 服务器的具体值，我这个版本用户名属性的默认值是 cn，但 ldap 服务器的是 sAMAccountName
+
+![设置基本 DN](/images/blog/jira-ldap-authentication/jira-ldap-ldap.png)
+
+#### 1.4 设置用户模式属性
+
+![设置用户模式](/images/blog/jira-ldap-authentication/jira-ldap-user.png)
+
+虽然这些属性有默认值，但还是要看 ldap 服务器的具体值，我的 ldap 服务器的用户对象类是 person，用户唯一的 ID 属性是 distinguishedName
+
+#### 1.5 设置组模式
+
+![设置组模式](/images/blog/jira-ldap-authentication/jira-ldap-group.png)
+
+这里我改了组对象类。
+
+### 二、推荐工具
+
+我用的是 Ldap Browser，还不错。
+
+下载地址：https://ldapbrowserwindows.com/
+
+> 在 Jira 配置 Ldap 过程中遇到的最大问题就是属性对不上，通过这个工具就能很方便的去查看了。
+> 另外，添加目录时可以选择"LDAP"，这个模式下报错提示更清晰一些，我在配置过程中也是通过这个模式来发现属性配置错误的。
+

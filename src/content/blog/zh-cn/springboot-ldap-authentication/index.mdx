@@ -1,0 +1,310 @@
+---
+title: "springboot 基于 ldap 协议实现用户认证"
+description: "介绍如何在 Spring Boot 项目中集成 LDAP 协议实现用户认证，包括依赖引入、配置、用户对象类、登录逻辑和用户状态判断。"
+date: 2024-03-07
+tags: ["ldap", "springboot"]
+categories: ["spring"]
+---
+
+### 一、引入 `spring-boot-starter-data-ldap` 依赖
+
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-data-ldap</artifactId>
+</dependency>
+```
+
+### 二、配置文件
+
+```yml
+spring:
+  ldap:
+    urls: ldap://xx.xx.xx.xx:389
+    base: OU=xxx,DC=xxx,DC=com
+    username: xxx@xx.com
+    password: xxx
+```
+
+在配置文件里填入地址、baseDN、用户名和密码信息
+
+### 三、创建用户对象类
+
+```java
+import com.alibaba.fastjson.annotation.JSONField;
+import lombok.Data;
+import org.springframework.ldap.odm.annotations.Attribute;
+import org.springframework.ldap.odm.annotations.Entry;
+import org.springframework.ldap.odm.annotations.Id;
+
+import javax.naming.Name;
+
+/**
+ * ldap协议person类
+ */
+@Data
+@Entry(objectClasses = "person")
+public class Person {
+
+    /**
+     * 唯一标识
+     */
+    @Id
+    @JSONField(serialize = false)
+    private Name distinguishedName;
+
+    /**
+     * 登录账号
+     */
+    @Attribute(name = "sAMAccountName")
+    private String loginName;
+
+    /**
+     * 用户姓名
+     */
+    @Attribute(name = "cn")
+    private String name;
+
+    /**
+     * 权限码
+     */
+    @Attribute(name = "userAccountControl")
+    private Integer userAccountControl;
+
+    /**
+     * 是否删除
+     */
+    private Boolean isDelete;
+}
+```
+
+### 四、用户登录
+
+#### 4.1 示例代码
+
+```java
+import org.springframework.ldap.core.LdapTemplate;
+import org.springframework.ldap.filter.EqualsFilter;
+
+private final LdapTemplate ldapTemplate;
+private static final String LDAP_USERNAME_ATTR = "sAMAccountName";
+
+public void login(String userName, String password) {
+    EqualsFilter filter = new EqualsFilter(LDAP_USERNAME_ATTR, userName);
+    boolean result = ldapTemplate.authenticate("", filter.toString(), password);
+}
+```
+
+基本逻辑就是调用 ldapTemplate 的 authenticate 方法来进行认证。
+
+#### 4.2 完整代码
+
+```java
+package com.cowave.meter.admin.user.service.impl;
+
+import cn.hutool.core.util.IdUtil;
+import com.cowave.commons.framework.access.Access;
+import com.cowave.commons.framework.filter.security.AccessToken;
+import com.cowave.commons.framework.filter.security.TokenService;
+import com.cowave.commons.framework.support.mybatis.page.PageDO;
+import com.cowave.commons.framework.util.Asserts;
+import com.cowave.commons.framework.util.AssertsException;
+import com.cowave.meter.admin.user.dao.SysDeptDao;
+import com.cowave.meter.admin.user.dao.SysRoleDao;
+import com.cowave.meter.admin.user.dao.SysUserDao;
+import com.cowave.meter.admin.user.pojo.Person;
+import com.cowave.meter.admin.user.pojo.SysDept;
+import com.cowave.meter.admin.user.pojo.SysRole;
+import com.cowave.meter.admin.user.pojo.SysUser;
+import com.cowave.meter.admin.user.service.LdapService;
+import com.cowave.meter.admin.user.service.SysUserService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.ldap.core.LdapTemplate;
+import org.springframework.ldap.filter.EqualsFilter;
+import org.springframework.ldap.query.LdapQueryBuilder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
+
+import java.util.List;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class LdapServiceImpl implements LdapService {
+    private final LdapTemplate ldapTemplate;
+    private final TokenService tokenService;
+    private final SysUserDao sysUserDao;
+    private final SysUserService userService;
+    private final SysDeptDao sysDeptDao;
+    private final SysRoleDao sysRoleDao;
+    private final BCryptPasswordEncoder bcryptPasswordEncoder = new BCryptPasswordEncoder();
+    private static final String LDAP_USERNAME_ATTR = "sAMAccountName";
+
+    /**
+     * 域账号登录
+     *
+     * @param userName
+     * @param password
+     * @return
+     */
+    @Override
+    public AccessToken domainLogin(String userName, String password) {
+        EqualsFilter filter = new EqualsFilter(LDAP_USERNAME_ATTR, userName);
+        boolean authenticate = ldapTemplate.authenticate("", filter.toString(), password);
+        if (!authenticate) {
+            throw new AssertsException("auth.failed");
+        }
+        Boolean domainUserAccountExist = sysUserDao.domainUserAccountExist(userName);
+        if (Boolean.FALSE.equals(domainUserAccountExist)) {
+            LdapQueryBuilder ldapQuery = LdapQueryBuilder.query();
+            ldapQuery.filter(filter);
+            Person person = ldapTemplate.findOne(ldapQuery, Person.class);
+            if (ObjectUtils.isEmpty(person)) {
+                throw new AssertsException("user.notexist");
+            }
+
+            SysUser sysUser = new SysUser();
+            sysUser.setUserAccount(userName);
+            Asserts.isFalse(userService.userAccountExist(sysUser), "账户名已存在");
+            sysUser.setUserName(person.getName());
+            sysUser.setUserPasswd(bcryptPasswordEncoder.encode(password));
+            sysUser.setDomainUserAccount(userName);
+            // 设置部门
+            SysDept sysDept = sysDeptDao.queryRootDept();
+            if (!ObjectUtils.isEmpty(sysDept)) {
+                sysUser.setDeptId(sysDept.getDeptId());
+            }
+            // 设置角色
+            PageDO<SysRole> sysRolePageDO = sysRoleDao.queryPage(null, "2", 1, 1);
+            if (sysRolePageDO.getPages() > 0) {
+                SysRole sysRole = sysRolePageDO.getList().get(0);
+                sysUser.setRoleId(sysRole.getRoleId());
+            }
+            userService.saveOrUpdate(sysUser);
+        }
+        SysUser sysUser = sysUserDao.getByDomainUserAccount(userName);
+        String userId = sysUser.getUserId();
+        AccessToken accessToken = new AccessToken();
+        accessToken.setType(AccessToken.TYPE_USER);
+
+        accessToken.setUserCode(userId);
+        accessToken.setUsername(sysUser.getUserAccount());
+        accessToken.setUserNick(sysUser.getUserName());
+        accessToken.setDeptCode(sysUser.getDeptId());
+        accessToken.setRoles(List.of(sysUser.getRoleId()));
+
+        accessToken.setLoginIp(Access.ip());
+        accessToken.setLoginTime(Access.time());
+        accessToken.setAccessIp(Access.ip());
+        accessToken.setAccessTime(Access.time());
+        accessToken.setId(IdUtil.fastSimpleUUID());
+
+        String token = tokenService.newToken(accessToken);
+        accessToken.setToken(token);
+        return accessToken;
+    }
+}
+```
+
+#### 4.3 判断用户是否禁用
+
+```java
+/**
+* 根据AD域的userAccountControl属性判断用户是否禁用
+*
+* @param userAccContr
+* @return
+*/
+private Boolean getUserDelete(int userAccContr) {
+    //TRUSTED_TO_AUTH_FOR_DELEGATION - 允许该帐户进行委派
+    if (userAccContr >= 16777216) {
+        userAccContr = userAccContr - 16777216;
+    }
+    //PASSWORD_EXPIRED - (Windows 2000/Windows Server 2003) 用户的密码已过期
+    if (userAccContr >= 8388608) {
+        userAccContr = userAccContr - 8388608;
+    }
+    //DONT_REQ_PREAUTH
+    if (userAccContr >= 4194304) {
+        userAccContr = userAccContr - 4194304;
+    }
+    //USE_DES_KEY_ONLY - (Windows 2000/Windows Server 2003) 将此用户限制为仅使用数据加密标准 (DES) 加密类型的密钥
+    if (userAccContr >= 2097152) {
+        userAccContr = userAccContr - 2097152;
+    }
+    //NOT_DELEGATED - 设置此标志后，即使将服务帐户设置为信任其进行 Kerberos 委派，也不会将用户的安全上下文委派给该服务
+    if (userAccContr >= 1048576) {
+        userAccContr = userAccContr - 1048576;
+    }
+    //TRUSTED_FOR_DELEGATION - 设置此标志后，将信任运行服务的服务帐户（用户或计算机帐户）进行 Kerberos 委派。
+    // 任何此类服务都可模拟请求该服务的客户端。若要允许服务进行 Kerberos 委派，必须在服务帐户的 userAccountControl 属性上设置此标志
+    if (userAccContr >= 524288) {
+        userAccContr = userAccContr - 524288;
+    }
+    //SMARTCARD_REQUIRED - 设置此标志后，将强制用户使用智能卡登录
+    if (userAccContr >= 262144) {
+        userAccContr = userAccContr - 262144;
+    }
+    //MNS_LOGON_ACCOUNT - 这是 MNS 登录帐户
+    if (userAccContr >= 131072) {
+        userAccContr = userAccContr - 131072;
+    }
+    //DONT_EXPIRE_PASSWORD-密码永不过期
+    if (userAccContr >= 65536) {
+        userAccContr = userAccContr - 65536;
+    }
+    //MNS_LOGON_ACCOUNT - 这是 MNS 登录帐户
+    if (userAccContr >= 2097152) {
+        userAccContr = userAccContr - 2097152;
+    }
+    //SERVER_TRUST_ACCOUNT - 这是属于该域的域控制器的计算机帐户
+    if (userAccContr >= 8192) {
+        userAccContr = userAccContr - 8192;
+    }
+    //WORKSTATION_TRUST_ACCOUNT - 这是运行 Microsoft Windows NT 4.0 Workstation、Microsoft Windows NT 4.0 Server、
+    // Microsoft Windows 2000 Professional 或 Windows 2000 Server 并且属于该域的计算机的计算机帐户
+    if (userAccContr >= 4096) {
+        userAccContr = userAccContr - 4096;
+    }
+    //INTERDOMAIN_TRUST_ACCOUNT - 对于信任其他域的系统域，此属性允许信任该系统域的帐户
+    if (userAccContr >= 2048) {
+        userAccContr = userAccContr - 2048;
+    }
+    //NORMAL_ACCOUNT - 这是表示典型用户的默认帐户类型
+    if (userAccContr >= 512) {
+        userAccContr = userAccContr - 512;
+    }
+    //TEMP_DUPLICATE_ACCOUNT - 此帐户属于其主帐户位于另一个域中的用户。此帐户为用户提供访问该域的权限，
+    // 但不提供访问信任该域的任何域的权限。有时将这种帐户称为"本地用户帐户"
+    if (userAccContr >= 256) {
+        userAccContr = userAccContr - 256;
+    }
+    //ENCRYPTED_TEXT_PASSWORD_ALLOWED - 用户可以发送加密的密码
+    if (userAccContr >= 128) {
+        userAccContr = userAccContr - 128;
+    }
+    //PASSWD_CANT_CHANGE - 用户不能更改密码。可以读取此标志，但不能直接设置它
+    if (userAccContr >= 64) {
+        userAccContr = userAccContr - 64;
+    }
+    //PASSWD_NOTREQD - 不需要密码
+    if (userAccContr >= 32) {
+        userAccContr = userAccContr - 32;
+    }
+    //LOCKOUT
+    if (userAccContr >= 16) {
+        userAccContr = userAccContr - 16;
+    }
+    //HOMEDIR_REQUIRED - 需要主文件夹
+    if (userAccContr >= 8) {
+        userAccContr = userAccContr - 8;
+    }
+    if (userAccContr >= 2) {
+        return true;
+    }
+    return false;
+}
+```
+

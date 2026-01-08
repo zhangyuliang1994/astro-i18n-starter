@@ -1,0 +1,39 @@
+---
+title: "Postman 常用技巧"
+description: "介绍 Postman 的常用技巧，包括全局 Token 设置、Collection 设置 Token 和接口自动执行功能。"
+date: 2024-02-29
+tags: ["postman"]
+categories: ["工具"]
+---
+
+### 一、全局 Token 设置
+
+#### 1. 登录时获取 token
+
+![获取 Token](/images/blog/postman-common-tips/postman-get-token.png)
+
+```javascript
+// 获取登录接口的返回数据
+var jsondata=pm.response.json();
+// 判断登录是否成功
+if (jsondata.code === 200) {
+    // 获取token并设置到环境变量token的值
+    var token=jsondata.data.token
+    pm.globals.set("token",token)
+} else {
+    console.error(jsondata.msg);
+}
+```
+
+#### 2. Collection 设置 token
+
+![设置 Token](/images/blog/postman-common-tips/postman-set-token.png)
+
+### 二、接口自动执行
+
+![运行 Collection](/images/blog/postman-common-tips/postman-run-collection.png)
+
+右击 Collection，选择 "Run Collection"；
+
+选中要执行的接口，在右侧填入执行次数和间隔时间，然后点击 "Run 测试自动执行" 即可。
+

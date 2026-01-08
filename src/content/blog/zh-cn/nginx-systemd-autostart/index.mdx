@@ -1,0 +1,51 @@
+---
+title: "将 nginx 设置为开机自启动的配置"
+description: "在 Linux 系统上通过 systemd 服务配置，实现 nginx 开机自启动的完整步骤。"
+date: 2024-02-20
+tags: ["linux", "nginx"]
+categories: ["nginx"]
+---
+
+### 一、背景描述
+
+虚拟机上安装了 nginx，希望能够开机自启动。
+
+### 二、操作步骤
+
+#### 1. 进入 /lib/systemd/system/ 目录下
+
+```shell
+cd /lib/systemd/system/
+```
+
+#### 2. 创建文件：nginx.service
+
+```shell
+touch nginx.service
+vim nginx.service
+```
+
+#### 3. 编辑文件内容
+
+```shell
+[Unit]
+Description=nginx service
+After=network.target 
+   
+[Service] 
+Type=forking 
+ExecStart=/usr/local/nginx/sbin/nginx
+ExecReload=/usr/local/nginx/sbin/nginx -s reload
+ExecStop=/usr/local/nginx/sbin/nginx -s quit
+PrivateTmp=true 
+   
+[Install] 
+WantedBy=multi-user.target
+```
+
+#### 4. 开机自启动
+
+```shell
+systemctl enable nginx
+```
+

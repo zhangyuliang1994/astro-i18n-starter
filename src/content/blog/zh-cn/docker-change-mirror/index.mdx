@@ -1,0 +1,25 @@
+---
+title: "Docker 更换镜像源"
+description: "解决 Docker pull 失败的问题，通过配置阿里云镜像源来加速 Docker 镜像下载。"
+date: 2024-06-22
+tags: ["docker"]
+categories: ["工具"]
+---
+
+### 一、问题
+
+在学习 Docker 的时候遇到 pull 失败的情况
+
+### 二、解决方法
+
+```shell
+sudo mkdir -p /etc/docker
+sudo tee /etc/docker/daemon.json <<-'EOF'
+{
+  "registry-mirrors": ["https://yxzrazem.mirror.aliyuncs.com"]
+}
+EOF
+sudo systemctl daemon-reload
+sudo systemctl restart docker
+```
+

@@ -1,0 +1,155 @@
+---
+title: "ubuntu 批量上传及更新"
+description: "介绍如何使用 expect 脚本在 Ubuntu 服务器上批量上传 deb 包并更新，包括依赖安装、expect 脚本编写和批量执行脚本。"
+date: 2024-10-25
+tags: ["linux"]
+categories: ["开发相关"]
+---
+
+### 一、背景
+
+项目中需要批量上传 .deb 包并更新，但是需要上传的服务器并未开放 root 用户，只能登录普通用户再进行切换，我查阅资料后，决定借助 expect 来解决这一问题。
+
+### 二、依赖安装
+
+因为项目服务器无法连接外网，所以只能手动下载 deb 包并安装。
+
+```shell
+dpkg -i libtcl8.6_8.6.10+dfsg-1_amd64.deb
+dpkg -i tcl8.6_8.6.10+dfsg-1_amd64.deb
+dpkg -i tcl-expect_5.45.4-2build1_amd64.deb
+dpkg -i expect_5.45.4-2build1_amd64.deb
+```
+
+### 三、expect 脚本
+
+```shell
+#!/usr/bin/expect -f
+
+# 设置超时时间
+set timeout -1
+
+# 从命令行参数中获取远程服务器信息、SSH 密码、root 密码和要执行的脚本路径
+set host [lindex $argv 0]
+set user [lindex $argv 1]
+set ssh_password [lindex $argv 2]
+set root_password [lindex $argv 3]
+set script_path [lindex $argv 4]
+set package_version [lindex $argv 5]
+
+# SSH 登录到远程服务器
+spawn ssh "$user@$host"
+expect {
+    # 如果是首次连接，需要确认主机指纹
+    "yes/no" { send "yes\r"; exp_continue }
+    "password:" { send "$ssh_password\r" }
+}
+
+# 成功登录后，切换到 root 用户
+expect "$ "
+send "su -\r"
+expect "Password:"
+send "$root_password\r"
+
+# 切换成功后执行远程脚本
+expect "# "
+send "bash $script_path $package_version \r"
+
+# 等待脚本执行完成
+expect "# "
+
+# 退出 root 用户
+send "exit\r"
+
+# 退出 SSH 会话
+expect "$ "
+send "exit\r"
+
+# 结束 expect 会话
+expect eof
+```
+
+### 四、批量上传及更新脚本
+
+```shell
+#!/bin/bash
+
+PACKAGE_VERSION=$1
+# 主机列表文件
+HOSTS_FILE="hosts.txt"
+# 要上传的本地文件路径
+LOCAL_FILE="back_install_dir"
+# 远程路径
+REMOTE_PATH="/home/a123"
+# SSH 用户名
+USER="a123"
+PASSWORD="a123"
+# root 用户密码
+ROOT_PASSWORD="1" 
+REMOTE_SCRIPT="/home/a123/back_install_dir/install_back_end.sh"
+THREADS=14
+
+update_host() {
+    HOST=$1
+    LOCAL_FILE=$2
+    REMOTE_PATH=$3
+    USER=$4
+    PASSWORD=$5
+    ROOT_PASSWORD=$6
+    REMOTE_SCRIPT=$7
+    PACKAGE_VERSION=$8
+    echo "Connecting to $HOST..."
+    echo "upload $LOCAL_FILE to $USER @ $PASSWORD : $REMOTE_PATH"
+    # 使用 scp 上传文件到远程主机
+    sshpass -p "$PASSWORD" scp -r -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$LOCAL_FILE" "$USER@$HOST:$REMOTE_PATH"
+    if [ $? -eq 0 ]; then
+        echo "$HOST: Upload successful"
+    else
+        echo "$HOST: Upload failed"
+	return
+    fi
+
+    # 在本地使用 expect 登录远程服务器并执行脚本
+    ./local_expect_script.exp "$HOST" "$USER" "$PASSWORD" "$ROOT_PASSWORD" "$REMOTE_SCRIPT" "$PACKAGE_VERSION"
+    if [ $? -eq 0 ]; then
+	echo "$HOST: script executed successful"
+    else
+        echo "$HOST: script executed failed"
+        return
+    fi
+}
+
+export -f update_host
+cat "$HOSTS_FILE" | xargs -n 1 -P $THREADS -I {} bash -c 'update_host "$@"' _ {} "$LOCAL_FILE" "$REMOTE_PATH" "$USER" "$PASSWORD" "$ROOT_PASSWORD" "$REMOTE_SCRIPT" "$PACKAGE_VERSION"
+```
+
+考虑到逐一对每台设备更新太耗时，这里加入了多线程。hosts.txt 里存放的是需要更新的服务器 IP 地址，如下所示。
+
+```txt
+10.64.200.167
+10.64.200.170
+10.64.200.177
+10.64.200.175
+10.64.200.176
+10.64.200.172
+10.64.200.168
+10.64.200.166
+10.64.200.169
+10.64.200.174
+10.64.200.171
+10.64.200.152
+10.64.200.102
+10.64.200.173
+```
+
+最后是 install_back_end.sh 更新脚本：
+
+```shell
+PACKAGE_VERSION=$1
+
+dpkg -i /home/a123/back_install_dir/box-station_${PACKAGE_VERSION}.deb
+systemctl daemon-reload
+systemctl restart box-station.service
+systemctl enable box-station.service
+```
+

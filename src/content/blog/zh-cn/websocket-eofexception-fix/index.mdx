@@ -1,0 +1,65 @@
+---
+title: "websocket 自动断开报错, java.io.EOFException 解决办法"
+description: "解决 WebSocket 服务使用 Nginx 反向代理后自动断开的问题，提供两种解决方案：修改 Nginx 超时配置和添加心跳包机制。"
+date: 2024-02-23
+tags: ["nginx", "websocket"]
+categories: ["nginx"]
+---
+
+### 一、问题
+
+websocket 服务使用 Nginx 反向代理后，发现会自动断开，查看日志如下
+
+```shell
+2024-02-22 18:51:05:964 1901020240223104709130 [ERROR] websocket连接错误,
+java.io.EOFException: null
+        at org.apache.tomcat.util.net.NioEndpoint$NioSocketWrapper.fillReadBuffer(NioEndpoint.java:1339)
+        at org.apache.tomcat.util.net.NioEndpoint$NioSocketWrapper.read(NioEndpoint.java:1226)
+        at org.apache.tomcat.websocket.server.WsFrameServer.onDataAvailable(WsFrameServer.java:75)
+        at org.apache.tomcat.websocket.server.WsFrameServer.doOnDataAvailable(WsFrameServer.java:183)
+        at org.apache.tomcat.websocket.server.WsFrameServer.notifyDataAvailable(WsFrameServer.java:162)
+        at org.apache.tomcat.websocket.server.WsHttpUpgradeHandler.upgradeDispatch(WsHttpUpgradeHandler.java:157)
+        at org.apache.coyote.http11.upgrade.UpgradeProcessorInternal.dispatch(UpgradeProcessorInternal.java:60)
+        at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:59)
+        at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:890)
+        at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1743)
+        at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:49)
+        at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1191)
+        at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:659)
+        at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)
+        at java.base/java.lang.Thread.run(Thread.java:842)
+```
+
+### 二、原因
+
+使用了 Nginx 反向代理后，超过 60 秒没有数据传输的连接会自动断开。
+
+### 三、解决方法
+
+#### 1. 修改 nginx 配置
+
+```text
+proxy_read_timeout 3600;
+```
+
+将超时时间改长一点
+
+#### 2. 前端或者后端加个定时任务发个心跳包就好了，例如：
+
+```javascript
+//定时任务，由于使用nginx反向代理，60秒无数据传输会断开
+timer=setInterval(function() {
+	if (websocket.readyState == 1) {
+		websocket.send("心跳包检测");
+	} else {
+		//IM连接已断开
+	}
+}, 50 * 1000);
+```
+
+> 我两种方法都用了，
+> 首先将超时时间改成了一小时。
+> 然后让前端每半小时给后台发送一次心跳，后台响应心跳。
+
+![Chrome 插件 WebSocket 测试](/images/blog/websocket-eofexception-fix/chrome-plugin-websocket.png)
+

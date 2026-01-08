@@ -1,0 +1,34 @@
+---
+title: "spring boot logback 日志显示时间差 8 小时"
+description: "解决 Spring Boot logback 日志时间与系统时间不一致的问题，通过在 pattern 中指定时区来修复时间差。"
+date: 2024-02-23
+tags: ["springboot", "logback"]
+categories: ["spring"]
+---
+
+### 一、问题
+
+logback 日志的时间和系统时间对不上，总是差几个小时，设置了项目时区没有用，项目里 `new Date()` 的时间没问题。
+
+### 二、原因
+
+同一个项目部署在两台机器上，之前那台时间是正常的，这台时间不正常，暂时没找到具体原因。
+
+### 三、解决方法
+
+改一下 logback 的配置文件 pattern 的时间格式
+
+**修改前：**
+
+```xml
+<property name="pattern" value="%d{yyyy-MM-dd HH:mm:ss:SSS} %thread [%level] %m%n"/>
+```
+
+**修改后：**
+
+```xml
+<property name="pattern" value="%d{yyyy-MM-dd HH:mm:ss:SSS,CTT} %thread [%level] %m%n"/>
+```
+
+在 `yyyy-MM-dd HH:mm:ss.SSS` 后面加一个指定的时区，用逗号分隔开。如 `yyyy-MM-dd HH:mm:ss.SSS,CTT`。CTT 为上海时间。改完后确实可以了。
+

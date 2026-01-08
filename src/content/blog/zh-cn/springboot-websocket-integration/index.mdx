@@ -1,0 +1,144 @@
+---
+title: "springboot 加入 websocket"
+description: "介绍如何在 Spring Boot 项目中集成 WebSocket，包括依赖引入、配置类、工具类和服务端实现，支持客户端连接、消息接收和广播功能。"
+date: 2024-01-30
+tags: ["springboot", "websocket"]
+categories: ["spring"]
+---
+
+### 一、引入 `spring-websocket` 依赖
+
+```xml
+<dependency>
+    <groupId>org.springframework</groupId>
+    <artifactId>spring-websocket</artifactId>
+</dependency>
+```
+
+### 二、开启 websocket 支持
+
+```java
+/**
+ * 开启websocket的支持
+ */
+@Configuration
+public class WebsocketConfig {
+
+    @Bean
+    public ServerEndpointExporter serverEndpointExporter() {
+        return new ServerEndpointExporter();
+    }
+}
+```
+
+### 三、websocket 工具类
+
+```java
+/**
+ * websocket工具类
+ */
+@Slf4j
+public class WebsocketUtil {
+
+    private WebsocketUtil() {
+    }
+
+    /**
+     * 服务端存放客户端对应的session对象
+     * key:clientId value:session
+     */
+    public static final Map<String, Session> WEBSOCKET_CLIENT_SESSION_MAP = Maps.newConcurrentMap();
+
+    /**
+     * 服务端发送消息给所有客户端
+     *
+     * @param message
+     */
+    public static void sendMessageToAllClient(String message) {
+        if (WEBSOCKET_CLIENT_SESSION_MAP.isEmpty()) {
+            log.info("当前无连接的客户端, 消息忽略推送.");
+            return;
+        }
+        WEBSOCKET_CLIENT_SESSION_MAP.forEach((sessionId, session) -> {
+            try {
+                session.getBasicRemote().sendText(message);
+            } catch (Exception e) {
+                log.error("服务端向客户端[{}]发送消息异常.", sessionId, e);
+            }
+        });
+    }
+}
+```
+
+### 四、websocket 服务端
+
+```java
+/**
+ * websocket服务端
+ */
+@Slf4j
+@Component
+@ServerEndpoint("/websocket")
+public class WebsocketServer {
+
+    private String sessionId;
+
+    /**
+     * websocket建立连接
+     *
+     * @param session
+     * @throws IOException
+     */
+    @OnOpen
+    public void onOpen(Session session) throws IOException {
+        this.sessionId = session.getId();
+
+        if (WebsocketUtil.WEBSOCKET_CLIENT_SESSION_MAP.containsKey(this.sessionId)) {
+            WebsocketUtil.WEBSOCKET_CLIENT_SESSION_MAP.remove(this.sessionId).close();
+        }
+
+        WebsocketUtil.WEBSOCKET_CLIENT_SESSION_MAP.put(this.sessionId, session);
+
+        log.info("客户端[{}]建立websocket连接.", this.sessionId);
+    }
+
+    /**
+     * 关闭socket连接
+     *
+     * @param session
+     */
+    @OnClose
+    public void onClose(Session session) {
+        if (WebsocketUtil.WEBSOCKET_CLIENT_SESSION_MAP.containsKey(session.getId())) {
+            WebsocketUtil.WEBSOCKET_CLIENT_SESSION_MAP.remove(session.getId());
+            log.info("客户端[{}]断开websocket连接.", session.getId());
+        }
+    }
+
+    /**
+     * 接收到消息
+     *
+     * @param message
+     */
+    @OnMessage
+    public void OnMessage(String message) {
+        log.info("接收到客户端{}发送的消息:[{}].", this.sessionId, message);
+    }
+
+    /**
+     * 连接错误
+     *
+     * @param session
+     * @param error
+     */
+    @OnError
+    public void OnError(Session session, Throwable error) {
+        log.error("websocket连接错误,", error);
+    }
+}
+```
+
+### 五、测试
+
+> 推荐使用 Chrome 插件——Simple Web Socket Client
+
