@@ -1,0 +1,185 @@
+---
+import type { Page } from "astro";
+import { useTranslations, type Lang } from "@/i18n";
+
+interface Props {
+  page: Page;
+  lang: Lang;
+}
+
+const { page, lang } = Astro.props;
+const t = useTranslations(lang);
+
+const prevText = t({
+  ja: "前のページ",
+  en: "Previous",
+  "zh-cn": "上一页",
+  ar: "السابق",
+});
+
+const nextText = t({
+  ja: "次のページ",
+  en: "Next",
+  "zh-cn": "下一页",
+  ar: "التالي",
+});
+
+const pageText = t({
+  ja: "ページ",
+  en: "Page",
+  "zh-cn": "第",
+  ar: "صفحة",
+});
+
+const ofText = t({
+  ja: "の",
+  en: "of",
+  "zh-cn": "页，共",
+  ar: "من",
+});
+
+const pagesText = t({
+  ja: "",
+  en: "",
+  "zh-cn": "页",
+  ar: "",
+});
+---
+
+{
+  page.lastPage > 1 && (
+    <nav class="pagination" aria-label="Pagination">
+      <div class="pagination-info">
+        {lang === "zh-cn" ? (
+          <span>
+            {pageText} {page.currentPage} {ofText} {page.lastPage} {pagesText}
+          </span>
+        ) : (
+          <span>
+            {pageText} {page.currentPage} {ofText} {page.lastPage}
+          </span>
+        )}
+      </div>
+
+      <div class="pagination-links">
+        {page.url.prev ? (
+          <a href={page.url.prev} class="pagination-link prev">
+            <span aria-hidden="true">←</span> {prevText}
+          </a>
+        ) : (
+          <span class="pagination-link prev disabled">
+            <span aria-hidden="true">←</span> {prevText}
+          </span>
+        )}
+
+        <div class="pagination-pages">
+          {Array.from({ length: page.lastPage }, (_, i) => i + 1).map((num) => {
+            const isFirst = num === 1;
+            const url = isFirst
+              ? `/${lang}/blog/`
+              : `/${lang}/blog/${num}/`;
+            return (
+              <a
+                href={url}
+                class:list={["page-number", { active: num === page.currentPage }]}
+                aria-current={num === page.currentPage ? "page" : undefined}
+              >
+                {num}
+              </a>
+            );
+          })}
+        </div>
+
+        {page.url.next ? (
+          <a href={page.url.next} class="pagination-link next">
+            {nextText} <span aria-hidden="true">→</span>
+          </a>
+        ) : (
+          <span class="pagination-link next disabled">
+            {nextText} <span aria-hidden="true">→</span>
+          </span>
+        )}
+      </div>
+    </nav>
+  )
+}
+
+<style>
+  .pagination {
+    margin-block-start: var(--sp-l);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--sp-s);
+  }
+
+  .pagination-info {
+    color: var(--text-2);
+    font-size: 0.9rem;
+  }
+
+  .pagination-links {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-xs);
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .pagination-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    background: var(--surface-2);
+    color: var(--text-1);
+    text-decoration: none;
+    transition: background-color 0.2s, color 0.2s;
+  }
+
+  .pagination-link:hover:not(.disabled) {
+    background: var(--surface-3);
+    color: var(--brand);
+  }
+
+  .pagination-link.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .pagination-pages {
+    display: flex;
+    gap: 0.25rem;
+  }
+
+  .page-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.5rem;
+    height: 2.5rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    background: var(--surface-2);
+    color: var(--text-1);
+    text-decoration: none;
+    transition: background-color 0.2s, color 0.2s;
+  }
+
+  .page-number:hover {
+    background: var(--surface-3);
+    color: var(--brand);
+  }
+
+  .page-number.active {
+    background: var(--brand);
+    color: white;
+  }
+
+  @media (max-width: 640px) {
+    .pagination-pages {
+      display: none;
+    }
+  }
+</style>

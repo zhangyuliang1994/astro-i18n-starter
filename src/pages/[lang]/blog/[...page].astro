@@ -4,14 +4,28 @@ import Layout from "@/layouts/Base.astro";
 import { Image } from "astro:assets";
 import { getCollection } from "astro:content";
 import PageHeadline from "@/components/PageHeadline.astro";
+import Pagination from "@/components/Pagination.astro";
+import type { GetStaticPaths } from "astro";
 
-// 使用路由参数中的 lang，而不是 Astro.currentLocale，避免某些环境下语言不一致导致文章被过滤掉
+export const getStaticPaths = (async ({ paginate }) => {
+  const allPosts = await getCollection("blog");
+  
+  // 为每种语言生成分页路径
+  return Object.keys(LOCALES).flatMap((lang) => {
+    const posts = allPosts
+      .filter((post) => post.id.split("/")[0] === lang)
+      .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf()); // 按日期降序排列
+    
+    return paginate(posts, {
+      params: { lang },
+      pageSize: 10,
+    });
+  });
+}) satisfies GetStaticPaths;
+
+const { page } = Astro.props;
 const locale = Astro.params.lang as Lang;
 const t = useTranslations(locale);
-
-const posts = (await getCollection("blog"))
-  .filter((post) => post.id.split("/")[0] === locale)
-  .sort((a, b) => a.data.date.valueOf() - b.data.date.valueOf());
 
 const title = t({
   ja: "ブログ",
@@ -20,13 +34,12 @@ const title = t({
   ar: "مدونة",
 });
 
-export const getStaticPaths = () =>
-  Object.keys(LOCALES).map((lang) => ({
-    params: { lang },
-  }));
+const pageTitle = page.currentPage > 1 
+  ? `${title} - ${t({ ja: "ページ", en: "Page", "zh-cn": "第", ar: "صفحة" })} ${page.currentPage}`
+  : title;
 ---
 
-<Layout {title}>
+<Layout title={pageTitle}>
   <PageHeadline {title} />
 
   <p>
@@ -42,7 +55,7 @@ export const getStaticPaths = () =>
 
   <ul>
     {
-      posts.map((post) => {
+      page.data.map((post) => {
         const [, ...id] = post.id.split("/");
         return (
           <li>
@@ -57,6 +70,8 @@ export const getStaticPaths = () =>
       })
     }
   </ul>
+
+  <Pagination page={page} lang={locale} />
 </Layout>
 
 <style>
