@@ -1,0 +1,139 @@
+---
+title: "Connecting to Routers via SSH in Java: Executing Commands and Reading Responses"
+description: "A complete example of using mwiede/jsch to connect to Huawei routers via SSH in Java, send commands, and read responses."
+date: 2024-02-20
+tags: ["Java", "SSH", "Network Devices"]
+categories: ["Java"]
+---
+
+> Recently needed to read and modify Huawei router configurations using Java, connecting via SSH to send commands and read responses.
+
+### 1. Add `mwiede/jsch` Dependency
+
+If using Maven, add the following dependency to your `pom.xml` file:
+
+```xml
+<dependencies>
+    <dependency>
+        <groupId>com.github.mwiede</groupId>
+        <artifactId>jsch</artifactId>
+        <version>0.2.15</version>
+    </dependency>
+</dependencies>
+```
+
+If using Gradle, add to your `build.gradle` file:
+
+```groovy
+dependencies {
+    implementation 'com.github.mwiede:jsch:0.2.15'
+}
+```
+
+### 2. Create SSH Connection Using `JSch`, Execute Commands and Return Responses
+
+```java
+/**
+ * Get SSH command response
+ * @param userName    Username
+ * @param password    Password
+ * @param host        IP address
+ * @param port        Port
+ * @param commandList Command list
+ */
+public String getShellCmdRes(String userName, String password, String host, Integer port, List<String> commandList)
+        throws JSchException, IOException {
+    StringBuilder stringBuilder = new StringBuilder();
+    JSch jsch = new JSch();
+    Session session = jsch.getSession(userName, host, port);
+    session.setPassword(password);
+    session.setConfig("StrictHostKeyChecking", "no");
+    session.connect();
+
+    ChannelShell channel = (ChannelShell) session.openChannel("shell");
+
+    // Get input and output streams
+    OutputStream inputStreamForTheChannel = channel.getOutputStream();
+    InputStream outputStreamForTheChannel = channel.getInputStream();
+
+    // Connect channel
+    channel.connect();
+
+    PrintStream commander = new PrintStream(inputStreamForTheChannel, true);
+
+    byte[] tmp = new byte[1024];
+    while (true) {
+        while (outputStreamForTheChannel.available() > 0) {
+            int i = outputStreamForTheChannel.read(tmp, 0, 1024);
+            if (i < 0) {
+                break;
+            }
+            String output = new String(tmp, 0, i);
+            // Read response
+            stringBuilder.append(output);
+            stringBuilder.append(System.lineSeparator());
+            // Send commands
+            commandList.forEach(commander::println);
+        }
+        if (channel.isClosed()) {
+            if (outputStreamForTheChannel.available() > 0) {
+                continue;
+            }
+            break;
+        }
+        try {
+            Thread.sleep(10);
+        } catch (Exception ignored) {
+        }
+    }
+
+    // Close channel and session
+    channel.disconnect();
+    session.disconnect();
+    return stringBuilder.toString();
+}
+```
+
+### 3. Calling the Method Above
+
+#### 3.1 Single Command
+
+Remember to add an exit statement at the end. For routers, use `quit` to exit:
+
+```java
+List<String> commandList = new ArrayList<>();
+// View
+commandList.add("display bfd session all");
+// Exit session
+commandList.add("quit");
+// Get response
+String response = getShellCmdRes("admin", "admin", "1.1.1.1", 22, commandList);
+```
+
+![Single command example](/images/blog/java-ssh-router-commands/java-ssh-single.jpg)
+
+#### 3.2 Multiple Commands
+
+For multiple commands, each time you enter a session, you need an additional quit statement:
+
+```java
+List<String> commandList = new ArrayList<>();
+// Enter system-view
+commandList.add("system-view");
+// Enter Tunnel 0/0/5
+commandList.add("interface Tunnel 0/0/5");
+// View information
+commandList.add("display this");
+// Exit Tunnel 0/0/5
+commandList.add("quit");
+// Exit system-view
+commandList.add("quit");
+// Exit session
+commandList.add("quit");
+// Get response
+String response = getShellCmdRes("admin", "admin", "1.1.1.1", 22, commandList);
+```
+
+![Multiple commands example](/images/blog/java-ssh-router-commands/java-ssh-multi.jpg)
+
+

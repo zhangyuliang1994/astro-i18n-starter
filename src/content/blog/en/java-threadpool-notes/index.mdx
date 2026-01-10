@@ -1,0 +1,85 @@
+---
+title: "Java Thread Pool Notes"
+description: "Understanding ThreadPoolExecutor's core parameters, creation methods, and usage considerations for quick selection and tuning."
+date: 2024-09-03
+tags: ["Java", "Thread Pool", "Concurrency"]
+categories: ["Java"]
+---
+
+> A guide to thread pool core parameters and two creation methods, helping you correctly choose, configure, and tune `ThreadPoolExecutor` in your projects.
+
+### 1. Introduction to Thread Pools
+
+As the name suggests, a thread pool is a resource pool that manages a series of threads. It provides a way to limit and manage thread resources. Each thread pool also maintains some basic statistics, such as the number of completed tasks.
+
+Benefits of using thread pools:
+
+- **Reduce resource consumption**. Reusing already created threads reduces the overhead of thread creation and destruction.
+- **Improve response speed**. When a task arrives, it can be executed immediately without waiting for thread creation.
+- **Improve thread manageability**. Threads are scarce resources. Unlimited creation not only consumes system resources but also reduces system stability. Thread pools enable unified allocation, tuning, and monitoring.
+
+### 2. Introduction to ThreadPoolExecutor Class
+
+The `ThreadPoolExecutor` class provides four constructors. Let's look at the longest one, as the other three are based on it.
+
+```java
+/**
+ * Creates a new ThreadPoolExecutor with the given initial parameters.
+ */
+public ThreadPoolExecutor(int corePoolSize, // Core thread count in the pool
+                          int maximumPoolSize, // Maximum thread count in the pool
+                          long keepAliveTime, // Maximum time idle threads survive when count exceeds core
+                          TimeUnit unit, // Time unit
+                          BlockingQueue<Runnable> workQueue, // Task queue for storing pending tasks
+                          ThreadFactory threadFactory, // Thread factory for creating threads, usually default
+                          RejectedExecutionHandler handler // Rejection policy for handling tasks when overloaded
+                           ) {
+    if (corePoolSize < 0 ||
+        maximumPoolSize <= 0 ||
+        maximumPoolSize < corePoolSize ||
+        keepAliveTime < 0)
+        throw new IllegalArgumentException();
+    if (workQueue == null || threadFactory == null || handler == null)
+        throw new NullPointerException();
+    this.corePoolSize = corePoolSize;
+    this.maximumPoolSize = maximumPoolSize;
+    this.workQueue = workQueue;
+    this.keepAliveTime = unit.toNanos(keepAliveTime);
+    this.threadFactory = threadFactory;
+    this.handler = handler;
+}
+```
+
+The 3 most important parameters of `ThreadPoolExecutor`:
+
+- `corePoolSize`: The maximum number of threads that can run simultaneously when the task queue hasn't reached capacity.
+- `maximumPoolSize`: When the task queue is full, the number of threads that can run simultaneously becomes the maximum thread count.
+- `workQueue`: When a new task arrives, it first checks if the current running thread count has reached the core thread count. If so, the new task is placed in the queue.
+
+Other common parameters of `ThreadPoolExecutor`:
+
+- `keepAliveTime`: When the thread pool's thread count is greater than `corePoolSize`, if no new tasks are submitted, non-core threads won't be destroyed immediately but will wait until the waiting time exceeds `keepAliveTime` before being recycled.
+- `unit`: Time unit for the `keepAliveTime` parameter.
+- `threadFactory`: Used by the executor when creating new threads.
+- `handler`: Rejection policy.
+
+The following diagram can deepen your understanding of the relationship between thread pool parameters (image source: "Java Performance Tuning in Action"):
+
+![Thread pool parameter relationships](/images/blog/java-threadpool-notes/threadpool-params.png)
+
+### 3. Two Ways to Create Thread Pools
+
+**Method 1: Through the `ThreadPoolExecutor` constructor (recommended).**
+
+![ThreadPoolExecutor constructor method](/images/blog/java-threadpool-notes/threadpool-constructor.png)
+
+Implementation through the constructor method.
+
+**Method 2: Through the `Executors` utility class in the Executor framework.**
+
+The thread pool creation methods provided by the `Executors` utility class are shown below:
+
+![Executors creation method](/images/blog/java-threadpool-notes/threadpool-executors.png)
+
+The "Alibaba Java Development Manual" mandates that thread pools should not be created using `Executors`, but rather through the `ThreadPoolExecutor` constructor. This approach makes developers more aware of the thread pool's operating rules and avoids the risk of resource exhaustion.
+
