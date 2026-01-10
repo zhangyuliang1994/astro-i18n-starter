@@ -1,0 +1,40 @@
+---
+title: "Git Common Commands"
+description: "Personal commonly used git commands, including proxy settings, viewing and canceling proxy operations."
+date: 2024-01-25
+tags: ["git"]
+categories: ["Development"]
+---
+
+## Proxy Related
+
+### Set HTTP Proxy
+
+```bash
+git config --global http.proxy 127.0.0.1:7890
+git config --global https.proxy 127.0.0.1:7890
+```
+
+### View HTTP Proxy
+
+```bash
+git config --global --get http.proxy
+git config --global --get https.proxy
+```
+
+### Unset HTTP Proxy
+
+```bash
+git config --global --unset http.proxy
+git config --global --unset https.proxy
+```
+
+### GitHub
+
+```bash
+# Set proxy
+git config --global http.https://github.com.proxy socks5://127.0.0.1:10808
+# Unset proxy
+git config --global --unset http.https://github.com.proxy
+```
+

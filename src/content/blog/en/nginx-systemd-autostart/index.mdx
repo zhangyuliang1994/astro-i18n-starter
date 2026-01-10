@@ -1,0 +1,50 @@
+---
+title: "Configuring Nginx to Start Automatically on Boot"
+description: "Complete steps to configure nginx to start automatically on boot on Linux systems using systemd service configuration."
+date: 2024-02-20
+tags: ["linux", "nginx"]
+categories: ["nginx"]
+---
+
+### 1. Background
+
+Nginx is installed on a virtual machine and needs to start automatically on boot.
+
+### 2. Steps
+
+#### 1. Navigate to /lib/systemd/system/ Directory
+
+```shell
+cd /lib/systemd/system/
+```
+
+#### 2. Create File: nginx.service
+
+```shell
+touch nginx.service
+vim nginx.service
+```
+
+#### 3. Edit File Content
+
+```shell
+[Unit]
+Description=nginx service
+After=network.target
+
+[Service]
+Type=forking
+ExecStart=/usr/local/nginx/sbin/nginx
+ExecReload=/usr/local/nginx/sbin/nginx -s reload
+ExecStop=/usr/local/nginx/sbin/nginx -s quit
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+#### 4. Enable Autostart on Boot
+
+```shell
+systemctl enable nginx
+```

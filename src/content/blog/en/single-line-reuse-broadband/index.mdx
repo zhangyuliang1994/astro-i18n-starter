@@ -1,0 +1,55 @@
+---
+title: "Single Line Multiplexing for Home Broadband"
+description: "Learn how to configure managed switches to implement single line multiplexing, allowing one ethernet cable to simultaneously transmit internet and IPTV signals, solving the problem of no wired network in the study."
+date: 2025-03-01
+tags: ["network"]
+categories: ["tinkering"]
+---
+
+> Last time, by converting the optical modem to bridge mode and having the main router dial up, I was able to get both the Apple TV and IPTV in the living room connected via ethernet. However, the study no longer had wired access. When I occasionally want to play games, I have to drag a 10-meter ethernet cable, which is very inconvenient. So I still need to implement single line multiplexing.
+
+### 1. Check VLAN IDs on the Optical Modem
+
+You still need the super administrator password for the optical modem. First, change the optical modem's connection mode to bridge mode and let the router dial up (you can refer to my previous article for this part).
+
+Here, I'm accessing the optical modem's web page to record the VLAN IDs for internet and IPTV. As shown in the figure, the internet VLAN ID is 11, and the IPTV VLAN ID is 43.
+
+![Optical Modem Bridge Settings](/images/blog/single-line-reuse-broadband/cat-bridge.png)
+
+![Optical Modem IPTV Settings](/images/blog/single-line-reuse-broadband/cat-itv.png)
+
+### 2. Configure Switches
+
+I'm using two five-port gigabit managed switches, model Mercury SG105 Pro. Other managed switches can also work; the configuration is similar.
+
+#### 2.1 Login
+
+Enter 192.168.0.1 in the browser, username: admin, password: admin (the computer also needs to be configured on this network segment)
+
+![Mercury Switch Login](/images/blog/single-line-reuse-broadband/mercury-login.png)
+
+#### 2.2 VLAN Configuration
+
+Go to menu VLAN -> 802.1Q VLAN, first enable the configuration, then set the VLAN as follows:
+
+![Mercury VLAN Settings](/images/blog/single-line-reuse-broadband/mercury-vlan-config.png)
+
+#### 2.3 PVID Configuration
+
+Go to menu VLAN -> 802.1Q PVID Settings, and set the PVID for the corresponding ports. Both switches need to be configured this way.
+
+![Mercury PVID Settings](/images/blog/single-line-reuse-broadband/mercury-pvid-config.png)
+
+#### 2.4 Save Configuration
+
+This step is very important; otherwise, after a restart, all those settings will be lost.
+
+![Mercury Save Configuration](/images/blog/single-line-reuse-broadband/mercury-save-config.png)
+
+### 3. Wiring
+
+![Single Line Multiplexing Wiring Diagram](/images/blog/single-line-reuse-broadband/single-line-wiring.png)
+
+### 4. Reference
+
+Reference link: https://post.smzdm.com/p/a992kk30/?nozhiyou

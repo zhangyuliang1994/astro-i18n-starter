@@ -1,0 +1,74 @@
+---
+title: "Using jasypt for Encryption and Decryption in Spring Boot"
+description: "Learn how to use jasypt in Spring Boot projects to encrypt and decrypt sensitive configurations (such as database passwords), including dependency setup, configuration files, and encryption/decryption methods."
+date: 2024-05-26
+tags: ["springboot"]
+categories: ["spring"]
+---
+
+> Some configurations in projects need to be encrypted, such as database passwords. Jasypt can implement encryption and decryption functionality.
+
+### 1. Add Dependency
+
+```xml
+<dependency>
+    <groupId>com.github.ulisesbocchio</groupId>
+    <artifactId>jasypt-spring-boot-starter</artifactId>
+    <version>3.0.5</version>
+</dependency>
+```
+
+### 2. Configuration File
+
+#### Before Encryption
+
+```yml
+spring:
+  datasource:
+    password: 123456
+```
+
+#### After Encryption
+
+```yml
+spring:
+  datasource:
+    password: ENC(slZULLmbudl1M6/43iq6y8100XQ4DlqnxtToLxtUODxqlsCm02M2ujbx6ayy4j92)
+```
+
+### 3. Encryption
+
+Here's an example using AES256
+
+```java
+// Specify algorithm
+AES256TextEncryptor textEncryptor = new AES256TextEncryptor();
+// Specify secret key
+textEncryptor.setPassword("test");
+// Generate encrypted data
+String encrypt = textEncryptor.encrypt("123456");
+System.out.println(encrypt);
+// slZULLmbudl1M6/43iq6y8100XQ4DlqnxtToLxtUODxqlsCm02M2ujbx6ayy4j92
+```
+
+### 4. Decryption
+
+#### 4.1 IDE Configuration
+
+Add the following to VM options:
+
+```shell
+-Djasypt.encryptor.password=test
+```
+
+![IDEA jasypt Configuration](/images/blog/springboot-jasypt-encryption/jasypt-idea-config.png)
+
+#### 4.2 Running
+
+```shell
+java -jar -Djasypt.encryptor.password=test xxx.jar
+```
+
+#### 4.3 Test Classes
+
+For classes that need unit testing, just add the `@Import(EnableEncryptableProperties.class)` annotation to the class

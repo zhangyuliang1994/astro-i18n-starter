@@ -1,0 +1,94 @@
+---
+title: "Claude Code First Experience: From Hesitation to Attraction as an AI Programming Assistant"
+description: "Deep experience with Claude Code, complete record from registration and installation to actual use, and comparison with Cursor"
+date: 2025-06-23
+tags: ["AI Programming"]
+categories: ["Tech Sharing"]
+---
+
+## Claude Code First Experience: From Hesitation to Attraction as an AI Programming Assistant
+
+Claude Code has been out for several months, but previously it was either pay-as-you-go or only available to Max users, making the barrier high for regular users. Recently Pro users can also use it, plus all the buzz inside and outside the wall about its excellent performance, it's really tempting. Although the $20 price made me hesitate, especially since I already got a year of Cursor Pro free with an education discount.
+
+But what prompted me to make up my mind was Cursor's recent disappointing performance—from last week it became slow and dumb, seemingly only able to handle simple problems. Helplessly, I still gritted my teeth and decided to experience Claude Code.
+
+### 1. Registration and Installation Journey
+
+#### 1.1 Cautious Registration
+
+In the past week I've seen quite a few users getting their accounts banned. To be safe, I decided to register a completely new Google account, using a new Gmail to register Claude. For payment method, I didn't choose Alipay (worried about rejection or account ban), but used WildCard to complete payment.
+
+#### 1.2 Installation Process Bumps
+
+**Windows 11 Failed Attempt**
+
+Yesterday I first tried installing on Windows 11. When executing the npm command, it directly said Windows system isn't supported. Helplessly, I could only follow the tutorial to install WSL, then install Ubuntu in WSL, but after installation there were still problems, so I had to temporarily give up.
+
+**Mac Installation Success**
+
+Today at the company I eagerly installed it on Mac, the process was also not smooth. Finally I found the solution in GitHub Issues:
+
+```bash
+npm list -g --depth=0 > ~/npm-global-packages.txt
+mkdir -p ~/.npm-global
+npm config set prefix ~/.npm-global
+echo 'export PATH=~/.npm-global/bin:$PATH' >> ~/.zshrc
+source ~/.zshrc
+npm install -g @anthropic-ai/claude-code
+```
+
+After installation, it kept erroring at startup:
+
+![Claude Code Startup Failed](http://minio.xiaofeng.show/blog/2025/claude_code_fail.png)
+
+After messing around for a long time, I found it was a proxy configuration issue. Solved with the following commands:
+
+```bash
+export HTTP_PROXY="http://127.0.0.1:7890"
+export HTTPS_PROXY="http://127.0.0.1:7890"
+# 7890 is my local proxy service port
+```
+
+After re-executing the claude command, I finally saw the long-awaited interface!
+
+![Claude Code Successfully Started](http://minio.xiaofeng.show/blog/2025/claude_code_success.jpeg)
+
+After logging into the account, I could finally start the happy programming journey.
+
+### 2. Actual Usage Experience
+
+Today I mainly had it assist in writing Java code for work, using SpringBoot framework. Overall experience, it indeed feels better than Cursor. Although Cursor performs well in writing frontend code and Golang, its experience in Java development hasn't been ideal for me.
+
+![Claude Code Work Scene](http://minio.xiaofeng.show/blog/2025/claude_code_work.png)
+
+#### 2.1 Handling Complex Tasks: Slow and Careful, Never Making Things Up
+
+When I gave it a complex task, it would first comprehensively scan all related files, and only start coding after fully understanding the existing code structure. Although this process might be a bit slow, the results were satisfying—no making things up, no variable boundary issues, and no missing import statements (these are errors Cursor often makes).
+
+#### 2.2 Rigorous and Professional: Insisting on Code Quality, Not Catering to Wrong Requirements
+
+Once, a certain requirement it had already perfectly implemented, but what was running online was old code, and I mistakenly thought it wrote it wrong. Claude Code didn't blindly cater to my thinking, but carefully checked the code again, confirmed the existing code was correct, and provided methods to check historical data. This attitude of insisting on professional judgment and not casually modifying code impressed me deeply.
+
+#### 2.3 Minor Flaws Don't Affect Overall Excellence
+
+Of course, Claude Code isn't perfect either. After multiple requests, occasionally some small problems appear, like class property reference issues, but these can be discovered at compile time and won't affect overall development progress. Also, sometimes file format modifications might have issues, but since the number of modified files is limited, it's easy to manually locate and solve.
+
+### 3. Summary: Claude Code Is Worth Having
+
+After a day of deep experience, I can confidently say: **Claude Code is absolutely worth it!**
+
+It uses the current best AI model, provides the best AI programming experience, and is worth every programmer's try. I'm willing to recommend it to all colleagues. As Teacher Baoyu said: "If you're going to use it, use the best, this is where you need to be generous."
+
+![Teacher Baoyu's Advice](http://minio.xiaofeng.show/blog/2025/claude_code_baoyu.png)
+
+In today's rapid development of AI programming tools, choosing an excellent assistant can not only improve development efficiency, but also let us go further in code quality. Claude Code's performance in this regard is indeed impressive.
+
+#### Usage Suggestions
+
+1. **Patient Installation**: Although the installation process may encounter some bumps, persevering will definitely succeed
+2. **Reasonable Expectations**: It's powerful, but not omnipotent, works better with human judgment
+3. **Full Utilization**: For complex projects, let it fully understand the code structure before starting work
+4. **Continuous Feedback**: Promptly provide feedback when encountering problems, its learning ability is strong
+
+Overall, Claude Code is the most impressive AI programming assistant I've used, worth the investment and long-term use.
+

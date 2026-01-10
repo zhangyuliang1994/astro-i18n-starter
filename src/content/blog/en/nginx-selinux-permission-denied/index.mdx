@@ -1,0 +1,43 @@
+---
+title: "Fixing Nginx failed 13 Permission denied while connecting to upstream"
+description: "Resolve SELinux permission issues encountered when using Nginx reverse proxy, with solutions including disabling SELinux restrictions and setting httpd_can_network_connect."
+date: 2024-02-20
+tags: ["nginx"]
+categories: ["nginx"]
+---
+
+### 1. Problem
+
+Recently encountered this issue when using nginx as a reverse proxy:
+
+```shell
+2024/02/19 17:15:32 [crit] 3025#3025: *2 connect() to 127.0.0.1:19010 failed (13: Permission denied) while connecting to upstream, client: 10.64.68.30, server: , request: "POST /opticTransceiver/addDeviceList HTTP/1.1", upstream: "http://127.0.0.1:19010/opticTransceiver/addDeviceList", host: "localhost:8080", referrer: "http://localhost:8080/device-connect"
+```
+
+### 2. Cause
+
+This is due to SELinux restrictions.
+
+### 3. Solutions
+
+#### 1. Disable SELinux Restrictions
+
+##### 1) Temporarily Disable (No need to restart machine)
+
+```shell
+setenforce 0 ##Set SELinux to permissive mode
+```
+
+##### 2) Modify Configuration File (Requires machine restart)
+
+Edit the `/etc/selinux/config` file
+
+Change `SELINUX=enforcing` to `SELINUX=disabled`
+
+Restart the machine
+
+#### 2. Execute the Following Command
+
+```shell
+setsebool -P httpd_can_network_connect 1
+```

@@ -1,0 +1,44 @@
+---
+title: "Common Nginx Commands"
+description: "A summary of commonly used nginx commands, including restart, configuration file validation, and proxy configuration examples."
+date: 2024-05-11
+tags: ["linux", "nginx"]
+categories: ["nginx"]
+---
+
+### 1. Restart
+
+```shell
+/usr/nginx/sbin/nginx -s reload
+```
+
+### 2. Check Configuration File Validity
+
+```shell
+nginx -t -c /usr/nginx/conf/nginx.conf
+```
+
+Or
+
+```shell
+/usr/nginx/sbin/nginx -t
+```
+
+### 3. Proxy Configuration
+
+```shell
+server {
+    listen 80;
+    server_name yourdomain.com;
+
+    location / {
+        proxy_pass http://localhost:8080;  # Spring Boot application address
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
+
+`proxy_set_header` can proxy access permissions and request headers. This configuration is essential when the backend has a whitelist.

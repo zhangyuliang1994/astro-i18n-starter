@@ -1,0 +1,93 @@
+---
+title: "Generating API Documentation with smart-doc Using Annotations"
+description: "Learn how to use smart-doc to generate API documentation non-intrusively through Java comments, including Maven plugin configuration, configuration file settings, and documentation generation methods."
+date: 2024-05-30
+tags: ["springboot"]
+categories: ["spring"]
+---
+
+### 1. Introduction
+
+The thing programmers hate most is writing documentation, especially API documentation. I've used swagger before, but having to add annotations to every class, method, and field is really too cumbersome. Recently I discovered smart-doc, which solves this problem very well because it's non-intrusive - you just write normal Java comments and it can generate API documentation in various formats.
+
+Official documentation: https://smart-doc-group.github.io/#/zh-cn/
+
+### 2. Maven Plugin Configuration
+
+```xml
+<plugin>
+    <groupId>com.github.shalousun</groupId>
+    <artifactId>smart-doc-maven-plugin</artifactId>
+    <version>2.6.0</version>
+    <executions>
+        <execution>
+            <phase>compile</phase>
+            <goals>
+                <goal>html</goal>
+            </goals>
+        </execution>
+    </executions>
+    <configuration>
+        <configFile>./src/main/resources/smart-doc.json</configFile>
+    </configuration>
+</plugin>
+```
+
+This generates documentation in HTML format, with the configuration file located at `./src/main/resources/smart-doc.json`
+
+### 3. Configuration File
+
+```json
+{
+  "serverUrl": "http://127.0.0.1:8236",
+  "pathPrefix": "/",
+  "isStrict": false,
+  "allInOne": true,
+  "outPath": "target/classes/static/doc",
+  "coverOld": true,
+  "createDebugPage": true,
+  "style":"atelier_cave-light",
+  "allInOneDocFileName":"index.html",
+  "errorCodeDictionaries": [{
+    "title": "Response Code",
+    "enumClassName": "com.aizz.mindmingle.common.ResponseCode",
+    "codeField": "code",
+    "descField": "desc"
+  }],
+  "revisionLogs": [{
+    "version": "1.0",
+    "revisionTime": "2023-11-24 10:30",
+    "status": "create",
+    "author": "zhangyuliang",
+    "remarks": "Created"
+  }]
+}
+```
+
+This configuration specifies the output directory for API documentation and response codes. You can also configure static constants and data dictionaries. See the official documentation for details.
+
+### 4. Generating API Documentation
+
+Normal `mvn clean package` will generate the API documentation
+
+You can also generate via command
+
+![Maven Command Generate Documentation](/images/blog/smart-doc-annotation-api-docs/smart-doc-mvn.png)
+
+The image below shows the `smart-doc.json` configuration file and the generated API documentation in the project
+
+![Display in IDEA](/images/blog/smart-doc-annotation-api-docs/smart-doc-idea-show.png)
+
+### 5. Documentation Display
+
+#### 5.1 Local
+
+Locally, just open the HTML file directly
+
+![Local HTML Display](/images/blog/smart-doc-annotation-api-docs/smart-doc-local-html.png)
+
+#### 5.2 Server
+
+Remote access format is: ip:port/context-path/doc/index.html
+
+![Server HTML Display](/images/blog/smart-doc-annotation-api-docs/smart-doc-server-html.png)

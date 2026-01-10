@@ -1,0 +1,28 @@
+---
+title: "BigDecimal Comparison"
+description: "Introduce the methods for comparing size and equality of Java BigDecimal class, using compareTo for precise comparison."
+date: 2024-02-22
+tags: ["Java"]
+categories: ["Java"]
+---
+
+> This class is used for precise calculations in Java. Below is an introduction to the methods for determining the size and equality of BigDecimal.
+
+```java
+BigDecimal a = new BigDecimal(1.0);
+BigDecimal b = BigDecimal.valueOf(1.000);
+```
+
+### I. Comparison Method
+
+```java
+int result = a.compareTo(b);
+```
+
+### II. Comparison Results
+
+- `-1` less than
+- `0` equal to
+- `1` greater than
+
+> When making judgments, use the conditions greater than 0, less than 0, or equal to 0.

@@ -1,0 +1,84 @@
+---
+title: "Hexo Common Syntax and Commands"
+description: "Summary of common commands and syntax for the Hexo blog framework, including creating new posts, internal links, pinning and collapsing content."
+date: 2024-06-05
+tags: ["hexo"]
+categories: ["Website Building"]
+---
+
+### 1. Common Commands
+
+#### 1.1 Create New Post
+
+```shell
+hexo new [layout] <title>
+```
+
+e.g.
+
+```shell
+hexo new "post title with whitespace"
+```
+
+#### 1.2 Create Post in Subdirectory
+
+By default, new files are created in the `_posts` directory. When you have many posts, it's inconvenient to find them. You can create a directory under `_posts`, such as `dir`, then use the following command to create a post in the `_posts/dir` directory:
+
+```shell
+hexo new -p dir/test -s "test" "测试"
+# test is the post filename
+# 测试 is the post title
+
+# -p, --path	Customize the path for new post
+# -s, --slug	Post slug, used as filename and URL after publication
+```
+
+### 2. Common Syntax
+
+#### 2.1 Internal Post Linking
+
+```text
+{% post_link Post Title %}
+```
+
+e.g.
+
+```text
+{% post_link nginx-common-commands %}
+```
+
+> **Note**: `{% post_link %}` is Hexo-specific tag syntax. In Astro/MDX, you need to use Markdown link syntax, for example: `[nginx-common-commands](/en/blog/nginx-common-commands/)`
+
+#### 2.2 Pin Single Post
+
+```yaml
+sticky: 1
+```
+
+> **Note**: `sticky` is a Hexo frontmatter field. In Astro, you can implement similar functionality through custom fields.
+
+#### 2.3 Collapsible Content
+
+In Hexo, use the `<details>` tag for collapsing:
+
+```html
+<details><summary>Summary content</summary>
+
+(Leave a blank line above) This is the actual content to be expanded.
+</details>
+```
+
+Or use the `{% spoiler %}` tag:
+
+```text
+{% spoiler Answer %}
+Reference answer
+{% endspoiler %}
+
+{% spoiler "Several spaces in the title" %}
+content
+{% endspoiler %}
+```
+
+> **Note**: `{% spoiler %}` is Hexo-specific tag syntax. In Astro/MDX, you can use the HTML `<details>` tag to achieve the same collapsing effect.
+

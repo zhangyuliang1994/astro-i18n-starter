@@ -1,0 +1,33 @@
+---
+title: "Spring Boot logback Log Time Showing 8 Hours Difference"
+description: "Fix the issue of Spring Boot logback log time being inconsistent with system time by specifying the timezone in the pattern configuration."
+date: 2024-02-23
+tags: ["springboot", "logback"]
+categories: ["spring"]
+---
+
+### 1. Problem
+
+The logback log time doesn't match the system time, always differing by several hours. Setting the project timezone didn't help, and `new Date()` in the project shows the correct time.
+
+### 2. Cause
+
+The same project is deployed on two machines. The time was normal on the previous machine, but not on this one. The specific cause hasn't been found yet.
+
+### 3. Solution
+
+Modify the time format in the logback configuration file pattern
+
+**Before modification:**
+
+```xml
+<property name="pattern" value="%d{yyyy-MM-dd HH:mm:ss:SSS} %thread [%level] %m%n"/>
+```
+
+**After modification:**
+
+```xml
+<property name="pattern" value="%d{yyyy-MM-dd HH:mm:ss:SSS,CTT} %thread [%level] %m%n"/>
+```
+
+Add a specified timezone after `yyyy-MM-dd HH:mm:ss.SSS`, separated by a comma. For example, `yyyy-MM-dd HH:mm:ss.SSS,CTT`. CTT represents Shanghai time. After this change, it works correctly.

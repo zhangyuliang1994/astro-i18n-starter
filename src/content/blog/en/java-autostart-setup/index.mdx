@@ -1,0 +1,86 @@
+---
+title: "Setting Up Java Applications to Auto-Start"
+description: "A guide on how to set up Java applications to auto-start on Windows and Linux systems, including WinSW tool configuration and systemd service configuration."
+date: 2024-07-06
+tags: ["java"]
+categories: ["Development"]
+---
+
+### I. Windows
+
+Use the WinSW tool, download from: https://github.com/winsw/winsw/releases
+
+#### 1.1 Create a new folder directory with any name. Place your JAR file and the downloaded WinSW.exe tool in this folder
+
+Rename WinSW.exe to myJava-service.exe
+
+#### 1.2 Create an XML configuration file
+
+```xml
+<service>
+  <id>myJava</id>
+  <name>myJava</name>
+  <description>This service runs myJava continuous integration system.</description>
+  <executable>java</executable>
+  <arguments>-Xrs -Xmx256m -jar "%BASE%\jenkins.jar"</arguments>
+</service>
+```
+
+Save the configuration file with the same name as in step 1, myJava-service.xml
+
+#### 1.3 Install the service
+
+Open cmd in the current directory and execute `myJava-service.exe install`
+
+If the command line window displays a message similar to "successfully", the installation is successful.
+
+At this point, open `Services`, and you should see a background service named `myJava` with startup type set to `Automatic`, which will auto-start by default on boot.
+
+### II. Linux
+
+#### 2.1 Create a service file
+
+```shell
+cd /etc/systemd/system
+touch myapp.service
+```
+
+#### 2.2 Configure the service file
+
+vi /etc/systemd/system/myapp.service
+
+```shell
+[Unit]
+Description=My Spring Boot Application
+After=syslog.target
+[Service]
+User=your-username
+ExecStart=/usr/bin/java -jar /path/to/your/application.jar
+SuccessExitStatus=143
+[Install]
+WantedBy=multi-user.target
+```
+
+Save and close the file. Make sure to replace "your-username" and "/path/to/your/application.jar" with the actual username and application path.
+
+#### 2.3 Install the service
+
+Reload the Systemd configuration file so it can recognize the new service file:
+
+```shell
+sudo systemctl daemon-reload
+```
+
+Start the service and set it to auto-start:
+
+```shell
+sudo systemctl start myapp.service
+sudo systemctl enable myapp.service
+```
+
+You can use the following commands to stop or restart the service:
+
+```shell
+sudo systemctl stop myapp.service
+sudo systemctl restart myapp.service
+```

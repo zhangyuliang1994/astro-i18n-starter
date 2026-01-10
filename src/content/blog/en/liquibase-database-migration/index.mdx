@@ -1,0 +1,81 @@
+---
+title: "Managing Database Changes with Liquibase"
+description: "Learn how to use Liquibase in Spring Boot projects to manage database changes, including dependency setup, configuration file settings, and SQL file management best practices."
+date: 2024-05-30
+tags: ["springboot"]
+categories: ["spring"]
+---
+
+> When updating or upgrading a project, missing database fields often cause some features to fail.
+> Liquibase can effectively solve this problem. There are many examples of its usage online, but I prefer to manage changes based on SQL files.
+
+### 1. Add Dependency
+
+```xml
+<dependency>
+    <groupId>org.liquibase</groupId>
+    <artifactId>liquibase-core</artifactId>
+</dependency>
+```
+
+### 2. File Configuration
+
+#### 2.1 Spring Configuration
+
+```yml
+spring:
+  liquibase:
+    enabled: true
+    change-log: sql/changelog.yml
+```
+
+- Set the `enabled` property to true
+- Set the `change-log` property to point to the SQL change configuration file
+
+#### 2.2 Change-log File Configuration
+
+```yml
+databaseChangeLog:
+  - changeSet:
+      id: init
+      author: zhangyuliang
+      comment: Initial setup
+      changes:
+        - sqlFile:
+            splitStatements: true
+            stripComments: false
+            path: sql/init.sql
+        - tagDatabase:
+            tag: 1.0.0
+  - changeSet:
+      id: init.data
+      author: zhangyuliang
+      comment: Initialize data
+      changes:
+        - sqlFile:
+            splitStatements: true
+            stripComments: false
+            path: sql/init.data.sql
+        - tagDatabase:
+            tag: 1.0.0
+```
+
+#### 2.3 Change-log File and SQL Files in the Project
+
+![Display in IDEA](/images/blog/liquibase-database-migration/liquibase-idea-show.png)
+
+### 3. SQL Execution
+
+Once Liquibase is enabled, it will execute during project startup. Make sure there are no errors in the SQL files, otherwise startup will fail.
+
+Additionally, never modify SQL files after they are created. Otherwise, Liquibase will treat it as a SQL change with the same ID and will try to re-execute it. Since the `changeSet` ID is the same, execution will fail, causing startup to fail.
+
+It is recommended to add new SQL files for database changes. Follow this principle for any field modifications, so that even when updating different versions of the project, SQL changes can be completed based on the `changeSet`.
+
+![Data Source Display](/images/blog/liquibase-database-migration/liquibase-data-source.png)
+
+After successful SQL execution, the database will have two additional tables: `DATABASECHANGELOG` and `DATABASECHANGELOGLOCK`.
+
+The `DATABASECHANGELOG` table records the SQL change log.
+
+If you really need to modify an SQL file, you must delete the record with ID = `changeSet` from the database.

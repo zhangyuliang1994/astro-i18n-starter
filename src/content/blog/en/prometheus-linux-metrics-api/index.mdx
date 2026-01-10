@@ -1,0 +1,275 @@
+---
+title: "Querying Linux System Metrics via Prometheus API"
+description: "Learn how to query Linux system metrics using the Prometheus API, including environment configuration, metric query API usage, and frontend display solutions."
+date: 2025-01-06
+tags: ["linux"]
+categories: ["development"]
+---
+
+### 1. Introduction
+
+Recently, a project required displaying Linux system metrics such as CPU, memory, and disk usage. Although Grafana can display these metrics, embedding it into the system may not be user-friendly, so custom development is needed.
+
+### 2. Environment Setup
+
+The node_exporter on the target server is installed directly on the system. Prometheus is installed via docker-compose.
+
+```yml
+version: '2'
+
+networks:
+  monitor:
+    driver: bridge
+
+services:
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    hostname: prometheus
+    restart: always
+    volumes:
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - '9090:9090'
+```
+
+The prometheus.yml configuration file is as follows:
+
+```yml
+# my global config
+global:
+  scrape_interval: 15s # Set the scrape interval to every 15 seconds. Default is every 1 minute.
+  evaluation_interval: 15s # Evaluate rules every 15 seconds. The default is every 1 minute.
+  # scrape_timeout is set to the global default (10s).
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          # - alertmanager:9093
+
+# Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
+rule_files:
+  # - "first_rules.yml"
+  # - "second_rules.yml"
+
+# A scrape configuration containing exactly one endpoint to scrape:
+# Here it's Prometheus itself.
+scrape_configs:
+  # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
+  - job_name: "prometheus"
+
+    # metrics_path defaults to '/metrics'
+    # scheme defaults to 'http'.
+
+    static_configs:
+      - targets: ["10.64.4.78:9090"]
+
+  - job_name: "linux_metrics"
+    static_configs:
+        - targets: ["10.64.4.78:7777"]
+```
+
+The job_name `linux_metrics` is the server I want to monitor.
+
+![Prometheus Configuration](/images/blog/prometheus-linux-metrics-api/prometheus-config.png)
+
+### 3. Metric Queries
+
+![PromQL Query](/images/blog/prometheus-linux-metrics-api/promql-query.png)
+
+As shown in the figure, you can write PromQL expressions in the query bar (connect multiple metrics with OR), and the chart below will display the corresponding metrics.
+
+API usage is similar. Reference: https://prometheus.io/docs/prometheus/latest/querying/api/
+
+I mainly use `/api/v1/query` and `/api/v1/query_range`
+
+#### /api/v1/query
+
+Mainly used to query the current state of metrics. The only parameter is query, and you just need to put the PromQL into the parameter value.
+
+As shown below:
+
+![API Query Example](/images/blog/prometheus-linux-metrics-api/api-query-example.png)
+
+Get CPU usage (multiple metrics can be connected with OR), request URL: `http://10.64.4.78:9090/api/v1/query?query=label_replace((1 - avg(irate(node_cpu_seconds_total{mode="idle"}[5m]))) * 100, "metric", "cpu_usage", "", "")`
+
+Response structure is as follows:
+
+```json
+{
+    "status": "success",
+    "data": {
+        "resultType": "vector",
+        "result": [
+            {
+                "metric": {
+                    "metric": "cpu_usage"
+                },
+                "value": [
+                    1736163220.039,
+                    "21.499999999689557"
+                ]
+            }
+        ]
+    }
+}
+```
+
+#### /api/v1/query_range
+
+Mainly used to query the state of metrics over a time period. In addition to the query parameter, there are three other parameters:
+
+- start: Start time
+- end: End time
+- step: Step size
+
+The units for all three parameters above are in seconds, and the timestamps in the returned results are also in seconds.
+
+As shown below, query the system's 1-minute and 5-minute load conditions over one hour, with a step size of 300 seconds.
+
+Request URL: `http://10.64.4.78:9090/api/v1/query_range?start=1735264800&end=1735268399&step=300&query=label_replace(node_load1{job='linux_metrics'}, "metric", "one_min_load", "", "") OR label_replace(node_load5{job='linux_metrics'}, "metric", "five_min_load", "", "")`
+
+Response is as follows:
+
+```json
+{
+    "status": "success",
+    "data": {
+        "resultType": "matrix",
+        "result": [
+            {
+                "metric": {
+                    "__name__": "node_load1",
+                    "instance": "10.64.4.78:7777",
+                    "job": "linux_metrics",
+                    "metric": "one_min_load"
+                },
+                "values": [
+                    [
+                        1735264800,
+                        "0.74"
+                    ],
+                    [
+                        1735265100,
+                        "0.28"
+                    ],
+                    [
+                        1735265400,
+                        "1.92"
+                    ],
+                    [
+                        1735265700,
+                        "0.7"
+                    ],
+                    [
+                        1735266000,
+                        "0.55"
+                    ],
+                    [
+                        1735266300,
+                        "0.39"
+                    ],
+                    [
+                        1735266600,
+                        "0.97"
+                    ],
+                    [
+                        1735266900,
+                        "1.18"
+                    ],
+                    [
+                        1735267200,
+                        "1.19"
+                    ],
+                    [
+                        1735267500,
+                        "0.35"
+                    ],
+                    [
+                        1735267800,
+                        "0.65"
+                    ],
+                    [
+                        1735268100,
+                        "0.98"
+                    ]
+                ]
+            },
+            {
+                "metric": {
+                    "__name__": "node_load5",
+                    "instance": "10.64.4.78:7777",
+                    "job": "linux_metrics",
+                    "metric": "five_min_load"
+                },
+                "values": [
+                    [
+                        1735264800,
+                        "0.68"
+                    ],
+                    [
+                        1735265100,
+                        "0.52"
+                    ],
+                    [
+                        1735265400,
+                        "1.03"
+                    ],
+                    [
+                        1735265700,
+                        "0.83"
+                    ],
+                    [
+                        1735266000,
+                        "0.71"
+                    ],
+                    [
+                        1735266300,
+                        "0.55"
+                    ],
+                    [
+                        1735266600,
+                        "0.75"
+                    ],
+                    [
+                        1735266900,
+                        "1.21"
+                    ],
+                    [
+                        1735267200,
+                        "1.03"
+                    ],
+                    [
+                        1735267500,
+                        "0.62"
+                    ],
+                    [
+                        1735267800,
+                        "0.73"
+                    ],
+                    [
+                        1735268100,
+                        "0.84"
+                    ]
+                ]
+            }
+        ]
+    }
+}
+```
+
+### 4. Results Presentation
+
+With this data, you can use Echarts on the frontend to display the data, as shown below:
+
+![Echarts Display](/images/blog/prometheus-linux-metrics-api/echarts-display.png)
+
+### 5. Metric Discovery
+
+![Query Options](/images/blog/prometheus-linux-metrics-api/query-options.png)
+
+Prometheus has a Query Options section with an "Explore metrics" feature where you can see the meaning of each metric.
+
+![Explore metrics](/images/blog/prometheus-linux-metrics-api/explore-metrics.png)

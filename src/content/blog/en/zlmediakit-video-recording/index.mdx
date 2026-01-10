@@ -1,0 +1,106 @@
+---
+title: "Video Recording with zlmediakit"
+description: "Learn how to use zlmediakit for video recording, including docker-compose deployment, configuration, Java client streaming, and recording API calls."
+date: 2025-06-26
+tags: ["java"]
+categories: ["tools"]
+---
+
+> Recently, a project required backend video recording. Following a friend's recommendation, I used the zlmediakit service, which solved the video recording problem.
+
+## 1. zlmediakit Installation and Configuration
+
+Deploy using docker-compose, mapping the conf and media directories for easy configuration file modification and persistence of recording files.
+
+docker-compose.yml configuration (with streaming recording enabled):
+
+```yaml
+version: "3.9"
+
+services:
+  zlmediakit:
+    image: registry.cn-beijing.aliyuncs.com/wuhm/zlmediakit:master
+    container_name: zlmediakit
+    privileged: true
+    command: /opt/media/bin/MediaServer -c /opt/media/conf/config.ini
+    ports:
+      - "11935:1935"
+      - "180:80"
+      - "1554:554"
+      - "9009:9000/udp"
+      - "10000:10000/tcp"
+      - "10000:10000/udp"
+      - "30000-30500:30000-30500/tcp"
+      - "30000-30500:30000-30500/udp"
+    volumes:
+      - ./conf/config.ini:/opt/media/conf/config.ini
+      - ./media:/opt/media/bin/www
+    environment:
+      TZ: "Asia/Shanghai"
+    restart: "on-failure:3"
+```
+
+The conf directory contains only one config.ini configuration file. The most important configuration is the secret for API calls.
+
+![media Directory Structure](/images/blog/zlmediakit-video-recording/media-directory.png)
+
+Files can be accessed directly in the browser:
+
+![Browser Access Files](/images/blog/zlmediakit-video-recording/browser-access.png)
+
+## 2. Client Streaming
+
+### 2.1 Add Dependency
+
+I'm using Java, and there's a ready-made package available:
+
+```xml
+<!-- FFmpeg Java Wrapper -->
+<dependency>
+    <groupId>org.bytedeco</groupId>
+    <artifactId>javacv-platform</artifactId>
+    <version>1.5.8</version>
+</dependency>
+```
+
+### 2.2 Start Streaming
+
+This example streams using an unencrypted FLV URL to RTMP using JavaCV. The code includes configuration for FFmpeg grabber and recorder, handling video and audio codecs, frame rate control, and continuous streaming with proper resource management.
+
+## 3. Recording
+
+### 3.1 Start ZLM Recording
+
+Use the ZLM API to start recording with custom path and segment duration:
+
+```java
+public void startZLMRecordingViaAPI(String zlmHost, String zlmApiPort, String secret,
+                                   String appName, String streamId) {
+    String apiUrl = String.format("http://%s:%s/index/api/startRecord", zlmHost, zlmApiPort);
+    Map<String, Object> params = new HashMap<>();
+    params.put("secret", secret);
+    params.put("type", 0); // 0=hls,1=mp4
+    params.put("vhost", "__defaultVhost__");
+    params.put("app", appName);
+    params.put("stream", streamId);
+    params.put("max_second", 30); // 30 second segments
+    // Send HTTP request...
+}
+```
+
+### 3.2 Stop ZLM Recording
+
+```java
+public void stopZLMRecordingViaAPI(String zlmHost, String zlmApiPort, String secret,
+                                  String appName, String streamId) {
+    // Similar to start, with /stopRecord endpoint
+}
+```
+
+### 3.3 Get Recording Files
+
+Recording files require some time to be generated. Scan the directory to find the generated MP4 files.
+
+![Recording File List](/images/blog/zlmediakit-video-recording/record-files.png)
+
+With the video files, you can store them in services like MinIO.

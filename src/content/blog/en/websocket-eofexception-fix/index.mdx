@@ -1,0 +1,64 @@
+---
+title: "Fixing WebSocket Auto-Disconnect with java.io.EOFException"
+description: "Resolve WebSocket service auto-disconnect issues when using Nginx reverse proxy, with two solutions: modifying Nginx timeout configuration and adding heartbeat mechanism."
+date: 2024-02-23
+tags: ["nginx", "websocket"]
+categories: ["nginx"]
+---
+
+### 1. Problem
+
+After using Nginx reverse proxy for the WebSocket service, it automatically disconnects. The log shows:
+
+```shell
+2024-02-22 18:51:05:964 1901020240223104709130 [ERROR] websocket connection error,
+java.io.EOFException: null
+        at org.apache.tomcat.util.net.NioEndpoint$NioSocketWrapper.fillReadBuffer(NioEndpoint.java:1339)
+        at org.apache.tomcat.util.net.NioEndpoint$NioSocketWrapper.read(NioEndpoint.java:1226)
+        at org.apache.tomcat.websocket.server.WsFrameServer.onDataAvailable(WsFrameServer.java:75)
+        at org.apache.tomcat.websocket.server.WsFrameServer.doOnDataAvailable(WsFrameServer.java:183)
+        at org.apache.tomcat.websocket.server.WsFrameServer.notifyDataAvailable(WsFrameServer.java:162)
+        at org.apache.tomcat.websocket.server.WsHttpUpgradeHandler.upgradeDispatch(WsHttpUpgradeHandler.java:157)
+        at org.apache.coyote.http11.upgrade.UpgradeProcessorInternal.dispatch(UpgradeProcessorInternal.java:60)
+        at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:59)
+        at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:890)
+        at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1743)
+        at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:49)
+        at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1191)
+        at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:659)
+        at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)
+        at java.base/java.lang.Thread.run(Thread.java:842)
+```
+
+### 2. Cause
+
+When using Nginx reverse proxy, connections without data transmission for more than 60 seconds will automatically disconnect.
+
+### 3. Solutions
+
+#### 1. Modify Nginx Configuration
+
+```text
+proxy_read_timeout 3600;
+```
+
+Increase the timeout duration
+
+#### 2. Add a Scheduled Task to Send Heartbeat Packets on Frontend or Backend:
+
+```javascript
+//Scheduled task, because using nginx reverse proxy, 60 seconds without data transmission will disconnect
+timer=setInterval(function() {
+	if (websocket.readyState == 1) {
+		websocket.send("Heartbeat check");
+	} else {
+		//IM connection has disconnected
+	}
+}, 50 * 1000);
+```
+
+> I used both methods:
+> First, changed the timeout to one hour.
+> Then had the frontend send a heartbeat to the backend every half hour, with the backend responding to the heartbeat.
+
+![Chrome Plugin WebSocket Test](/images/blog/websocket-eofexception-fix/chrome-plugin-websocket.png)

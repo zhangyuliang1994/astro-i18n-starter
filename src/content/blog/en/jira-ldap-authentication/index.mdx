@@ -1,0 +1,49 @@
+---
+title: "Configuring Jira LDAP Server for User Authentication"
+description: "A guide on how to configure LDAP server in Jira for user authentication, including steps for adding directories, configuring servers, setting up user and group schemas."
+date: 2024-03-07
+tags: ["ldap", "jira"]
+categories: ["development"]
+---
+
+> We needed to set up Jira to allow company domain accounts for login. I encountered some challenges during the configuration process and wanted to document them.
+
+### 1. Configuration Steps
+
+#### 1.1 Adding LDAP Authentication
+
+Log in to the Jira page using an administrator account. On the administration page, find "User Management" -> click "User Directories" -> click "Add Directory" -> select "Internal LDAP Authentication"
+
+![Add LDAP Directory](/images/blog/jira-ldap-authentication/jira-ldap-add.png)
+
+#### 1.2 Configuring the Server
+
+Select "OpenLDAP" as the directory type. Fill in the hostname, port, username, and password. Create a group in advance and enter the group name in the "Default Group Membership" input field to prevent domain accounts from lacking permission to log into the Jira system.
+
+![Configure Server](/images/blog/jira-ldap-authentication/jira-ldap-server.png)
+
+#### 1.3 Setting Base DN and Username Attribute
+
+You need to check the specific values in your LDAP server. In my version, the default value for the username attribute is cn, but in my LDAP server it is sAMAccountName.
+
+![Set Base DN](/images/blog/jira-ldap-authentication/jira-ldap-ldap.png)
+
+#### 1.4 Setting User Schema Attributes
+
+![Set User Schema](/images/blog/jira-ldap-authentication/jira-ldap-user.png)
+
+Although these attributes have default values, you still need to check the specific values in your LDAP server. In my LDAP server, the user object class is person, and the unique ID attribute for users is distinguishedName.
+
+#### 1.5 Setting Group Schema
+
+![Set Group Schema](/images/blog/jira-ldap-authentication/jira-ldap-group.png)
+
+In this step, I modified the group object class.
+
+### 2. Recommended Tools
+
+I used LDAP Browser, which is quite good.
+
+Download link: https://ldapbrowserwindows.com/
+
+> The biggest challenge in configuring LDAP in Jira is matching the attributes correctly. This tool makes it convenient to check the values. Additionally, when adding a directory, you can select "LDAP" mode, which provides clearer error messages. I also used this mode during the configuration process to discover attribute configuration errors.

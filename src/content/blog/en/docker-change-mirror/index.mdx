@@ -1,0 +1,24 @@
+---
+title: "Changing Docker Mirror Sources"
+description: "Solve Docker pull failures by configuring Alibaba Cloud mirror sources to accelerate Docker image downloads."
+date: 2024-06-22
+tags: ["docker"]
+categories: ["Tools"]
+---
+
+### Problem
+
+When learning Docker, I encountered pull failures.
+
+### Solution
+
+```shell
+sudo mkdir -p /etc/docker
+sudo tee /etc/docker/daemon.json <<-'EOF'
+{
+  "registry-mirrors": ["https://yxzrazem.mirror.aliyuncs.com"]
+}
+EOF
+sudo systemctl daemon-reload
+sudo systemctl restart docker
+```

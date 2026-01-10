@@ -1,0 +1,107 @@
+---
+title: "Deploy MySQL with docker-compose"
+description: "Guide on how to deploy MySQL 8.0 using docker-compose, including pulling images, creating directories, configuring files, and writing docker-compose.yml."
+date: 2024-06-22
+tags: ["docker"]
+categories: ["Tools"]
+---
+
+### I. Pull MySQL Image
+
+I'm using MySQL 8.0.18 here, but you can choose any version you need.
+
+```shell
+docker pull mysql:8.0.18
+```
+
+### II. Create Mount Directories
+
+```shell
+mkdir -p /home/docker/mysql8/log
+mkdir -p /home/docker/mysql8/data
+mkdir -p /home/docker/mysql8/conf.d
+```
+
+### III. Add Configuration File my.cnf
+
+Here we need to add some custom configurations for MySQL, such as timezone and character encoding.
+
+```shell
+vi /home/docker/mysql8/conf.d/my.cnf
+```
+
+```text
+###### [client] Configuration Section ######
+[client]
+default-character-set=utf8mb4
+socket=/var/lib/mysql/mysql.sock
+
+###### [mysql] Configuration Section ######
+[mysql]
+# Set MySQL client default character set
+default-character-set=utf8mb4
+socket=/var/lib/mysql/mysql.sock
+
+###### [mysqld] Configuration Section ######
+[mysqld]
+port=3306
+user=mysql
+# Set SQL mode - remove ONLY_FULL_GROUP_BY to avoid group query issues with *this is incompatible with sql_mode=only_full_group_by
+sql_mode=STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION
+datadir=/var/lib/mysql
+socket=/var/lib/mysql/mysql.sock
+server-id = 1
+
+# MySQL 8 password authentication plugin - if not set, older Navicat versions cannot connect
+default_authentication_plugin=mysql_native_password
+
+# Disable symbolic links to prevent various security risks
+symbolic-links=0
+
+# Allow maximum connections
+max_connections=1000
+
+# Server-side default character set is 8-bit encoded latin1
+character-set-server=utf8mb4
+
+# Default storage engine to be used when creating new tables
+default-storage-engine=INNODB
+
+# 0: Table names will be stored as specified and comparisons are case-sensitive
+# 1: Table names are stored in lowercase on disk, comparisons are case-insensitive
+lower_case_table_names=0
+
+max_allowed_packet=16M
+
+# Set timezone
+default-time_zone='+8:00'
+
+```
+
+### IV. Write docker-compose.yml
+
+```yml
+version: '3'
+services:
+  mysql: # Service name
+    image: mysql:8.0.18 # Or other mysql versions
+    container_name: mysql8 # Container name
+    environment:
+      - MYSQL_ROOT_PASSWORD=123456 # Root user password
+#      - TZ=Asia/Shanghai # Set container timezone - here I synchronized the host machine timezone and time through volume mounting below, so this is ignored
+    volumes:
+      - /home/docker/mysql8/log:/var/log/mysql # Map log directory, host:container
+      - /home/docker/mysql8/data:/var/lib/mysql # Map data directory, host:container
+      - /home/docker/mysql8/conf.d:/etc/mysql/conf.d # Map configuration directory, host:container
+      - /etc/localtime:/etc/localtime:ro # Sync container clock with host machine clock to avoid time issues, ro means read only.
+    ports:
+      - 3306:3306 # Specify port mapping between host and container, host:container
+    restart: always # Container auto-starts with docker startup
+
+```
+
+### V. Start Container
+
+```shell
+docker-compose -f docker-compose.yml up -d
+```

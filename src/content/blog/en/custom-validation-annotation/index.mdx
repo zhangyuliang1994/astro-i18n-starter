@@ -1,0 +1,70 @@
+---
+title: "Custom Validation Annotations"
+description: "Guide on how to create custom validation annotations for BigDecimal type range validation, including annotation definition, validator implementation, and usage examples."
+date: 2024-05-11
+tags: ["java", "spring"]
+categories: ["spring"]
+---
+
+### I. Background
+
+Recently, while using `javax.validation` for validation, I found there was no annotation for validating `BigDecimal` types, so I created one myself.
+
+### II. Define Annotation and Validator Class
+
+#### 2.1 Annotation Class
+
+```java
+@Documented
+@Constraint(validatedBy = BigDecimalRangeValidator.class)
+@Target(ElementType.FIELD)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface BigDecimalRange {
+    double min() default Double.MIN_VALUE;
+
+    double max() default Double.MAX_VALUE;
+
+    String message() default "Validation failed";
+
+    Class<?>[] groups() default {};
+
+    Class<? extends Payload>[] payload() default {};
+}
+```
+
+#### 2.2 Validator Class
+
+```java
+public class BigDecimalRangeValidator implements ConstraintValidator<BigDecimalRange, BigDecimal> {
+
+    private BigDecimal minValue;
+    private BigDecimal maxValue;
+
+    @Override
+    public void initialize(BigDecimalRange constraintAnnotation) {
+        minValue = new BigDecimal(constraintAnnotation.min());
+        maxValue = new BigDecimal(constraintAnnotation.max());
+    }
+
+    @Override
+    public boolean isValid(BigDecimal value, ConstraintValidatorContext constraintValidatorContext) {
+        if (value == null) {
+            return true;
+        }
+        return value.compareTo(minValue) >= 0 && value.compareTo(maxValue) <= 0;
+    }
+}
+```
+
+### III. Using the Annotation
+
+```java
+public class Example {
+
+    /**
+     * Test field
+     */
+    @BigDecimalRange(min = 0.1, max = 9.9, message = "The range of the test field is 0.1~9.9")
+    private BigDecimal testValue;
+}
+```

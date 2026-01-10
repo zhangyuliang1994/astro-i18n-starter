@@ -1,0 +1,128 @@
+---
+title: "Deep Experience and Reflections on Several Months of AI Programming"
+description: "Real insights after deep experience with AI programming tools, comprehensive analysis from advantages to disadvantages"
+date: 2025-06-15
+tags: ["AI Programming"]
+categories: ["Tech Sharing"]
+---
+
+Recently I read two very inspiring articles: Liu Run's "AI Era, Do We Still Need to Learn Programming?" and Baoyu's "Master the Fundamentals, Then AI Can Truly Help You." As a developer who has been deeply using AI programming tools for several months, I want to share some real usage experiences and thoughts.
+
+![AI and Programmers](https://minio.xiaofeng.show/blog/2025/AIandProgrammers.jpg)
+
+## Current State of AI Programming Tools
+
+Among many AI programming products, **Cursor** is still the strongest on Earth and the tool I use most frequently. In the past two months, I basically used up my quota 10 days before the deadline, showing how intensely I use it.
+
+I've also experienced other products, like v0, same.new, Gemini, etc. While the features are largely similar, Cursor's overall experience is indeed the best. From code writing, bug analysis, solution design, to data analysis, flowchart generation—basically any task that can be handled by AI, I give it to Cursor.
+
+## Significant Advantages of AI Programming
+
+### Efficient Handling of Simple Tasks
+
+For basic programming tasks, AI performs quite well:
+- **Function Writing**: Quickly generate standard utility functions
+- **Class Encapsulation**: Automatically create compliant utility classes
+- **Single Page Applications**: Quickly build simple web pages
+
+These tasks don't even require Cursor. Using online AI tools like ChatGPT, Claude, Gemini, Deepseek, Doubao can complete them very well.
+
+### CRUD Automation
+
+This type of repetitive, relatively low technical content work is most suitable for AI. Like traditional code generators, AI performs stably and reliably in this area, greatly improving development efficiency.
+
+### Cross-Language Data Analysis
+
+This is the most impressive application scenario for me. Once I needed to analyze data from databases and MinIO, but I wasn't familiar with Go language. Having Cursor handle it, within minutes it completed the entire solution, including:
+- Data analysis logic
+- Cross-platform packaging
+- Automated testing
+- Compilation verification
+
+If I did it myself, it might take two hours, and I couldn't guarantee the correctness of the results.
+
+## Obvious Disadvantages of AI Programming
+
+### Frequent Errors Due to Knowledge Blind Spots
+
+The most typical example is WeChat mini-program development. When I needed to implement forwarding pages to Moments or WeChat chat, AI modified it dozens of times but still couldn't achieve the expected effect.
+
+**Cause Analysis:**
+- WeChat mini-programs are relatively niche, with few foreign users
+- Insufficient related content in AI training data
+- Even when provided with official documentation, understanding still deviates
+
+This experience made me doubt AI's capabilities for a while, and deeply recognize AI's limitations when handling non-mainstream technology stacks.
+
+### Catering to Needs vs Providing Correct Answers
+
+When developing a simple page game, I encountered AI's "pleasing users" problem. I needed to load the emulator's js file and game ROM, and AI should correctly implement game loading logic.
+
+**But AI's performance was:**
+- Generated a seemingly normal game interface
+- Implemented keyboard response functions
+- Created fake game elements
+- **But didn't actually load the ROM file**
+
+This "pseudo-implementation" is more dangerous than directly reporting errors, because it makes developers form incorrect judgments. This experience also prompted me to more seriously learn Next.js fundamentals.
+
+### Code Quality: Works But Not Well
+
+AI-generated code can often run, but has maintainability issues:
+
+**Java Project Problems:**
+- Functionality implemented, but difficult to maintain
+- Lacks reasonable encapsulation design
+- Needs explicit reminders to do code optimization
+
+**Go Project Structure Problems:**
+- Messy directory hierarchy
+- Creates new directory every time adding functionality
+- Overall architecture lacks planning
+
+This illustrates two problems:
+1. **Natural Language Limitations**: Describing alone is difficult for AI to understand complex architecture requirements
+2. **Importance of Prompt Engineering**: Need to learn how to better communicate with AI
+
+## Deep Thoughts and Summary
+
+### "Addictiveness" of AI Programming
+
+Using AI programming does have some "addictiveness"—once accustomed to AI's efficient output, strong dependence develops. Without AI, one doesn't even want to write code. But this dependence needs vigilance, as it may weaken our fundamental abilities.
+
+### Necessity of Human Intervention
+
+After AI generates code, must stop for human organization:
+- **Project Structure Optimization**: Ensure reasonable code organization
+- **Eliminate Duplicate Code**: AI easily produces duplicate function implementations
+- **Document Improvement**: Ensure project maintainability
+- **Global Control**: Ensure clear understanding of system architecture
+
+### Root of AI's Limitations
+
+AI's judgments are based on partial information it masters, not global understanding of the entire system. This leads to:
+- Duplicate implementations of the same functionality
+- Lack of unified architectural thinking
+- Major code refactoring when thinking changes
+
+### New Requirements for Programmer Abilities
+
+In the AI era, programmers need to strengthen these abilities:
+1. **Architectural Design Thinking**: AI cannot replace systematic architectural thinking
+2. **Prompt Engineering**: Learn how to better collaborate with AI
+3. **Code Review Ability**: Able to identify and optimize AI-generated code
+4. **Global Control Ability**: Ensure overall quality and direction of projects
+
+## In Conclusion
+
+AI programming tools indeed bring huge efficiency improvements, but it's more like a powerful assistant, not a replacement. While enjoying the convenience AI brings, we cannot ignore cultivation of fundamental abilities and training of systematic thinking.
+
+As Teacher Baoyu said, master the fundamentals, then AI can truly help you. AI can help us quickly implement ideas, but the quality of ideas, rationality of architecture, code maintainability still need humans to control.
+
+Future programming may not be "human vs AI", but a "human + AI" collaboration model. The key is to find the right balance point, both fully utilizing AI's capabilities and maintaining one's own core competitiveness.
+
+## Reference Links
+
+- [AI Era, Do We Still Need to Learn Programming?](https://mp.weixin.qq.com/s/E561llToYXGcEU4nv3pzXQ)
+- [Master the Fundamentals, Then AI Can Truly Help You](https://mp.weixin.qq.com/s/C5vC7l2ncCVp_umsQUmngg)
+

@@ -1,0 +1,38 @@
+---
+title: "Common Postman Tips"
+description: "Learn common Postman tips including global token setup, collection token configuration, and automatic API execution features."
+date: 2024-02-29
+tags: ["postman"]
+categories: ["tools"]
+---
+
+### 1. Global Token Setup
+
+#### 1. Get Token During Login
+
+![Get Token](/images/blog/postman-common-tips/postman-get-token.png)
+
+```javascript
+// Get the response data from the login API
+var jsondata=pm.response.json();
+// Check if login was successful
+if (jsondata.code === 200) {
+    // Get token and set it to the environment variable token
+    var token=jsondata.data.token
+    pm.globals.set("token",token)
+} else {
+    console.error(jsondata.msg);
+}
+```
+
+#### 2. Set Token in Collection
+
+![Set Token](/images/blog/postman-common-tips/postman-set-token.png)
+
+### 2. Automatic API Execution
+
+![Run Collection](/images/blog/postman-common-tips/postman-run-collection.png)
+
+Right-click on the Collection and select "Run Collection";
+
+Select the APIs to execute, fill in the number of iterations and delay time on the right, then click "Run test automatic execution".

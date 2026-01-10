@@ -1,0 +1,107 @@
+---
+title: "Installing Proxy Software on Ubuntu"
+description: "Detailed steps for installing v2ray and v2rayA on Ubuntu systems, including kernel installation, GUI interface configuration, and transparent proxy settings."
+date: 2024-11-29
+tags: ["linux"]
+categories: ["tools"]
+---
+
+### 1. Installation Background
+
+Recently, I installed Jenkins on a cloud server and needed to pull code from Github. However, timeouts frequently occurred, so I came up with the idea of installing a proxy.
+
+After searching online, I chose `v2ray`, since I had used similar products on Windows.
+
+### 2. Installation Steps
+
+#### 2.1 Install V2ray Kernel
+
+```shell
+curl -Ls https://mirrors.v2raya.org/go.sh | sudo bash
+```
+
+#### 2.2 Install V2rayA
+
+1. Add public key
+
+```shell
+wget -qO - https://apt.v2raya.org/key/public-key.asc | sudo tee /etc/apt/trusted.gpg.d/v2raya.asc   #Add public key
+```
+
+```shell
+echo "deb https://apt.v2raya.org/ v2raya main" | sudo tee /etc/apt/sources.list.d/v2raya.list    #Add v2rayA software source
+sudo apt update    #Update software source
+```
+
+2. Install v2rayA
+
+```shell
+sudo apt install v2raya
+```
+
+3. Start v2rayA
+
+```shell
+sudo systemctl start v2raya.service
+```
+
+The reference article ends here with the installation complete, but when I opened the page, I got an error - detecting that geosite.dat, geoip.dat files or v2ray-core may not be properly installed, and I needed to download and install v2ray / xray core. I chose to install v2ray.
+
+4. Install v2ray
+
+```shell
+wget https://github.com/v2fly/v2ray-core/releases/latest/download/v2ray-linux-64.zip
+
+unzip v2ray-linux-64.zip -d ./v2ray
+
+sudo mkdir -p /usr/local/share/v2ray
+
+sudo cp ./v2ray/*dat /usr/local/share/v2ray
+
+sudo install -Dm755 ./v2ray/v2ray /usr/local/bin/v2ray
+```
+
+### 3. GUI Interface Configuration
+
+Access the web management interface through port 2017
+
+[http://localhost:2017](http://localhost:2017/)
+
+If you cannot access it, please check if the service has started!
+
+![v2rayA Admin Interface](/images/blog/ubuntu-install-v2ray/v2raya-admin-interface.png)
+
+The first time you enter, create an administrator account and password. To reset later, use the command:
+
+```shell
+sudo v2raya --reset-password  #Reset password
+```
+
+After entering for the first time, import your subscription link or enter your self-deployed node!
+
+After importing, click update, then switch to your node tab to view all your nodes
+
+![Node List](/images/blog/ubuntu-install-v2ray/node-list.png)
+
+When the service is not started, connected nodes appear in grapefruit red. We click the corresponding button in the upper left corner to start the service.
+
+Select one or more nodes to connect. It is not recommended to select too many nodes, 4 or less is best. Then start the service! After starting, the started nodes appear in blue, and the icon in the upper left corner also shows blue as running. Startup successful.
+
+![Service Running](/images/blog/ubuntu-install-v2ray/service-running.png)
+
+Configure Proxy
+
+By default, v2rayA will open ports 20170 (socks5), 20171 (http), 20172 (http with routing rules) through the core.
+
+![Proxy Configuration](/images/blog/ubuntu-install-v2ray/proxy-config.png)
+
+This method is recommended by v2rayA. Compared to other methods, it has many advantages. v2rayA can enable transparent proxy with one click to provide proxy services for all programs.
+
+In settings, select the routing mode for transparent proxy and the implementation method, then save.
+
+Note: If you need to select GFWList, you need to download the corresponding rule library. Please click update in the upper right corner to complete the download.
+
+### 4. Reference Links
+
+- Reference 1: https://github.com/ningmoon/v2ray
+- Reference 2: https://aisikao.ren/22633/

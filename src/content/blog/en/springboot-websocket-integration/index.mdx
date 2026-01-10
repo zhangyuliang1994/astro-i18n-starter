@@ -1,0 +1,143 @@
+---
+title: "Integrating WebSocket in Spring Boot"
+description: "Learn how to integrate WebSocket in Spring Boot projects, including dependency setup, configuration classes, utility classes, and server implementation, supporting client connections, message receiving, and broadcast functionality."
+date: 2024-01-30
+tags: ["springboot", "websocket"]
+categories: ["spring"]
+---
+
+### 1. Add `spring-websocket` Dependency
+
+```xml
+<dependency>
+    <groupId>org.springframework</groupId>
+    <artifactId>spring-websocket</artifactId>
+</dependency>
+```
+
+### 2. Enable WebSocket Support
+
+```java
+/**
+ * Enable WebSocket support
+ */
+@Configuration
+public class WebsocketConfig {
+
+    @Bean
+    public ServerEndpointExporter serverEndpointExporter() {
+        return new ServerEndpointExporter();
+    }
+}
+```
+
+### 3. WebSocket Utility Class
+
+```java
+/**
+ * WebSocket utility class
+ */
+@Slf4j
+public class WebsocketUtil {
+
+    private WebsocketUtil() {
+    }
+
+    /**
+     * Server stores client session objects
+     * key:clientId value:session
+     */
+    public static final Map<String, Session> WEBSOCKET_CLIENT_SESSION_MAP = Maps.newConcurrentMap();
+
+    /**
+     * Server sends message to all clients
+     *
+     * @param message
+     */
+    public static void sendMessageToAllClient(String message) {
+        if (WEBSOCKET_CLIENT_SESSION_MAP.isEmpty()) {
+            log.info("Currently no connected clients, message push ignored.");
+            return;
+        }
+        WEBSOCKET_CLIENT_SESSION_MAP.forEach((sessionId, session) -> {
+            try {
+                session.getBasicRemote().sendText(message);
+            } catch (Exception e) {
+                log.error("Server failed to send message to client [{}].", sessionId, e);
+            }
+        });
+    }
+}
+```
+
+### 4. WebSocket Server
+
+```java
+/**
+ * WebSocket server
+ */
+@Slf4j
+@Component
+@ServerEndpoint("/websocket")
+public class WebsocketServer {
+
+    private String sessionId;
+
+    /**
+     * WebSocket connection established
+     *
+     * @param session
+     * @throws IOException
+     */
+    @OnOpen
+    public void onOpen(Session session) throws IOException {
+        this.sessionId = session.getId();
+
+        if (WebsocketUtil.WEBSOCKET_CLIENT_SESSION_MAP.containsKey(this.sessionId)) {
+            WebsocketUtil.WEBSOCKET_CLIENT_SESSION_MAP.remove(this.sessionId).close();
+        }
+
+        WebsocketUtil.WEBSOCKET_CLIENT_SESSION_MAP.put(this.sessionId, session);
+
+        log.info("Client [{}] established WebSocket connection.", this.sessionId);
+    }
+
+    /**
+     * Close socket connection
+     *
+     * @param session
+     */
+    @OnClose
+    public void onClose(Session session) {
+        if (WebsocketUtil.WEBSOCKET_CLIENT_SESSION_MAP.containsKey(session.getId())) {
+            WebsocketUtil.WEBSOCKET_CLIENT_SESSION_MAP.remove(session.getId());
+            log.info("Client [{}] disconnected WebSocket connection.", session.getId());
+        }
+    }
+
+    /**
+     * Message received
+     *
+     * @param message
+     */
+    @OnMessage
+    public void OnMessage(String message) {
+        log.info("Received message from client {}: [{}].", this.sessionId, message);
+    }
+
+    /**
+     * Connection error
+     *
+     * @param session
+     * @param error
+     */
+    @OnError
+    public void OnError(Session session, Throwable error) {
+        log.error("WebSocket connection error,", error);
+    }
+}
+```
+
+### 5. Testing
+
+> Recommended Chrome plugin: Simple Web Socket Client
