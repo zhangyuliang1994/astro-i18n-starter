@@ -75,13 +75,14 @@ const pagesText = t({
         <div class="pagination-pages">
           {Array.from({ length: page.lastPage }, (_, i) => i + 1).map((num) => {
             const isFirst = num === 1;
-            const url = isFirst
-              ? `/${lang}/blog/`
-              : `/${lang}/blog/${num}/`;
+            const url = isFirst ? `/${lang}/blog/` : `/${lang}/blog/${num}/`;
             return (
               <a
                 href={url}
-                class:list={["page-number", { active: num === page.currentPage }]}
+                class:list={[
+                  "page-number",
+                  { active: num === page.currentPage },
+                ]}
                 aria-current={num === page.currentPage ? "page" : undefined}
               >
                 {num}
@@ -114,8 +115,9 @@ const pagesText = t({
   }
 
   .pagination-info {
-    color: var(--text-2);
+    color: var(--color-main);
     font-size: 0.9rem;
+    opacity: 0.8;
   }
 
   .pagination-links {
@@ -132,15 +134,17 @@ const pagesText = t({
     gap: 0.25rem;
     padding: 0.5rem 1rem;
     border-radius: 6px;
-    background: var(--surface-2);
-    color: var(--text-1);
+    background: color-mix(in srgb, var(--color-main) 5%, transparent);
+    color: var(--color-main);
     text-decoration: none;
-    transition: background-color 0.2s, color 0.2s;
+    transition:
+      background-color 0.2s,
+      color 0.2s;
   }
 
   .pagination-link:hover:not(.disabled) {
-    background: var(--surface-3);
-    color: var(--brand);
+    background: color-mix(in srgb, var(--color-main) 10%, transparent);
+    color: var(--color-theme);
   }
 
   .pagination-link.disabled {
@@ -161,20 +165,22 @@ const pagesText = t({
     height: 2.5rem;
     padding: 0.25rem 0.5rem;
     border-radius: 6px;
-    background: var(--surface-2);
-    color: var(--text-1);
+    background: color-mix(in srgb, var(--color-main) 5%, transparent);
+    color: var(--color-main);
     text-decoration: none;
-    transition: background-color 0.2s, color 0.2s;
+    transition:
+      background-color 0.2s,
+      color 0.2s;
   }
 
   .page-number:hover {
-    background: var(--surface-3);
-    color: var(--brand);
+    background: color-mix(in srgb, var(--color-main) 10%, transparent);
+    color: var(--color-theme);
   }
 
   .page-number.active {
-    background: var(--brand);
-    color: white;
+    background: var(--color-theme);
+    color: #fff;
   }
 
   @media (max-width: 640px) {
