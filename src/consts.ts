@@ -3,7 +3,10 @@
 
 import type { Multilingual } from "@/i18n";
 
-export const SITE_TITLE: string | Multilingual = "Astro i18n Starter";
+export const SITE_TITLE: string | Multilingual = {
+	en: "frency.me",
+	"zh-cn": "xiaofeng.show",
+};
 
 export const SITE_DESCRIPTION: string | Multilingual = {
 	en: "A starter template for Astro with i18n support.",
