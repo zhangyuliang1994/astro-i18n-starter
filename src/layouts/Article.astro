@@ -3,6 +3,7 @@
 // Nested in Base layout
 
 import Base from "@/layouts/Base.astro";
+import BackToTop from "@/components/BackToTop.astro";
 
 interface Props {
   title?: string;
@@ -17,6 +18,7 @@ const { title, description } = Astro.props.frontmatter || Astro.props;
   <article>
     <slot />
   </article>
+  <BackToTop />
 </Base>
 
 <style>

@@ -1,0 +1,115 @@
+---
+// Back to Top Button Component
+---
+
+<back-to-top class="back-to-top" hidden>
+    <button aria-label="Back to top">
+        <span class="material-icons-sharp">arrow_upward</span>
+    </button>
+</back-to-top>
+
+<style>
+    .back-to-top {
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        z-index: 100;
+        opacity: 0;
+        visibility: hidden;
+        transition:
+            opacity 0.3s ease,
+            visibility 0.3s ease,
+            transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        transform: translateY(20px);
+    }
+
+    .back-to-top.show {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+
+    button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 3rem;
+        height: 3rem;
+        border-radius: 50%;
+        background-color: var(--color-theme);
+        color: var(--color-base);
+        border: none;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        transition:
+            transform 0.2s ease,
+            background-color 0.2s ease,
+            box-shadow 0.2s ease;
+    }
+
+    button:hover {
+        transform: scale(1.1);
+        background-color: var(--color-main);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+    }
+
+    button:active {
+        transform: scale(0.95);
+    }
+
+    .material-icons-sharp {
+        font-size: 1.5rem;
+    }
+
+    @media (max-width: 768px) {
+        .back-to-top {
+            bottom: 1.5rem;
+            right: 1.5rem;
+        }
+    }
+</style>
+
+<script>
+    class BackToTop extends HTMLElement {
+        constructor() {
+            super();
+            const button = this.querySelector("button");
+            const article = document.querySelector("article");
+            const threshold = 500; // Character count threshold
+
+            // If no article or content is too short, return (remains hidden)
+            if (!article || article.innerText.length < threshold) {
+                return;
+            }
+
+            // Show logic
+            const toggleVisibility = () => {
+                if (window.scrollY > 300) {
+                    this.classList.add("show");
+                    this.removeAttribute("hidden");
+                } else {
+                    this.classList.remove("show");
+                }
+            };
+
+            // Scroll logic
+            const scrollToTop = () => {
+                window.scrollTo({
+                    top: 0,
+                    behavior: "smooth",
+                });
+            };
+
+            // Event listeners
+            window.addEventListener("scroll", toggleVisibility, {
+                passive: true,
+            });
+            button?.addEventListener("click", scrollToTop);
+
+            // Initial check
+            toggleVisibility();
+        }
+    }
+
+    customElements.define("back-to-top", BackToTop);
+</script>
