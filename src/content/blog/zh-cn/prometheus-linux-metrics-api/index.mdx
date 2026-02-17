@@ -74,11 +74,11 @@ scrape_configs:
 
 job_name 为 `linux_metrics` 的是我要监听的服务器。
 
-![Prometheus 配置](/images/blog/prometheus-linux-metrics-api/prometheus-config.png)
+![Prometheus 配置](./imgs/prometheus-config.png)
 
 ### 三、指标查询
 
-![PromQL 查询](/images/blog/prometheus-linux-metrics-api/promql-query.png)
+![PromQL 查询](./imgs/promql-query.png)
 
 如图所示，可将 PromSQL 表达式写在查询栏内（多个指标用 OR 连接），下方图标会显示对应指标。
 
@@ -92,7 +92,7 @@ API 的使用与此类似，参考：https://prometheus.io/docs/prometheus/lates
 
 如下所示：
 
-![API 查询示例](/images/blog/prometheus-linux-metrics-api/api-query-example.png)
+![API 查询示例](./imgs/api-query-example.png)
 
 获取 CPU 使用率（多个指标可用 OR 连接），请求 URL：`http://10.64.4.78:9090/api/v1/query?query=label_replace((1 - avg(irate(node_cpu_seconds_total{mode="idle"}[5m]))) * 100, "metric", "cpu_usage", "", "")`
 
@@ -265,13 +265,13 @@ API 的使用与此类似，参考：https://prometheus.io/docs/prometheus/lates
 
 有了这些数据，就可以在前端用 Echarts 来展示数据了，如下所示：
 
-![Echarts 展示](/images/blog/prometheus-linux-metrics-api/echarts-display.png)
+![Echarts 展示](./imgs/echarts-display.png)
 
 ### 五、指标查询
 
-![Query Options](/images/blog/prometheus-linux-metrics-api/query-options.png)
+![Query Options](./imgs/query-options.png)
 
 Prometheus 上有个 Query Options，里面有个 Explore metrics，可以看到每个指标的含义。
 
-![Explore metrics](/images/blog/prometheus-linux-metrics-api/explore-metrics.png)
+![Explore metrics](./imgs/explore-metrics.png)
 

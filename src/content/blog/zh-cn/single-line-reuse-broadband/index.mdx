@@ -15,9 +15,9 @@ categories: ["瞎折腾"]
 
 这里进入光猫网页，是为了记下上网和 IPTV 的 VLAN ID，如图所示，上网的 VLAN ID 为 11，IPTV 的 VLAN ID 为 43。
 
-![光猫桥接设置](/images/blog/single-line-reuse-broadband/cat-bridge.png)
+![光猫桥接设置](./imgs/cat-bridge.png)
 
-![光猫 IPTV 设置](/images/blog/single-line-reuse-broadband/cat-itv.png)
+![光猫 IPTV 设置](./imgs/cat-itv.png)
 
 ### 二、配置交换机
 
@@ -27,29 +27,29 @@ categories: ["瞎折腾"]
 
 在浏览器输入 192.168.0.1，用户名 admin，密码 admin（电脑也需要配置该网段）
 
-![水星交换机登录](/images/blog/single-line-reuse-broadband/mercury-login.png)
+![水星交换机登录](./imgs/mercury-login.png)
 
 #### 2.2 VLAN 配置
 
 进入菜单 VLAN -> 802.1Q VLAN，首先启用配置，然后将 VLAN 设置如下：
 
-![水星 VLAN 设置](/images/blog/single-line-reuse-broadband/mercury-vlan-config.png)
+![水星 VLAN 设置](./imgs/mercury-vlan-config.png)
 
 #### 2.3 PVID 设置
 
 进入菜单 VLAN -> 802.1Q PVID 设置，将对应端口设置 PVID 即可。两个交换机都要这样设置。
 
-![水星 PVID 设置](/images/blog/single-line-reuse-broadband/mercury-pvid-config.png)
+![水星 PVID 设置](./imgs/mercury-pvid-config.png)
 
 #### 2.4 配置保存
 
 这一步很重要，不然重启后，刚刚那些设置都没了。
 
-![水星配置保存](/images/blog/single-line-reuse-broadband/mercury-save-config.png)
+![水星配置保存](./imgs/mercury-save-config.png)
 
 ### 三、接线
 
-![单线复用连线图](/images/blog/single-line-reuse-broadband/single-line-wiring.png)
+![单线复用连线图](./imgs/single-line-wiring.png)
 
 ### 四、参考
 

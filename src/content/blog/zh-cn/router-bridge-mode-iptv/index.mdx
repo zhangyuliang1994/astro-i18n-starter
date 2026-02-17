@@ -15,31 +15,31 @@ categories: ["瞎折腾"]
 
 家里的宽带是电信的，500MB 下行带宽。跟宽带师傅要了超级管理员的密码，在浏览器输入 192.168.1.1，输入帐号和密码，就能进入如下界面：
 
-![光猫概览](/images/blog/router-bridge-mode-iptv/cat-overview.png)
+![光猫概览](./imgs/cat-overview.png)
 
 光猫默认是路由模式，即是由光猫完成拨号上网的。
 
 在网络设置里，选择上网的连接，将连接模式改为桥接，同时勾选 iTV 选项，方便下一步进行 iTV 设置。
 
-![光猫桥接设置](/images/blog/router-bridge-mode-iptv/cat-bridge.png)
+![光猫桥接设置](./imgs/cat-bridge.png)
 
 设置成功后，光猫上可以看到连接方式已改为桥接。
 
-![光猫端口信息](/images/blog/router-bridge-mode-iptv/cat-port-info.png)
+![光猫端口信息](./imgs/cat-port-info.png)
 
 我使用的是网口 3，如图所示：
 
-![光猫用户信息](/images/blog/router-bridge-mode-iptv/cat-user-info.png)
+![光猫用户信息](./imgs/cat-user-info.png)
 
 #### 1.2 路由器设置
 
 我使用的路由器是 Redmi AC2100，同时刷了老毛子固件，在浏览器输入 192.168.123.1，输入帐号和密码，进入如下界面：
 
-![路由器插件](/images/blog/router-bridge-mode-iptv/route-plugin.png)
+![路由器插件](./imgs/route-plugin.png)
 
 在 高级设置 -> 外部网络 -> 外部设置里，将外网连接类型改为 PPPoE 拨号，在下方输入宽带帐号和密码即可。
 
-![路由器桥接设置](/images/blog/router-bridge-mode-iptv/route-bridge.png)
+![路由器桥接设置](./imgs/route-bridge.png)
 
 ### 二、IPTV 设置
 
@@ -49,19 +49,19 @@ categories: ["瞎折腾"]
 
 从网络连接这里可以看到，IPTV 的 VlanId 是 43。
 
-![光猫 IPTV 设置](/images/blog/router-bridge-mode-iptv/cat-itv.png)
+![光猫 IPTV 设置](./imgs/cat-itv.png)
 
 由于上一步操作我用的是网口 3，所以这里绑定 IPTV 还是网口 3。
 
-![光猫 IPTV VLAN](/images/blog/router-bridge-mode-iptv/cat-itv-vlan.png)
+![光猫 IPTV VLAN](./imgs/cat-itv-vlan.png)
 
 #### 2.2 路由器设置
 
 外部网络设置，我这里用的是 LAN1，即第一个网口，同时在 VLAN CPU 和 VLAN LAN1 绑定 VLAN ID 43。
 
-![路由器 IPTV WAN](/images/blog/router-bridge-mode-iptv/route-itv-wan.png)
+![路由器 IPTV WAN](./imgs/route-itv-wan.png)
 
 内部网络设置，转到 IPTV 设置，在组播流量中启用 IGMP/MLD 侦听，M2U – 以太网交换机选择 Multicast to Unicast。
 
-![路由器 IPTV LAN](/images/blog/router-bridge-mode-iptv/route-itv-lan.png)
+![路由器 IPTV LAN](./imgs/route-itv-lan.png)
 
