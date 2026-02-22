@@ -59,4 +59,4 @@ jobs:
           repository-name: zhangyuliang1994/zhangyuliang1994.github.io
           branch: main
           folder: dist
-          commit-message: "${{ github.event.head_commit.message }}"
+          commit-message: Deploy from ${{ github.sha }}
