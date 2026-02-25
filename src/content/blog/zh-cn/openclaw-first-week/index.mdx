@@ -7,81 +7,45 @@ tags: ["OpenClaw", "AI 工作流", "Codex", "飞书"]
 categories: ["AI 实战"]
 ---
 
-一个月前，X 上铺天盖地都是 OpenClaw。
-
-当时我也有点想玩，但第一反应是：这玩意儿看起来挺费 Token。春节期间我在 Mac mini 上装过一次，免费的 Codex 很快就用光，根本玩不起来。
-
-后来今天开工第一天，公司副总照例开年第一讲，没想到开头就是 OpenClaw。听完玩法，我决定：不观望了，自己上手。
+> 一个月前，X上铺天盖地都是openclaw，当时有想玩的冲动，但是感觉比较费Token，就一直没玩。过年期间在Macmini上装了下，但是免费的Codex很快就用光Token了，根本玩不起来。
 
 ![OpenClaw 封面图](/images/blog/openclaw-first-week/openclaw-cover.png)
 
-## 一、为啥安装 OpenClaw
+## 一、为啥安装OpenClaw
+在X（Twitter）上，有大量吹捧OpenClaw的文章，但我一直在使用Claude Code，感觉小龙虾能做的事情，CC都能做，所以一直对小龙虾有偏见。
 
-之前我一直在用 Claude Code，心里有个偏见：
-
-> 小龙虾能做的事，CC 也能做。
-
-但这次真正跑起来后，我发现 OpenClaw 的价值不只是“写代码”，而是把**聊天、工具、定时任务、上下文记忆**串成了一条工作流。
-
-公司开年分享那张现场图，也算是我真正上手的导火索。
+今天开工第一天，公司副总照例进行开年第一讲，没想到开头就是OpenClaw，我还是挺兴奋的，听完副总的玩法，我还是决定自己也来玩玩。
 
 ![开年分享现场：OpenClaw](/images/blog/openclaw-first-week/company-share-openclaw.png)
 
----
-
 ## 二、目前用它来干啥
-
-我现在的组合是：
-
-- 设备：MacBook Pro
-- 模型：OpenAI Codex
-- 第三方接入：飞书
+我是在Macbook Pro上安装的，大模型使用的是OpenAI的Codex，第三方应用选的是飞书。
 
 ### 2.1 写博客
+最开始用，也没想好做什么。还是让它做点简单的活，帮我写写博客。
 
-最开始没想好做什么，就先让它做一点简单、可控的活：改博客。
-
-我把博客项目路径和线上地址告诉它，先改文章、补图、调顺序。结果比我预期稳很多，基本就是“你提需求，它直接落地到文件”。
-
-比如我让它把群里发的两张图插进文章并调整到正确位置，它能按反馈继续迭代。
+我告诉了它博客项目的路径和部署后的网站，简单让它来修改点东西，发现还可以。
 
 ![飞书群里切换为免 @ 触发](/images/blog/openclaw-first-week/feishu-no-mention-trigger.png)
 
 ![按反馈调整图片位置](/images/blog/openclaw-first-week/feishu-image-position-fix.png)
 
-### 2.2 监控 sitemap
+### 2.2 监控sitemap
+我给了它一个监控SiteMap的Github仓库，让它克隆代码到自己的工作区，并做修改来适配我的需求。
 
-后面我给了它一个监控 SiteMap 的 GitHub 仓库，让它克隆到自己的工作区并适配我的需求。
-
-它给自己加了定时任务，每天上午 10 点在群里推送结果，还能做“特别提醒”关键词高亮。
-
-这一步我感觉最有意思：从“你问它答”，变成“它自己定时汇报”。
+它给自己加了定时任务，会定时推送到我们的飞书群。
 
 ### 2.3 安装 Skills
-
-我让它装了几个常用 Skills，后续调用更顺手。
+我让它安装了几个我常用的 Skills，方便后续调用。
 
 ![安装 Skills 的执行记录](/images/blog/openclaw-first-week/skills-install-log.png)
 
-### 2.4 其他：双虾协同
-
-我准备把家里的 Mac mini 也重新装上。
-
-- **皮皮虾**：跟我上班，前台响应，负责评估需求
-- **爬爬虾**：家里常驻，后台跑定时和长任务
-
-以后说不定还有老三、老四。我的目标是：我只在一个群里说话，背后多机协同执行。
+#### 2.4 其他
+由于ChatGPT订阅了Plus，导致现在Token剩余好多，明天准备给 Macmini 也重新安装下，把两只小龙虾都放到一个群里，一只叫皮皮虾，安装在MacBook上，负责评估我所有的需求，然后分配任务；一只叫爬爬虾，安装在MacMini上，皮皮虾不在线的时候，它就是老大。
 
 ![双机协同分工讨论](/images/blog/openclaw-first-week/dual-shrimp-collaboration.png)
 
----
-
 ## 三、总结
-
-OpenClaw 真正让我上头的点，不是某一次回答有多惊艳，而是它能沉淀上下文，把长期任务跑起来。
-
-最近孙哥在 X 上说要多和 AI 聊天，项目先不评价，但这条建议我认同：
-
-> 把 AI 当长期协作对象，收益会越来越大。
+OpenClaw可以保存你的历史对话，会将重要信息记录到 markdown 文件里，这样以后不用担心重要上下文担心的问题了。最近孙哥也在X上说要多和AI聊天，孙哥的项目千万别碰，但是孙哥的建议得听。
 
 ![孙哥关于 AI 的观点](/images/blog/openclaw-first-week/sun-message-about-ai.png)
