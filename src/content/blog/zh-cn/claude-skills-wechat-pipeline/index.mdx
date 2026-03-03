@@ -1,0 +1,125 @@
+---
+title: "Claude Skills 实战：从20分钟手工到自动化发公众号"
+description: "从手动搬运到 Claude Skills 工作流，一篇讲清内容生产与发布自动化的实战记录。"
+date: 2026-03-03
+tags: ["Claude Skills", "公众号", "自动化", "内容生产"]
+categories: ["AI工作流"]
+---
+
+> 最近一个月，在X上被claude skills刷爆了。我也手痒了，收藏了一堆skills，今天终于用上了。
+>
+
+## 一、概述
+我之前一直是手动整理收集好内容再发布。大致流程如下：
+
+1.将 Youtube 链接或者音频文件导入到 NotebookLLM，提取出文字内容或者直接复制其他 blog 的文字内容；
+
+2.粘贴到 Gemini 网页对话框里，使用提示词来整理成一篇文章；
+
+3.将文章复制到 markdown 转微信公众号网页里来实现格式转换；
+
+4.封面提取或生成：使用工具提取 Youtube 封面或者让 Gemini 网页生成文生图提示词封面；
+
+5.使用 Gemini 网页生成内容配图的文生图提示词封面；
+
+6.使用 Nanobanana Pro来生成封面和内容配图并保存；
+
+7.将封面和内容配图导入微信公众号，并将配图插入到合适位置。
+
+这么一通操作下来，最快也要20分钟，毕竟文生图需要时间。而我居然这样发了100多篇了，想想确实不应该。
+
+虽然之前尝试过用 N8N，但是没有成功（打磨工作流比较耗时）。
+
+现在有人直接把 Claude Skills 写好了，只要几个指令就能完成上述操作。
+
+Skills地址：[https://github.com/JimLiu/baoyu-skills](https://github.com/JimLiu/baoyu-skills)
+
+## 二、使用方法
+### 2.1 安装 skills
+默认先安装好了 Claude Code，然后执行如下命令
+
+`npx add-skill jimliu/baoyu-skills`
+
+在Claude Code里执行如下命令
+
+`/plugin marketplace add jimliu/baoyu-skills`
+
+`/plugin install content-skills@baoyu-skills`
+
+### 2.2 创建目录
+目录结构大致如下：
+
+```plain
+wechat-content-pipeline/
+├── .env                  # 存放公众号 AppID 和 Secret (非常重要)
+├── CLAUDE.md             # 给 Claude 看的项目说明书 (让它更懂你的发布规范)
+├── drafts/               # 存放待处理的 Markdown 草稿
+├── published/            # 存放已发布归档的文章
+└── assets/               # 存放生成的封面图或插图
+```
+
+.env 文件内容
+
+```plain
+# 微信公众号凭证
+WECHAT_APP_ID=你的AppID
+WECHAT_APP_SECRET=你的AppSecret
+
+# 如果需要图床配置（如阿里云OSS/AWS S3），也放在这里
+OSS_ACCESS_KEY=...
+```
+
+CLAUDE.md 文件内容：
+
+```plain
+# 项目指南
+这是一个微信公众号文章批量处理工作流。
+
+## 命令
+- build: 使用 /baoyu-cover-image 为 drafts/ 目录下的文章生成封面
+- publish: 使用 /post-to-wechat 将文章发布到微信草稿箱
+
+## 风格规范
+- 封面图：必须是 16:9 的比例，风格为 "极简、科技感"。
+- 排版：发布前请检查 Markdown 的二级标题是否加粗。
+
+## 工作流
+1. 读取 drafts/ 中的 .md 文件。
+2. 检查是否有封面图，没有则生成。
+3. 发布后将文件移动到 published/ 目录。
+```
+
+### 2.3 主要步骤
+#### 生成原始文章：
+`你是一名微信公众号专家，阅读 https：//www.xxx.com/xxx，并生成一篇3500字左右的文章，直接输出到 @drafts 目录里`
+
+执行完成后，即可在 drafts 目录看到 xxx.md 文件
+
+#### 生成封面：
+`build`
+
+执行后会在 xxx.md 目录生成 cover.png，原理是 skills 先根据文章生成文生图提示词，调用 gemini web 生成图片并保存到本地。
+
+#### 生成插图：
+`illustrate drafts/xxx.md`
+
+执行后会在 xxx.md 目录生成几张配图，原理同封面。
+
+#### 发布到微信公众号草稿
+`publish`
+
+执行后，claude code 会将 markdown 转成微信公众号格式，并复制到新建文章里。
+
+文章里预留了配图的占位符，claude code会将配图插入到指定位置，并保存草稿。
+
+#### 风格修改
+默认的风格比较朴素，但是 claude skills 是可以进化的，我让他参考了 [https://md.doocs.org/](https://md.doocs.org/) 的风格，以保证和我之前的文章风格一致。
+
+最终效果如下：
+
+[https://mp.weixin.qq.com/s/NNc7DlDz6x7ySfCUdS17Lw](https://mp.weixin.qq.com/s/NNc7DlDz6x7ySfCUdS17Lw)
+
+## 三、总结
+虽然这个Claude Skills 还没有完全自动化，但是已经比之前好很多了，可以把我从重复的手动操作抽离出来。后续再用上定时任务和狂飙模式，基本可以实现90%的自动化了。
+
+有一个问题就是，Token消耗还是蛮严重的，好在Claude Code有五小时重置机制，后续可以放到睡觉时间来执行。
