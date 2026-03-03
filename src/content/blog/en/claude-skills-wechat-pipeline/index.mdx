@@ -1,0 +1,136 @@
+---
+title: "Claude Skills in Practice: From 20-Minute Manual Work to Automated WeChat Publishing"
+description: "From manual content migration to a Claude Skills workflow — a hands-on guide to automating content production and publishing."
+date: 2026-03-03
+cover: ./cover.png
+tags: ["Claude Skills", "WeChat Official Account", "Automation", "Content Production"]
+categories: ["AI Workflow"]
+---
+
+> Over the past month, my X feed has been flooded with Claude Skills. I couldn't resist — I bookmarked a bunch of them, and today I finally put them to use.
+
+## 1. Overview
+
+I used to manually curate and publish all my content. The typical workflow looked like this:
+
+1. Import a YouTube link or audio file into NotebookLLM to extract the text, or directly copy text content from other blogs.
+
+2. Paste the text into the Gemini web chat and use a prompt to shape it into a polished article.
+
+3. Copy the article into a Markdown-to-WeChat converter web tool to handle formatting.
+
+4. Extract or generate the cover image: use a tool to grab the YouTube thumbnail, or have Gemini generate a text-to-image prompt for the cover.
+
+5. Use Gemini to generate text-to-image prompts for inline illustrations.
+
+6. Use Nanobanana Pro to generate and save the cover and illustrations.
+
+7. Upload the cover and illustrations to the WeChat Official Account editor, and insert them at the right positions.
+
+Even at my fastest, this whole process took at least 20 minutes — image generation alone eats up a good chunk of time. And I had already published over 100 articles this way. Looking back, I really should have automated this sooner.
+
+I had tried using N8N before, but couldn't get it working (polishing the workflow was too time-consuming).
+
+Now someone has built ready-made Claude Skills that can handle all of the above with just a few commands.
+
+Skills repository: [https://github.com/JimLiu/baoyu-skills](https://github.com/JimLiu/baoyu-skills)
+
+## 2. How to Use
+
+### 2.1 Install the Skills
+
+Make sure you have Claude Code installed first, then run the following command:
+
+`npx add-skill jimliu/baoyu-skills`
+
+Inside Claude Code, run:
+
+`/plugin marketplace add jimliu/baoyu-skills`
+
+`/plugin install content-skills@baoyu-skills`
+
+### 2.2 Set Up the Directory
+
+The directory structure looks roughly like this:
+
+```plain
+wechat-content-pipeline/
+├── .env                  # Stores your Official Account AppID and Secret (critical)
+├── CLAUDE.md             # Project instructions for Claude (helps it understand your publishing standards)
+├── drafts/               # Stores Markdown drafts to be processed
+├── published/            # Stores archived published articles
+└── assets/               # Stores generated covers and illustrations
+```
+
+`.env` file contents:
+
+```plain
+# WeChat Official Account credentials
+WECHAT_APP_ID=your_AppID
+WECHAT_APP_SECRET=your_AppSecret
+
+# If you need image hosting (e.g., Alibaba Cloud OSS / AWS S3), add it here
+OSS_ACCESS_KEY=...
+```
+
+`CLAUDE.md` file contents:
+
+```plain
+# Project Guide
+This is a batch processing workflow for WeChat Official Account articles.
+
+## Commands
+- build: Use /baoyu-cover-image to generate covers for articles in the drafts/ directory
+- publish: Use /post-to-wechat to publish articles to the WeChat drafts box
+
+## Style Guidelines
+- Cover images: Must be 16:9 aspect ratio, styled as "minimalist, tech-inspired."
+- Layout: Before publishing, verify that Markdown H2 headings are bold.
+
+## Workflow
+1. Read .md files from drafts/.
+2. Check if a cover image exists; if not, generate one.
+3. After publishing, move the file to the published/ directory.
+```
+
+### 2.3 Key Steps
+
+#### Generate the initial article:
+
+`You are a WeChat Official Account expert. Read https://www.xxx.com/xxx and generate an article of approximately 3,500 words. Output it directly to the @drafts directory.`
+
+Once complete, you'll find an `xxx.md` file in the `drafts` directory.
+
+#### Generate the cover:
+
+`build`
+
+This generates a `cover.png` in the `xxx.md` directory. Under the hood, the skill analyzes the article to create a text-to-image prompt, calls Gemini Web to generate the image, and saves it locally.
+
+#### Generate illustrations:
+
+`illustrate drafts/xxx.md`
+
+This generates several inline images in the `xxx.md` directory, using the same approach as the cover.
+
+#### Publish to WeChat Official Account drafts:
+
+`publish`
+
+Claude Code converts the Markdown into WeChat Official Account format and pastes it into a new article.
+
+The article contains placeholders for illustrations. Claude Code inserts the images at the designated positions and saves the draft.
+
+#### Customizing the style
+
+The default style is fairly plain, but Claude Skills can evolve. I had it reference the styling from [https://md.doocs.org/](https://md.doocs.org/) to keep things consistent with my previous articles.
+
+Here's the final result:
+
+[https://mp.weixin.qq.com/s/NNc7DlDz6x7ySfCUdS17Lw](https://mp.weixin.qq.com/s/NNc7DlDz6x7ySfCUdS17Lw)
+
+## 3. Takeaways
+
+While this Claude Skills setup isn't fully automated yet, it's already a massive improvement — it frees me from the repetitive manual grind. Once I add scheduled tasks and enable burst mode, it should get me to about 90% automation.
+
+One caveat: token consumption is still pretty heavy. Fortunately, Claude Code has a five-hour reset mechanism, so I can schedule runs during off-hours to make the most of it.
