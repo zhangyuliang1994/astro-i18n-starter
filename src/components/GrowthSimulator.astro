@@ -1,0 +1,432 @@
+---
+interface Props {
+  lang?: "en" | "zh-cn";
+}
+
+const { lang = "en" } = Astro.props;
+
+const labels = {
+  en: {
+    title: "Traffic Growth Model Simulator",
+    intro:
+      "Drag the sliders to compare the linear SEO model against the viral K-factor model over 30 days. The Y axis auto-switches to log scale when the gap gets too wide to read.",
+    initialUsers: "Seed users (T₀)",
+    seoRate: "SEO daily growth (r, %)",
+    viralK: "Viral coefficient (K)",
+    seoLegend: "Linear SEO",
+    viralLegend: "Viral growth",
+    seoFormula: "Tₙ = T₀ × (1 + r × n)",
+    viralFormula: "Tₙ = T₀ × Kⁿ",
+    dayAxis: "Day",
+    usersAxis: "Cumulative users",
+    logToggle: "Log scale",
+    note: "Tip: when K crosses 1.0, the curve flips from converging to diverging. That single threshold is the difference between a product that grows and one that doesn't.",
+    seoDay30: "SEO on day 30",
+    viralDay30: "Viral on day 30",
+    ratio: "Viral / SEO ratio",
+  },
+  "zh-cn": {
+    title: "流量增长模型交互式模拟器",
+    intro:
+      "拖动下方滑块，对比线性 SEO 模型与病毒系数 K 模型在 30 天内的增长曲线。当两条曲线差距过大时，Y 轴会自动切换为对数刻度，便于阅读。",
+    initialUsers: "初始种子用户（T₀）",
+    seoRate: "SEO 每日线性增长率（r，%）",
+    viralK: "病毒系数（K）",
+    seoLegend: "线性 SEO",
+    viralLegend: "病毒增长",
+    seoFormula: "Tₙ = T₀ × (1 + r × n)",
+    viralFormula: "Tₙ = T₀ × Kⁿ",
+    dayAxis: "天数",
+    usersAxis: "累计用户数",
+    logToggle: "对数刻度",
+    note: "提示：K 穿过 1.0 这条线时，曲线从收敛翻转为发散。能否突破这个阈值，是\"能增长\"和\"不能增长\"的分水岭。",
+    seoDay30: "第 30 天 SEO",
+    viralDay30: "第 30 天病毒",
+    ratio: "病毒 / SEO 倍数",
+  },
+}[lang];
+---
+
+<div class="growth-sim" data-lang={lang}>
+  <h4 class="gs-title">{labels.title}</h4>
+  <p class="gs-intro">{labels.intro}</p>
+
+  <div class="gs-controls">
+    <label class="gs-control">
+      <span class="gs-label">
+        {labels.initialUsers}
+        <output data-out="initialUsers">100</output>
+      </span>
+      <input
+        type="range"
+        data-input="initialUsers"
+        min="10"
+        max="1000"
+        step="10"
+        value="100"
+      />
+    </label>
+
+    <label class="gs-control">
+      <span class="gs-label">
+        {labels.seoRate}
+        <output data-out="seoRate">5</output>
+      </span>
+      <input
+        type="range"
+        data-input="seoRate"
+        min="0"
+        max="20"
+        step="0.5"
+        value="5"
+      />
+    </label>
+
+    <label class="gs-control">
+      <span class="gs-label">
+        {labels.viralK}
+        <output data-out="viralK">1.20</output>
+      </span>
+      <input
+        type="range"
+        data-input="viralK"
+        min="0.5"
+        max="2"
+        step="0.05"
+        value="1.2"
+      />
+    </label>
+  </div>
+
+  <div class="gs-formulas">
+    <span class="gs-formula gs-seo">{labels.seoLegend}: {labels.seoFormula}</span>
+    <span class="gs-formula gs-viral">{labels.viralLegend}: {labels.viralFormula}</span>
+  </div>
+
+  <div class="gs-chart-wrap">
+    <svg
+      class="gs-chart"
+      viewBox="0 0 600 320"
+      preserveAspectRatio="xMidYMid meet"
+      role="img"
+      aria-label={labels.title}
+    >
+      <g data-grid></g>
+      <g data-axes>
+        <line x1="50" y1="280" x2="580" y2="280" stroke="currentColor" stroke-width="1" opacity="0.4" />
+        <line x1="50" y1="20" x2="50" y2="280" stroke="currentColor" stroke-width="1" opacity="0.4" />
+      </g>
+      <g data-y-ticks></g>
+      <g data-x-ticks></g>
+      <path data-line="seo" fill="none" stroke="#3b82f6" stroke-width="2.5" />
+      <path data-line="viral" fill="none" stroke="#ef4444" stroke-width="2.5" />
+      <text x="55" y="295" font-size="11" fill="currentColor" opacity="0.7" data-x-label>{labels.dayAxis}</text>
+      <text x="55" y="15" font-size="11" fill="currentColor" opacity="0.7" data-y-label>{labels.usersAxis}</text>
+    </svg>
+
+    <div class="gs-legend">
+      <span class="gs-dot gs-dot-seo"></span><span>{labels.seoLegend}</span>
+      <span class="gs-dot gs-dot-viral"></span><span>{labels.viralLegend}</span>
+      <label class="gs-log-toggle">
+        <input type="checkbox" data-input="logScale" />
+        <span>{labels.logToggle}</span>
+      </label>
+    </div>
+  </div>
+
+  <div class="gs-stats">
+    <div><span class="gs-stat-label">{labels.seoDay30}</span><strong data-stat="seo30">525</strong></div>
+    <div><span class="gs-stat-label">{labels.viralDay30}</span><strong data-stat="viral30">23,738</strong></div>
+    <div><span class="gs-stat-label">{labels.ratio}</span><strong data-stat="ratio">45.2×</strong></div>
+  </div>
+
+  <p class="gs-note">{labels.note}</p>
+</div>
+
+<script>
+  type Lang = "en" | "zh-cn";
+
+  const formatNumber = (n: number, lang: Lang): string => {
+    if (n >= 1e9) return (n / 1e9).toFixed(2) + (lang === "zh-cn" ? "B" : "B");
+    if (n >= 1e6) return (n / 1e6).toFixed(2) + "M";
+    if (n >= 1e4 && lang === "zh-cn") return (n / 1e4).toFixed(1) + "万";
+    if (n >= 1e3) return n.toLocaleString(undefined, { maximumFractionDigits: 0 });
+    return Math.round(n).toString();
+  };
+
+  const init = (root: HTMLElement) => {
+    const lang = (root.dataset.lang || "en") as Lang;
+
+    const inputs = {
+      initialUsers: root.querySelector<HTMLInputElement>('[data-input="initialUsers"]')!,
+      seoRate: root.querySelector<HTMLInputElement>('[data-input="seoRate"]')!,
+      viralK: root.querySelector<HTMLInputElement>('[data-input="viralK"]')!,
+      logScale: root.querySelector<HTMLInputElement>('[data-input="logScale"]')!,
+    };
+
+    const outputs = {
+      initialUsers: root.querySelector<HTMLOutputElement>('[data-out="initialUsers"]')!,
+      seoRate: root.querySelector<HTMLOutputElement>('[data-out="seoRate"]')!,
+      viralK: root.querySelector<HTMLOutputElement>('[data-out="viralK"]')!,
+    };
+
+    const seoPath = root.querySelector<SVGPathElement>('[data-line="seo"]')!;
+    const viralPath = root.querySelector<SVGPathElement>('[data-line="viral"]')!;
+    const yTicks = root.querySelector<SVGGElement>('[data-y-ticks]')!;
+    const xTicks = root.querySelector<SVGGElement>('[data-x-ticks]')!;
+    const grid = root.querySelector<SVGGElement>('[data-grid]')!;
+
+    const stats = {
+      seo30: root.querySelector<HTMLElement>('[data-stat="seo30"]')!,
+      viral30: root.querySelector<HTMLElement>('[data-stat="viral30"]')!,
+      ratio: root.querySelector<HTMLElement>('[data-stat="ratio"]')!,
+    };
+
+    const W = 600, H = 320;
+    const PAD = { left: 50, right: 20, top: 20, bottom: 40 };
+    const plotW = W - PAD.left - PAD.right;
+    const plotH = H - PAD.top - PAD.bottom;
+    const DAYS = 30;
+
+    const render = () => {
+      const T0 = Number(inputs.initialUsers.value);
+      const r = Number(inputs.seoRate.value) / 100;
+      const K = Number(inputs.viralK.value);
+      const useLog = inputs.logScale.checked;
+
+      outputs.initialUsers.textContent = T0.toString();
+      outputs.seoRate.textContent = r === 0 ? "0" : (r * 100).toFixed(1);
+      outputs.viralK.textContent = K.toFixed(2);
+
+      const seoSeries: number[] = [];
+      const viralSeries: number[] = [];
+      for (let n = 0; n <= DAYS; n++) {
+        seoSeries.push(T0 * (1 + r * n));
+        viralSeries.push(T0 * Math.pow(K, n));
+      }
+
+      const maxVal = Math.max(...seoSeries, ...viralSeries);
+      const minVal = Math.max(1, Math.min(...seoSeries, ...viralSeries));
+
+      const yScale = (v: number): number => {
+        if (useLog) {
+          const lo = Math.log10(minVal);
+          const hi = Math.log10(maxVal);
+          if (hi <= lo) return PAD.top + plotH;
+          const t = (Math.log10(Math.max(v, 1)) - lo) / (hi - lo);
+          return PAD.top + plotH - t * plotH;
+        }
+        return PAD.top + plotH - (v / maxVal) * plotH;
+      };
+      const xScale = (n: number): number => PAD.left + (n / DAYS) * plotW;
+
+      const toPath = (series: number[]): string =>
+        series
+          .map((v, i) => `${i === 0 ? "M" : "L"} ${xScale(i).toFixed(1)} ${yScale(v).toFixed(1)}`)
+          .join(" ");
+
+      seoPath.setAttribute("d", toPath(seoSeries));
+      viralPath.setAttribute("d", toPath(viralSeries));
+
+      yTicks.innerHTML = "";
+      grid.innerHTML = "";
+      const tickCount = 5;
+      for (let i = 0; i <= tickCount; i++) {
+        let val: number;
+        if (useLog) {
+          const lo = Math.log10(minVal);
+          const hi = Math.log10(maxVal);
+          val = Math.pow(10, lo + (hi - lo) * (i / tickCount));
+        } else {
+          val = (maxVal / tickCount) * i;
+        }
+        const y = yScale(val);
+        yTicks.insertAdjacentHTML(
+          "beforeend",
+          `<text x="44" y="${y + 4}" font-size="10" text-anchor="end" fill="currentColor" opacity="0.6">${formatNumber(val, lang)}</text>`
+        );
+        grid.insertAdjacentHTML(
+          "beforeend",
+          `<line x1="50" y1="${y}" x2="580" y2="${y}" stroke="currentColor" stroke-width="0.5" opacity="0.1" />`
+        );
+      }
+
+      xTicks.innerHTML = "";
+      for (let d = 0; d <= DAYS; d += 5) {
+        const x = xScale(d);
+        xTicks.insertAdjacentHTML(
+          "beforeend",
+          `<text x="${x}" y="295" font-size="10" text-anchor="middle" fill="currentColor" opacity="0.6">${d}</text>`
+        );
+      }
+
+      const seo30 = seoSeries[DAYS];
+      const viral30 = viralSeries[DAYS];
+      stats.seo30.textContent = formatNumber(seo30, lang);
+      stats.viral30.textContent = formatNumber(viral30, lang);
+      const ratio = viral30 / Math.max(seo30, 1);
+      stats.ratio.textContent = ratio >= 1
+        ? ratio.toFixed(ratio >= 100 ? 0 : 1) + "×"
+        : "1/" + (1 / ratio).toFixed(1);
+    };
+
+    Object.values(inputs).forEach((el) => el.addEventListener("input", render));
+    render();
+  };
+
+  document.querySelectorAll<HTMLElement>(".growth-sim").forEach(init);
+</script>
+
+<style>
+  .growth-sim {
+    margin-block: var(--sp-l);
+    padding: var(--sp-m);
+    border: 1px solid color-mix(in srgb, var(--color-main) 15%, transparent);
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--color-main) 3%, transparent);
+    color: var(--color-main);
+    font-size: 0.95rem;
+  }
+
+  .gs-title {
+    margin: 0 0 0.5rem;
+    font-size: 1.1rem;
+  }
+
+  .gs-intro {
+    margin: 0 0 var(--sp-s);
+    opacity: 0.85;
+    line-height: 1.55;
+  }
+
+  .gs-controls {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: var(--sp-s);
+    margin-block-end: var(--sp-s);
+  }
+
+  .gs-control {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  .gs-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: 0.85rem;
+    opacity: 0.85;
+  }
+
+  .gs-label output {
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    color: var(--color-theme);
+  }
+
+  .gs-control input[type="range"] {
+    width: 100%;
+    accent-color: var(--color-theme);
+  }
+
+  .gs-formulas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-s);
+    margin-block-end: var(--sp-s);
+    font-size: 0.85rem;
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    opacity: 0.85;
+  }
+
+  .gs-formula::before {
+    content: "";
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 0.4rem;
+    vertical-align: middle;
+  }
+
+  .gs-seo::before { background: #3b82f6; }
+  .gs-viral::before { background: #ef4444; }
+
+  .gs-chart-wrap {
+    background: color-mix(in srgb, var(--color-main) 2%, transparent);
+    border-radius: 6px;
+    padding: 0.5rem;
+  }
+
+  .gs-chart {
+    display: block;
+    width: 100%;
+    height: auto;
+    color: var(--color-main);
+  }
+
+  .gs-legend {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--sp-s);
+    margin-block-start: 0.5rem;
+    font-size: 0.85rem;
+    opacity: 0.9;
+  }
+
+  .gs-dot {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: -0.3rem;
+  }
+
+  .gs-dot-seo { background: #3b82f6; }
+  .gs-dot-viral { background: #ef4444; }
+
+  .gs-log-toggle {
+    margin-inline-start: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    cursor: pointer;
+  }
+
+  .gs-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: var(--sp-s);
+    margin-block: var(--sp-s);
+    padding: var(--sp-s);
+    background: color-mix(in srgb, var(--color-main) 4%, transparent);
+    border-radius: 6px;
+  }
+
+  .gs-stats > div {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+
+  .gs-stat-label {
+    font-size: 0.75rem;
+    opacity: 0.7;
+  }
+
+  .gs-stats strong {
+    font-size: 1.15rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-theme);
+  }
+
+  .gs-note {
+    margin: 0;
+    font-size: 0.85rem;
+    opacity: 0.75;
+    line-height: 1.55;
+  }
+</style>
