@@ -2,7 +2,7 @@
 title: 'Claude Code 之父 Boris 分享的 AI 编程技巧'
 description: 'Claude Code 创始人 Boris 亲自分享他是如何使用 Claude Code 的，包括并行运行、Plan 模式、子代理等高级技巧'
 date: 2026-01-07
-cover: ./cover.png
+cover: ./cover.webp
 tags: ["Claude Code", "AI", "效率工具"]
 categories: ["技术分享"]
 ---
@@ -27,7 +27,7 @@ categories: ["技术分享"]
 
 我还在 [claude.ai/code](https://claude.ai/code) 上并行运行 5-10 个 Claude，与本地 Claude 同时使用。
 
-![Web Sessions 列表](/images/blog/boris-claude-code-tips/cc-2.jpeg)
+![Web Sessions 列表](/images/blog/boris-claude-code-tips/cc-2.webp)
 
 在终端编码时，我经常会：
 - 使用 `&` 将本地会话交接到 Web
@@ -42,7 +42,7 @@ categories: ["技术分享"]
 
 我所有工作都使用 **Opus 4.5 with thinking**。这是我用过的最好的编码模型，尽管它比 Sonnet 更大更慢，但由于你需要更少的引导，而且它的工具使用能力更强，最终几乎总是比使用小模型更快。
 
-![深度思考模式](/images/blog/boris-claude-code-tips/cc-12.jpeg)
+![深度思考模式](/images/blog/boris-claude-code-tips/cc-12.webp)
 
 ---
 
@@ -50,7 +50,7 @@ categories: ["技术分享"]
 
 我们团队为 Claude Code 仓库共享一个 `CLAUDE.md` 文件。我们将它检入 git，整个团队每周都会贡献多次。
 
-![CLAUDE.md 示例](/images/blog/boris-claude-code-tips/cc-4.jpeg)
+![CLAUDE.md 示例](/images/blog/boris-claude-code-tips/cc-4.webp)
 
 **关键实践**：每当我们看到 Claude 做错事情时，我们就把它添加到 `CLAUDE.md`，这样 Claude 下次就知道不要这样做了。
 
@@ -62,7 +62,7 @@ categories: ["技术分享"]
 
 在代码审查时，我经常会在同事的 PR 上标记 `@claude`，让它将某些内容添加到 `CLAUDE.md` 中作为 PR 的一部分。
 
-![Claude 更新 CLAUDE.md](/images/blog/boris-claude-code-tips/cc-5.jpeg)
+![Claude 更新 CLAUDE.md](/images/blog/boris-claude-code-tips/cc-5.webp)
 
 我们使用 Claude Code GitHub Action（`/install-github-action`）来实现这一点。这是我们版本的 **复合工程**（Compounding Engineering）。
 
@@ -72,7 +72,7 @@ categories: ["技术分享"]
 
 大多数会话从 **Plan 模式**开始（`Shift + Tab` 按两次）。
 
-![Plan 模式](/images/blog/boris-claude-code-tips/cc-6.png)
+![Plan 模式](/images/blog/boris-claude-code-tips/cc-6.webp)
 
 如果我的目标是写一个 Pull Request，我会：
 1. 使用 Plan 模式
@@ -80,7 +80,7 @@ categories: ["技术分享"]
 3. 然后切换到自动接受编辑模式
 4. Claude 通常可以一次性完成
 
-![自动编辑模式](/images/blog/boris-claude-code-tips/cc-1.jpeg)
+![自动编辑模式](/images/blog/boris-claude-code-tips/cc-1.webp)
 
 **一个好的计划真的很重要！**
 
@@ -92,7 +92,7 @@ categories: ["技术分享"]
 
 命令被检入 git，放在 `.claude/commands/` 目录下。
 
-![斜杠命令示例](/images/blog/boris-claude-code-tips/cc-7.jpeg)
+![斜杠命令示例](/images/blog/boris-claude-code-tips/cc-7.webp)
 
 **示例**：Claude 和我每天使用 `/commit-push-pr` 斜杠命令数十次。该命令使用内联 bash 来预计算 git status 和其他信息，使命令运行更快，避免与模型来回交互。
 
@@ -109,7 +109,7 @@ categories: ["技术分享"]
 | `code-simplifier` | 在 Claude 完成工作后简化代码 |
 | `verify-app` | 包含端到端测试 Claude Code 的详细说明 |
 
-![Agents 目录结构](/images/blog/boris-claude-code-tips/cc-8.png)
+![Agents 目录结构](/images/blog/boris-claude-code-tips/cc-8.webp)
 
 类似于斜杠命令，我将子代理视为自动化大多数 PR 中最常见的工作流。
 
@@ -121,7 +121,7 @@ categories: ["技术分享"]
 
 我们使用 **PostToolUse Hook** 来格式化 Claude 的代码。
 
-![Hooks 配置示例](/images/blog/boris-claude-code-tips/cc-9.jpeg)
+![Hooks 配置示例](/images/blog/boris-claude-code-tips/cc-9.webp)
 
 Claude 通常开箱即用就能生成格式良好的代码，Hook 处理最后 10%，以避免后续 CI 中的格式化错误。
 
@@ -131,7 +131,7 @@ Claude 通常开箱即用就能生成格式良好的代码，Hook 处理最后 1
 
 我不使用 `--dangerously-skip-permissions`。相反，我使用 `/permissions` 来预先允许我知道在我的环境中是安全的常用 bash 命令，以避免不必要的权限提示。
 
-![权限配置界面](/images/blog/boris-claude-code-tips/cc-10.jpeg)
+![权限配置界面](/images/blog/boris-claude-code-tips/cc-10.webp)
 
 这些大多被检入 `.claude/settings.json` 并与团队共享。
 
@@ -146,7 +146,7 @@ Claude Code 为我使用所有工具：
 - 从 **Sentry** 获取错误日志
 - 等等...
 
-![MCP 配置示例](/images/blog/boris-claude-code-tips/cc-11.jpeg)
+![MCP 配置示例](/images/blog/boris-claude-code-tips/cc-11.webp)
 
 Slack MCP 配置被检入我们的 `.mcp.json` 并与团队共享。
 

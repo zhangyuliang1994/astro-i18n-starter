@@ -2,7 +2,7 @@
 title: 'AI Coding Tips from Boris, Creator of Claude Code'
 description: 'Boris, the creator of Claude Code, shares how he uses Claude Code, including parallel sessions, Plan mode, subagents, and more advanced techniques'
 date: 2026-01-07
-cover: ./cover.png
+cover: ./cover.webp
 tags: ["Claude Code", "AI", "Productivity"]
 categories: ["Tech Sharing"]
 ---
@@ -27,7 +27,7 @@ I run 5 Claudes in parallel in my terminal. I number my tabs 1-5, and use system
 
 I also run 5-10 Claudes on [claude.ai/code](https://claude.ai/code), in parallel with my local Claudes.
 
-![Web Sessions List](/images/blog/boris-claude-code-tips/cc-2.jpeg)
+![Web Sessions List](/images/blog/boris-claude-code-tips/cc-2.webp)
 
 As I code in my terminal, I will often:
 - Hand off local sessions to web (using `&`)
@@ -42,7 +42,7 @@ I also start a few sessions from my phone (from the Claude iOS app) every mornin
 
 I use **Opus 4.5 with thinking** for everything. It's the best coding model I've ever used, and even though it's bigger & slower than Sonnet, since you have to steer it less and it's better at tool use, it is almost always faster than using a smaller model in the end.
 
-![Deep Thinking Mode](/images/blog/boris-claude-code-tips/cc-12.jpeg)
+![Deep Thinking Mode](/images/blog/boris-claude-code-tips/cc-12.webp)
 
 ---
 
@@ -50,7 +50,7 @@ I use **Opus 4.5 with thinking** for everything. It's the best coding model I've
 
 Our team shares a single `CLAUDE.md` for the Claude Code repo. We check it into git, and the whole team contributes multiple times a week.
 
-![CLAUDE.md Example](/images/blog/boris-claude-code-tips/cc-4.jpeg)
+![CLAUDE.md Example](/images/blog/boris-claude-code-tips/cc-4.webp)
 
 **Key Practice**: Anytime we see Claude do something incorrectly, we add it to the `CLAUDE.md`, so Claude knows not to do it next time.
 
@@ -62,7 +62,7 @@ Other teams maintain their own `CLAUDE.md`'s. It is each team's job to keep thei
 
 During code review, I will often tag `@claude` on my coworkers' PRs to add something to the `CLAUDE.md` as part of the PR.
 
-![Claude Updating CLAUDE.md](/images/blog/boris-claude-code-tips/cc-5.jpeg)
+![Claude Updating CLAUDE.md](/images/blog/boris-claude-code-tips/cc-5.webp)
 
 We use the Claude Code GitHub Action (`/install-github-action`) for this. It's our version of **Compounding Engineering**.
 
@@ -72,7 +72,7 @@ We use the Claude Code GitHub Action (`/install-github-action`) for this. It's o
 
 Most sessions start in **Plan mode** (`Shift + Tab` twice).
 
-![Plan Mode](/images/blog/boris-claude-code-tips/cc-6.png)
+![Plan Mode](/images/blog/boris-claude-code-tips/cc-6.webp)
 
 If my goal is to write a Pull Request, I will:
 1. Use Plan mode
@@ -80,7 +80,7 @@ If my goal is to write a Pull Request, I will:
 3. Switch into auto-accept edits mode
 4. Claude can usually 1-shot it from there
 
-![Auto-Edit Mode](/images/blog/boris-claude-code-tips/cc-1.jpeg)
+![Auto-Edit Mode](/images/blog/boris-claude-code-tips/cc-1.webp)
 
 **A good plan is really important!**
 
@@ -92,7 +92,7 @@ I use slash commands for every "inner loop" workflow that I end up doing many ti
 
 Commands are checked into git and live in `.claude/commands/`.
 
-![Slash Command Example](/images/blog/boris-claude-code-tips/cc-7.jpeg)
+![Slash Command Example](/images/blog/boris-claude-code-tips/cc-7.webp)
 
 **Example**: Claude and I use a `/commit-push-pr` slash command dozens of times every day. The command uses inline bash to pre-compute git status and a few other pieces of info to make the command run quickly and avoid back-and-forth with the model.
 
@@ -109,7 +109,7 @@ I use a few subagents regularly:
 | `code-simplifier` | Simplifies the code after Claude is done working |
 | `verify-app` | Has detailed instructions for testing Claude Code end to end |
 
-![Agents Directory Structure](/images/blog/boris-claude-code-tips/cc-8.png)
+![Agents Directory Structure](/images/blog/boris-claude-code-tips/cc-8.webp)
 
 Similar to slash commands, I think of subagents as automating the most common workflows that I do for most PRs.
 
@@ -121,7 +121,7 @@ Similar to slash commands, I think of subagents as automating the most common wo
 
 We use a **PostToolUse hook** to format Claude's code.
 
-![Hooks Configuration Example](/images/blog/boris-claude-code-tips/cc-9.jpeg)
+![Hooks Configuration Example](/images/blog/boris-claude-code-tips/cc-9.webp)
 
 Claude usually generates well-formatted code out of the box, and the hook handles the last 10% to avoid formatting errors in CI later.
 
@@ -131,7 +131,7 @@ Claude usually generates well-formatted code out of the box, and the hook handle
 
 I don't use `--dangerously-skip-permissions`. Instead, I use `/permissions` to pre-allow common bash commands that I know are safe in my environment, to avoid unnecessary permission prompts.
 
-![Permissions Configuration Interface](/images/blog/boris-claude-code-tips/cc-10.jpeg)
+![Permissions Configuration Interface](/images/blog/boris-claude-code-tips/cc-10.webp)
 
 Most of these are checked into `.claude/settings.json` and shared with the team.
 
@@ -146,7 +146,7 @@ Claude Code uses all my tools for me:
 - Grabs error logs from **Sentry**
 - And more...
 
-![MCP Configuration Example](/images/blog/boris-claude-code-tips/cc-11.jpeg)
+![MCP Configuration Example](/images/blog/boris-claude-code-tips/cc-11.webp)
 
 The Slack MCP configuration is checked into our `.mcp.json` and shared with the team.
 
