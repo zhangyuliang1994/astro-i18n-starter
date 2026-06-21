@@ -1,0 +1,479 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]:
+          - link "Sprunki.17" [ref=e6] [cursor=pointer]:
+            - /url: /
+            - img [ref=e8]
+            - generic [ref=e12]: Sprunki.17
+          - navigation [ref=e13]:
+            - link "Home" [ref=e14] [cursor=pointer]:
+              - /url: /
+            - link "All Phases" [ref=e15] [cursor=pointer]:
+              - /url: /sprunki-phases
+            - link "Blog" [ref=e16] [cursor=pointer]:
+              - /url: /blog
+            - link "About" [ref=e17] [cursor=pointer]:
+              - /url: /about
+        - generic [ref=e18]:
+          - generic [ref=e19]:
+            - generic:
+              - img
+            - textbox "Search version..." [ref=e20]
+          - button "🇺🇸 English" [ref=e22]:
+            - img [ref=e23]
+            - generic [ref=e26]: 🇺🇸 English
+          - link "Play Now" [ref=e27] [cursor=pointer]:
+            - /url: "#game"
+    - main [ref=e28]:
+      - main [ref=e29]:
+        - generic [ref=e30]:
+          - heading "Sprunki Phase 17 - Horror Edition -" [level=1] [ref=e32]
+          - generic [ref=e33]:
+            - iframe [ref=e34]:
+              
+            - generic [ref=e35]:
+              - button [ref=e36]:
+                - img [ref=e37]
+              - button [ref=e41]:
+                - img [ref=e42]
+          - generic [ref=e45]:
+            - generic [ref=e46]:
+              - generic [ref=e47]:
+                - img [ref=e48]
+                - generic [ref=e51]: 124,592 Plays
+              - generic [ref=e52]: "|"
+              - generic [ref=e53]:
+                - img [ref=e54]
+                - generic [ref=e56]: "4.9"
+            - generic [ref=e57]:
+              - button "Reload" [ref=e58]:
+                - img
+                - text: Reload
+              - button "Fullscreen" [ref=e59]:
+                - img
+                - text: Fullscreen
+              - button [ref=e60]:
+                - img
+              - button [ref=e61]:
+                - img
+      - generic [ref=e63]:
+        - generic [ref=e64]:
+          - img [ref=e66]
+          - heading "Circular Soundboard" [level=2] [ref=e68]
+          - paragraph [ref=e69]: Experience the horror beats in a new dimension. Tap the pads to preview the spine-chilling samples from Phase 17.
+          - button "Sound On" [ref=e71]:
+            - img [ref=e72]
+            - generic [ref=e76]: Sound On
+          - button "View Full Soundboard →" [ref=e77]:
+            - text: View Full Soundboard
+            - generic [ref=e78]: →
+        - generic [ref=e80]:
+          - img [ref=e82]
+          - button "Beat" [ref=e83] [cursor=pointer]:
+            - img [ref=e84]
+            - generic [ref=e85]: Beat
+          - button "Vox" [ref=e86] [cursor=pointer]:
+            - img [ref=e87]
+            - generic [ref=e90]: Vox
+          - button "Monst" [ref=e91] [cursor=pointer]:
+            - img [ref=e92]
+            - generic [ref=e101]: Monst
+          - button "Scream" [ref=e102] [cursor=pointer]:
+            - img [ref=e103]
+            - generic [ref=e105]: Scream
+          - button "Melody" [ref=e106] [cursor=pointer]:
+            - img [ref=e107]
+            - generic [ref=e109]: Melody
+          - button "Zap" [ref=e110] [cursor=pointer]:
+            - img [ref=e111]
+            - generic [ref=e113]: Zap
+          - button "Horror" [ref=e114] [cursor=pointer]:
+            - img [ref=e115]
+            - generic [ref=e120]: Horror
+          - button "Effect" [ref=e121] [cursor=pointer]:
+            - img [ref=e122]
+            - generic [ref=e124]: Effect
+      - generic [ref=e128]:
+        - generic [ref=e129]:
+          - heading "More Versions" [level=2] [ref=e130]: More Versions
+          - link "View Library" [ref=e132] [cursor=pointer]:
+            - /url: /sprunki-phases
+            - text: View Library
+            - img [ref=e133]
+        - generic [ref=e138]:
+          - generic [ref=e139]:
+            - generic [ref=e140]: Featured
+            - generic [ref=e144]:
+              - 'heading "Sprunki Phase 16: The Original" [level=3] [ref=e145]':
+                - text: "Sprunki Phase 16:"
+                - text: The Original
+              - paragraph [ref=e146]: Return to where it all began. The classic beats that started the viral phenomenon, now remastered in HD.
+              - generic [ref=e147]:
+                - link "Play Now" [ref=e148] [cursor=pointer]:
+                  - /url: https://turbowarp.org/1149846442/embed
+                  - img [ref=e149]
+                  - text: Play Now
+                - generic [ref=e151]:
+                  - img [ref=e152]
+                  - generic [ref=e154]: "4.9"
+          - generic [ref=e155]:
+            - generic [ref=e158]: Updated
+            - generic [ref=e159]:
+              - link [ref=e160] [cursor=pointer]:
+                - /url: https://turbowarp.org/1172002412/embed
+                - img [ref=e161]
+              - 'heading "Phase 15: Shadows" [level=3] [ref=e163]'
+              - paragraph [ref=e164]: Dark beats and shadow monsters await in this eerie prequel. Experience haunting melodies and mysterious atmospheres.
+              - generic [ref=e165]:
+                - generic [ref=e166]: Music / Horror
+                - generic [ref=e167]:
+                  - img [ref=e168]
+                  - text: "4.7"
+          - generic [ref=e170]:
+            - generic [ref=e173]: New
+            - generic [ref=e174]:
+              - link [ref=e175] [cursor=pointer]:
+                - /url: https://turbowarp.org/1147318074/embed
+                - img [ref=e176]
+              - heading "Sprunki Remastered" [level=3] [ref=e178]
+              - paragraph [ref=e179]: High definition audio and updated character sprites. The ultimate Sprunki experience with polished graphics.
+              - generic [ref=e180]:
+                - generic [ref=e181]: Remix
+                - generic [ref=e182]:
+                  - img [ref=e183]
+                  - text: "4.9"
+          - generic [ref=e188]:
+            - generic [ref=e190]: Community Choice
+            - heading "Community Mods Collection" [level=3] [ref=e191]
+            - paragraph [ref=e192]: Discover thousands of custom sound packs created by the Sprunki community. Create your own beats and share them with the world.
+            - generic [ref=e193]:
+              - button "Browse Mods" [ref=e194]
+              - generic [ref=e195]: Updated 2h ago
+        - link "Browse All Phases" [ref=e197] [cursor=pointer]:
+          - /url: /sprunki-phases
+          - text: Browse All Phases
+          - img [ref=e198]
+      - generic [ref=e204]:
+        - generic [ref=e205]:
+          - heading "All Sprunki Phases" [level=2] [ref=e206]: All Sprunki Phases
+          - paragraph [ref=e208]: Explore every phase of the Sprunki music creation series
+        - generic [ref=e209]:
+          - link "Phase 1 Sprunki Phase 1 Sprunki Phase 1 is where the musical journey begins. As the original entry in the Sprunki series, Phase 1 introduces players to the core mechanics of drag-and-drop music creation. Choose from a cast of quirky characters, each producing unique sounds, and layer them together to build your own beats. Play Now" [ref=e210] [cursor=pointer]:
+            - /url: /sprunki-phase-1
+            - generic [ref=e214]:
+              - generic [ref=e215]:
+                - img [ref=e216]
+                - generic [ref=e220]: Phase 1
+              - heading "Sprunki Phase 1" [level=3] [ref=e221]
+              - paragraph [ref=e222]: Sprunki Phase 1 is where the musical journey begins. As the original entry in the Sprunki series, Phase 1 introduces players to the core mechanics of drag-and-drop music creation. Choose from a cast of quirky characters, each producing unique sounds, and layer them together to build your own beats.
+              - generic [ref=e223]:
+                - text: Play Now
+                - img [ref=e224]
+          - link "Phase 2 Sprunki Phase 2 Sprunki Phase 2 takes everything great about the original and turns it up to eleven. This sequel introduces a fresh roster of characters with brand-new sound profiles, giving you an expanded palette of beats, melodies, and effects to mix and match. Play Now" [ref=e226] [cursor=pointer]:
+            - /url: /sprunki-phase-2
+            - generic [ref=e230]:
+              - generic [ref=e231]:
+                - img [ref=e232]
+                - generic [ref=e236]: Phase 2
+              - heading "Sprunki Phase 2" [level=3] [ref=e237]
+              - paragraph [ref=e238]: Sprunki Phase 2 takes everything great about the original and turns it up to eleven. This sequel introduces a fresh roster of characters with brand-new sound profiles, giving you an expanded palette of beats, melodies, and effects to mix and match.
+              - generic [ref=e239]:
+                - text: Play Now
+                - img [ref=e240]
+          - link "Phase 3 Sprunki Phase 3 Sprunki Phase 3 marks a dramatic tonal shift for the series, embracing a darker, more atmospheric aesthetic. Known among fans as the \"Dark Edition,\" Phase 3 introduces haunting melodies, eerie sound effects, and mysterious characters that transform the music creation experience into something truly spine-tingling. Play Now" [ref=e242] [cursor=pointer]:
+            - /url: /sprunki-phase-3
+            - generic [ref=e246]:
+              - generic [ref=e247]:
+                - img [ref=e248]
+                - generic [ref=e252]: Phase 3
+              - heading "Sprunki Phase 3" [level=3] [ref=e253]
+              - paragraph [ref=e254]: Sprunki Phase 3 marks a dramatic tonal shift for the series, embracing a darker, more atmospheric aesthetic. Known among fans as the "Dark Edition," Phase 3 introduces haunting melodies, eerie sound effects, and mysterious characters that transform the music creation experience into something truly spine-tingling.
+              - generic [ref=e255]:
+                - text: Play Now
+                - img [ref=e256]
+          - link "Phase 4 Sprunki Phase 4 Sprunki Phase 4 launches the series into a dazzling neon-soaked future. Dubbed the \"Neon Remix Edition,\" this phase replaces the dark horror tones of Phase 3 with a pulsating retro-synth aesthetic. Every character glows with vibrant neon outlines, and the stage reacts to your beats with cascading light shows that turn your browser into a personal concert. Play Now" [ref=e258] [cursor=pointer]:
+            - /url: /sprunki-phase-4
+            - generic [ref=e262]:
+              - generic [ref=e263]:
+                - img [ref=e264]
+                - generic [ref=e268]: Phase 4
+              - heading "Sprunki Phase 4" [level=3] [ref=e269]
+              - paragraph [ref=e270]: Sprunki Phase 4 launches the series into a dazzling neon-soaked future. Dubbed the "Neon Remix Edition," this phase replaces the dark horror tones of Phase 3 with a pulsating retro-synth aesthetic. Every character glows with vibrant neon outlines, and the stage reacts to your beats with cascading light shows that turn your browser into a personal concert.
+              - generic [ref=e271]:
+                - text: Play Now
+                - img [ref=e272]
+          - link "Phase 5 Sprunki Phase 5 Sprunki Phase 5 takes a refreshing turn with its \"Frost & Chill\" theme. Ice-crystal characters glide across a snow-dusted stage, and every sound carries a cool, crisp quality that sets this phase apart from the warmer tones of earlier entries. From tinkling bell melodies to deep sub-bass rumbles that feel like glaciers shifting, Phase 5 is an audio winter wonderland. Play Now" [ref=e274] [cursor=pointer]:
+            - /url: /sprunki-phase-5
+            - generic [ref=e278]:
+              - generic [ref=e279]:
+                - img [ref=e280]
+                - generic [ref=e284]: Phase 5
+              - heading "Sprunki Phase 5" [level=3] [ref=e285]
+              - paragraph [ref=e286]: Sprunki Phase 5 takes a refreshing turn with its "Frost & Chill" theme. Ice-crystal characters glide across a snow-dusted stage, and every sound carries a cool, crisp quality that sets this phase apart from the warmer tones of earlier entries. From tinkling bell melodies to deep sub-bass rumbles that feel like glaciers shifting, Phase 5 is an audio winter wonderland.
+              - generic [ref=e287]:
+                - text: Play Now
+                - img [ref=e288]
+          - link "Phase 6 Sprunki Phase 6 Sprunki Phase 6 plunges you into a dense, vibrant jungle with its \"Jungle Rhythm\" theme. Wild characters adorned with leaves, feathers, and tribal paint produce organic sounds you have never heard in a Sprunki game before — hand drums, bamboo flutes, animal calls, rainstick percussion, and deep chanting vocals that transport you straight to the heart of the rainforest. Play Now" [ref=e290] [cursor=pointer]:
+            - /url: /sprunki-phase-6
+            - generic [ref=e294]:
+              - generic [ref=e295]:
+                - img [ref=e296]
+                - generic [ref=e300]: Phase 6
+              - heading "Sprunki Phase 6" [level=3] [ref=e301]
+              - paragraph [ref=e302]: Sprunki Phase 6 plunges you into a dense, vibrant jungle with its "Jungle Rhythm" theme. Wild characters adorned with leaves, feathers, and tribal paint produce organic sounds you have never heard in a Sprunki game before — hand drums, bamboo flutes, animal calls, rainstick percussion, and deep chanting vocals that transport you straight to the heart of the rainforest.
+              - generic [ref=e303]:
+                - text: Play Now
+                - img [ref=e304]
+          - link "Phase 7 Sprunki Phase 7 Sprunki Phase 7 launches the series into orbit with the \"Galactic Odyssey\" theme. Space-suited characters, floating asteroids, and a star-filled void form the backdrop for an otherworldly music creation experience. The sounds range from deep cosmic drones and laser-sharp leads to alien vocal samples and zero-gravity percussion that makes every beat feel like a transmission from another galaxy. Play Now" [ref=e306] [cursor=pointer]:
+            - /url: /sprunki-phase-7
+            - generic [ref=e310]:
+              - generic [ref=e311]:
+                - img [ref=e312]
+                - generic [ref=e316]: Phase 7
+              - heading "Sprunki Phase 7" [level=3] [ref=e317]
+              - paragraph [ref=e318]: Sprunki Phase 7 launches the series into orbit with the "Galactic Odyssey" theme. Space-suited characters, floating asteroids, and a star-filled void form the backdrop for an otherworldly music creation experience. The sounds range from deep cosmic drones and laser-sharp leads to alien vocal samples and zero-gravity percussion that makes every beat feel like a transmission from another galaxy.
+              - generic [ref=e319]:
+                - text: Play Now
+                - img [ref=e320]
+          - link "Phase 8 Sprunki Phase 8 Sprunki Phase 8 drops the heaviest beats in the franchise with the \"Cosmic Bass\" theme. Building on the space aesthetic of Phase 7, this edition zeroes in on bone-rattling low-end frequencies. Characters pulse with gravitational energy, the stage warps and distorts with every bass hit, and the entire visual field bends in sync with the sub-frequencies you layer together. Play Now" [ref=e322] [cursor=pointer]:
+            - /url: /sprunki-phase-8
+            - generic [ref=e326]:
+              - generic [ref=e327]:
+                - img [ref=e328]
+                - generic [ref=e332]: Phase 8
+              - heading "Sprunki Phase 8" [level=3] [ref=e333]
+              - paragraph [ref=e334]: Sprunki Phase 8 drops the heaviest beats in the franchise with the "Cosmic Bass" theme. Building on the space aesthetic of Phase 7, this edition zeroes in on bone-rattling low-end frequencies. Characters pulse with gravitational energy, the stage warps and distorts with every bass hit, and the entire visual field bends in sync with the sub-frequencies you layer together.
+              - generic [ref=e335]:
+                - text: Play Now
+                - img [ref=e336]
+          - link "Phase 9 Sprunki Phase 9 Sprunki Phase 9 takes a thrilling ride back to the 1980s with the \"Retro Wave\" theme. Neon sunsets, chrome-lined characters, and a pixel-grid stage transport you to an era of synthesizers, drum machines, and VHS aesthetics. Every character channels a different facet of the retro electronic sound — from Moog-style leads and FM bass to gated reverb snares and tape-saturated vocals. Play Now" [ref=e338] [cursor=pointer]:
+            - /url: /sprunki-phase-9
+            - generic [ref=e342]:
+              - generic [ref=e343]:
+                - img [ref=e344]
+                - generic [ref=e348]: Phase 9
+              - heading "Sprunki Phase 9" [level=3] [ref=e349]
+              - paragraph [ref=e350]: Sprunki Phase 9 takes a thrilling ride back to the 1980s with the "Retro Wave" theme. Neon sunsets, chrome-lined characters, and a pixel-grid stage transport you to an era of synthesizers, drum machines, and VHS aesthetics. Every character channels a different facet of the retro electronic sound — from Moog-style leads and FM bass to gated reverb snares and tape-saturated vocals.
+              - generic [ref=e351]:
+                - text: Play Now
+                - img [ref=e352]
+          - link "Phase 10 Sprunki Phase 10 Sprunki Phase 10 jacks into a dystopian future with the \"Cyberpunk Beat\" theme. Augmented characters with glowing circuit tattoos, holographic interfaces, and rain-slicked neon streets create a dark, high-tech atmosphere. The sounds are aggressive and digital — distorted synth stabs, glitched-out drum patterns, modulated vocal chops, and bass lines that sound like they are being transmitted through corrupted data streams. Play Now" [ref=e354] [cursor=pointer]:
+            - /url: /sprunki-phase-10
+            - generic [ref=e358]:
+              - generic [ref=e359]:
+                - img [ref=e360]
+                - generic [ref=e364]: Phase 10
+              - heading "Sprunki Phase 10" [level=3] [ref=e365]
+              - paragraph [ref=e366]: Sprunki Phase 10 jacks into a dystopian future with the "Cyberpunk Beat" theme. Augmented characters with glowing circuit tattoos, holographic interfaces, and rain-slicked neon streets create a dark, high-tech atmosphere. The sounds are aggressive and digital — distorted synth stabs, glitched-out drum patterns, modulated vocal chops, and bass lines that sound like they are being transmitted through corrupted data streams.
+              - generic [ref=e367]:
+                - text: Play Now
+                - img [ref=e368]
+          - link "Phase 11 Sprunki Phase 11 Sprunki Phase 11 floats you into a surreal world of clouds, light, and sound with the \"Dreamscape\" theme. Translucent characters drift across a pastel sky stage, trailing wisps of color as they move. The sounds are soft, layered, and deeply atmospheric — shimmering pads, music-box melodies, whispering vocals, and gentle rhythms that feel like a lullaby from another dimension. Play Now" [ref=e370] [cursor=pointer]:
+            - /url: /sprunki-phase-11
+            - generic [ref=e374]:
+              - generic [ref=e375]:
+                - img [ref=e376]
+                - generic [ref=e380]: Phase 11
+              - heading "Sprunki Phase 11" [level=3] [ref=e381]
+              - paragraph [ref=e382]: Sprunki Phase 11 floats you into a surreal world of clouds, light, and sound with the "Dreamscape" theme. Translucent characters drift across a pastel sky stage, trailing wisps of color as they move. The sounds are soft, layered, and deeply atmospheric — shimmering pads, music-box melodies, whispering vocals, and gentle rhythms that feel like a lullaby from another dimension.
+              - generic [ref=e383]:
+                - text: Play Now
+                - img [ref=e384]
+          - link "Phase 12 Sprunki Phase 12 Sprunki Phase 12 takes the series into a raw, mechanical world with the \"Industrial Rhythm\" theme. Steel-clad characters, grinding gears, and a factory-floor stage set the scene for the most aggressive and percussive phase yet. Every sound is forged from metal — pounding anvil kicks, hydraulic snare hits, conveyor-belt hi-hats, and steam-vent risers that transform your browser into a music-producing machine. Play Now" [ref=e386] [cursor=pointer]:
+            - /url: /sprunki-phase-12
+            - generic [ref=e390]:
+              - generic [ref=e391]:
+                - img [ref=e392]
+                - generic [ref=e396]: Phase 12
+              - heading "Sprunki Phase 12" [level=3] [ref=e397]
+              - paragraph [ref=e398]: Sprunki Phase 12 takes the series into a raw, mechanical world with the "Industrial Rhythm" theme. Steel-clad characters, grinding gears, and a factory-floor stage set the scene for the most aggressive and percussive phase yet. Every sound is forged from metal — pounding anvil kicks, hydraulic snare hits, conveyor-belt hi-hats, and steam-vent risers that transform your browser into a music-producing machine.
+              - generic [ref=e399]:
+                - text: Play Now
+                - img [ref=e400]
+          - link "Phase 13 Sprunki Phase 13 Sprunki Phase 13 plunges you into the abyss with the \"Dark Pulse\" theme, where beat intensity directly controls the visual darkness surrounding your stage. As you layer heavier beats and deeper bass, shadows creep inward and pulse with every kick drum. Lighter melodic elements push the darkness back, creating a dynamic tug-of-war between light and shadow that makes every composition feel alive and responsive. Play Now" [ref=e402] [cursor=pointer]:
+            - /url: /sprunki-phase-13
+            - generic [ref=e406]:
+              - generic [ref=e407]:
+                - img [ref=e408]
+                - generic [ref=e412]: Phase 13
+              - heading "Sprunki Phase 13" [level=3] [ref=e413]
+              - paragraph [ref=e414]: Sprunki Phase 13 plunges you into the abyss with the "Dark Pulse" theme, where beat intensity directly controls the visual darkness surrounding your stage. As you layer heavier beats and deeper bass, shadows creep inward and pulse with every kick drum. Lighter melodic elements push the darkness back, creating a dynamic tug-of-war between light and shadow that makes every composition feel alive and responsive.
+              - generic [ref=e415]:
+                - text: Play Now
+                - img [ref=e416]
+          - link "Phase 14 Sprunki Phase 14 Sprunki Phase 14 throws the rulebook out the window with the \"Sonic Chaos\" theme, introducing a chaos engine that applies controlled randomization to your music in real time. Every character you place on the stage has a chance to mutate — beats shift timing, melodies jump octaves, effects morph into entirely new textures. The result is never quite what you planned, and that is exactly the point. Play Now" [ref=e418] [cursor=pointer]:
+            - /url: /sprunki-phase-14
+            - generic [ref=e422]:
+              - generic [ref=e423]:
+                - img [ref=e424]
+                - generic [ref=e428]: Phase 14
+              - heading "Sprunki Phase 14" [level=3] [ref=e429]
+              - paragraph [ref=e430]: Sprunki Phase 14 throws the rulebook out the window with the "Sonic Chaos" theme, introducing a chaos engine that applies controlled randomization to your music in real time. Every character you place on the stage has a chance to mutate — beats shift timing, melodies jump octaves, effects morph into entirely new textures. The result is never quite what you planned, and that is exactly the point.
+              - generic [ref=e431]:
+                - text: Play Now
+                - img [ref=e432]
+          - link "Phase 15 Sprunki Phase 15 Sprunki Phase 15 shatters the boundary between dimensions with the \"Echo Dimension\" theme, introducing a revolutionary mechanic where every sound you create generates mirror reflections across parallel layers. Place a character on the main stage and watch as its echo appears on a translucent mirror stage, playing a delayed, transformed version of the same pattern. The interplay between original and echo creates rich, spatial compositions that sound like they exist in multiple realities simultaneously. Play Now" [ref=e434] [cursor=pointer]:
+            - /url: /sprunki-phase-15
+            - generic [ref=e438]:
+              - generic [ref=e439]:
+                - img [ref=e440]
+                - generic [ref=e444]: Phase 15
+              - heading "Sprunki Phase 15" [level=3] [ref=e445]
+              - paragraph [ref=e446]: Sprunki Phase 15 shatters the boundary between dimensions with the "Echo Dimension" theme, introducing a revolutionary mechanic where every sound you create generates mirror reflections across parallel layers. Place a character on the main stage and watch as its echo appears on a translucent mirror stage, playing a delayed, transformed version of the same pattern. The interplay between original and echo creates rich, spatial compositions that sound like they exist in multiple realities simultaneously.
+              - generic [ref=e447]:
+                - text: Play Now
+                - img [ref=e448]
+          - link "Phase 16 Sprunki Phase 16 Sprunki Phase 16 is the ultimate celebration of the entire Sprunki universe with the \"Ultimate Remix\" theme. For the first time in the series, remix mode lets you blend iconic sounds from all previous phases into entirely new combinations. Pair Phase 3 dark vocals with Phase 9 retro synths, layer Phase 6 jungle drums under Phase 7 cosmic pads, or crash Phase 12 industrial percussion against Phase 11 dreamscape melodies — the creative possibilities are virtually limitless. Play Now" [ref=e450] [cursor=pointer]:
+            - /url: /sprunki-phase-16
+            - generic [ref=e454]:
+              - generic [ref=e455]:
+                - img [ref=e456]
+                - generic [ref=e460]: Phase 16
+              - heading "Sprunki Phase 16" [level=3] [ref=e461]
+              - paragraph [ref=e462]: Sprunki Phase 16 is the ultimate celebration of the entire Sprunki universe with the "Ultimate Remix" theme. For the first time in the series, remix mode lets you blend iconic sounds from all previous phases into entirely new combinations. Pair Phase 3 dark vocals with Phase 9 retro synths, layer Phase 6 jungle drums under Phase 7 cosmic pads, or crash Phase 12 industrial percussion against Phase 11 dreamscape melodies — the creative possibilities are virtually limitless.
+              - generic [ref=e463]:
+                - text: Play Now
+                - img [ref=e464]
+          - link "Phase 17 Sprunki Phase 17 Sprunki Phase 17 represents the pinnacle of the series with the \"Final Evolution\" theme, introducing an evolution engine where characters physically morph and transform based on how you combine them on stage. Place two compatible characters near each other and watch them evolve into entirely new forms with upgraded visuals and enhanced sound profiles. The longer they play together, the more they evolve — simple starter characters can transform into spectacular evolved beings with complex, multi-layered sounds. Play Now" [ref=e466] [cursor=pointer]:
+            - /url: /sprunki-phase-17
+            - generic [ref=e470]:
+              - generic [ref=e471]:
+                - img [ref=e472]
+                - generic [ref=e476]: Phase 17
+              - heading "Sprunki Phase 17" [level=3] [ref=e477]
+              - paragraph [ref=e478]: Sprunki Phase 17 represents the pinnacle of the series with the "Final Evolution" theme, introducing an evolution engine where characters physically morph and transform based on how you combine them on stage. Place two compatible characters near each other and watch them evolve into entirely new forms with upgraded visuals and enhanced sound profiles. The longer they play together, the more they evolve — simple starter characters can transform into spectacular evolved beings with complex, multi-layered sounds.
+              - generic [ref=e479]:
+                - text: Play Now
+                - img [ref=e480]
+        - link "View All Phases" [ref=e483] [cursor=pointer]:
+          - /url: /sprunki-phases
+          - text: View All Phases
+          - img [ref=e484]
+      - generic [ref=e487]:
+        - generic [ref=e488]:
+          - heading "Latest Guides & Articles" [level=2] [ref=e490]
+          - paragraph [ref=e491]: Tips, mods, and updates for Sprunki fans
+        - generic [ref=e493]:
+          - 'link "Sprunki Phase 14 Tips: How to Build Cleaner, Stronger Mixes Tips & Tricks Sprunki Phase 14 Tips: How to Build Cleaner, Stronger Mixes Practical Sprunki Phase 14 tips for cleaner mixes and stronger compositions. Master the chaos engine, layering strategy, and mutation control in the Sonic Chaos Edition. avatar for Sprunki Team Sprunki Team 2026/03/21" [ref=e494] [cursor=pointer]':
+            - /url: /blog/sprunki-phase-14-tips
+            - generic [ref=e495]:
+              - generic [ref=e497]:
+                - 'img "Sprunki Phase 14 Tips: How to Build Cleaner, Stronger Mixes" [ref=e500]'
+                - generic [ref=e503]: Tips & Tricks
+              - generic [ref=e504]:
+                - generic [ref=e505]:
+                  - 'heading "Sprunki Phase 14 Tips: How to Build Cleaner, Stronger Mixes" [level=3] [ref=e506]'
+                  - paragraph [ref=e508]: Practical Sprunki Phase 14 tips for cleaner mixes and stronger compositions. Master the chaos engine, layering strategy, and mutation control in the Sonic Chaos Edition.
+                - generic [ref=e509]:
+                  - generic [ref=e510]:
+                    - img "avatar for Sprunki Team" [ref=e512]
+                    - generic [ref=e513]: Sprunki Team
+                  - time [ref=e514]: 2026/03/21
+          - 'link "Sprunki Phase 14 vs 15: What Changes and Which One Should You Play Next? Comparisons Sprunki Phase 14 vs 15: What Changes and Which One Should You Play Next? Compare Sprunki Phase 14 vs Phase 15 side by side. See how the Sonic Chaos and Echo Dimension editions differ in difficulty, pacing, experimentation, and replay value. avatar for Sprunki Team Sprunki Team 2026/03/21" [ref=e515] [cursor=pointer]':
+            - /url: /blog/sprunki-phase-14-vs-15
+            - generic [ref=e516]:
+              - generic [ref=e518]:
+                - 'img "Sprunki Phase 14 vs 15: What Changes and Which One Should You Play Next?" [ref=e521]'
+                - generic [ref=e524]: Comparisons
+              - generic [ref=e525]:
+                - generic [ref=e526]:
+                  - 'heading "Sprunki Phase 14 vs 15: What Changes and Which One Should You Play Next?" [level=3] [ref=e527]'
+                  - paragraph [ref=e529]: Compare Sprunki Phase 14 vs Phase 15 side by side. See how the Sonic Chaos and Echo Dimension editions differ in difficulty, pacing, experimentation, and replay value.
+                - generic [ref=e530]:
+                  - generic [ref=e531]:
+                    - img "avatar for Sprunki Team" [ref=e533]
+                    - generic [ref=e534]: Sprunki Team
+                  - time [ref=e535]: 2026/03/21
+          - 'link "Sprunki Phase 15 vs 16: Which One Feels Better to Play? Comparisons Sprunki Phase 15 vs 16: Which One Feels Better to Play? Compare Sprunki Phase 15 vs Phase 16 side by side. See how the Echo Dimension and Ultimate Remix editions differ in difficulty, pacing, experimentation, and replay value. avatar for Sprunki Team Sprunki Team 2026/03/21" [ref=e536] [cursor=pointer]':
+            - /url: /blog/sprunki-phase-15-vs-16
+            - generic [ref=e537]:
+              - generic [ref=e539]:
+                - 'img "Sprunki Phase 15 vs 16: Which One Feels Better to Play?" [ref=e542]'
+                - generic [ref=e545]: Comparisons
+              - generic [ref=e546]:
+                - generic [ref=e547]:
+                  - 'heading "Sprunki Phase 15 vs 16: Which One Feels Better to Play?" [level=3] [ref=e548]'
+                  - paragraph [ref=e550]: Compare Sprunki Phase 15 vs Phase 16 side by side. See how the Echo Dimension and Ultimate Remix editions differ in difficulty, pacing, experimentation, and replay value.
+                - generic [ref=e551]:
+                  - generic [ref=e552]:
+                    - img "avatar for Sprunki Team" [ref=e554]
+                    - generic [ref=e555]: Sprunki Team
+                  - time [ref=e556]: 2026/03/21
+        - link "View All Articles" [ref=e558] [cursor=pointer]:
+          - /url: /blog
+      - generic [ref=e560]:
+        - heading "About Sprunki Phase 17" [level=2] [ref=e561]
+        - generic [ref=e562]:
+          - paragraph [ref=e563]: Sprunki Phase 17 enters a new dimension of interactive horror-music gaming. Building upon the legacy of previous versions, this installment introduces the "Dark Echo" engine, allowing players to mix beats that dynamically alter the game environment.
+          - paragraph [ref=e564]:
+            - strong [ref=e565]: "Gameplay Mechanics:"
+            - text: Drag and drop icons onto your characters to create unique sound loops. But be warned—certain combinations can trigger the "Horror State," transforming your cute band into nightmarish creatures with distorted, heavy bass tracks.
+          - paragraph [ref=e566]: Discover hidden Easter eggs, unlock all 12 special animations, and share your creepiest compositions with the community. Phase 17 is not just a game; it's an audiovisual experience that tests your creativity and your courage.
+        - generic [ref=e567]:
+          - generic [ref=e568]:
+            - generic [ref=e569]: 2M+
+            - generic [ref=e570]: Players
+          - generic [ref=e571]:
+            - generic [ref=e572]: 150+
+            - generic [ref=e573]: Sounds
+          - generic [ref=e574]:
+            - generic [ref=e575]: 24/7
+            - generic [ref=e576]: Uptime
+          - generic [ref=e577]:
+            - generic [ref=e578]: 4.9/5
+            - generic [ref=e579]: Rating
+    - contentinfo [ref=e580]:
+      - generic [ref=e581]:
+        - generic [ref=e582]:
+          - link "All Phases" [ref=e583] [cursor=pointer]:
+            - /url: /sprunki-phases
+          - link "Sprunki Phase 1" [ref=e584] [cursor=pointer]:
+            - /url: /sprunki-phase-1
+          - link "Sprunki Phase 2" [ref=e585] [cursor=pointer]:
+            - /url: /sprunki-phase-2
+          - link "Sprunki Phase 3" [ref=e586] [cursor=pointer]:
+            - /url: /sprunki-phase-3
+          - link "Sprunki Phase 4" [ref=e587] [cursor=pointer]:
+            - /url: /sprunki-phase-4
+          - link "Sprunki Phase 5" [ref=e588] [cursor=pointer]:
+            - /url: /sprunki-phase-5
+          - link "Sprunki Phase 6" [ref=e589] [cursor=pointer]:
+            - /url: /sprunki-phase-6
+          - link "Sprunki Phase 7" [ref=e590] [cursor=pointer]:
+            - /url: /sprunki-phase-7
+          - link "Sprunki Phase 8" [ref=e591] [cursor=pointer]:
+            - /url: /sprunki-phase-8
+          - link "Sprunki Phase 9" [ref=e592] [cursor=pointer]:
+            - /url: /sprunki-phase-9
+          - link "Sprunki Phase 10" [ref=e593] [cursor=pointer]:
+            - /url: /sprunki-phase-10
+          - link "Sprunki Phase 11" [ref=e594] [cursor=pointer]:
+            - /url: /sprunki-phase-11
+          - link "Sprunki Phase 12" [ref=e595] [cursor=pointer]:
+            - /url: /sprunki-phase-12
+          - link "Sprunki Phase 13" [ref=e596] [cursor=pointer]:
+            - /url: /sprunki-phase-13
+          - link "Sprunki Phase 14" [ref=e597] [cursor=pointer]:
+            - /url: /sprunki-phase-14
+          - link "Sprunki Phase 15" [ref=e598] [cursor=pointer]:
+            - /url: /sprunki-phase-15
+          - link "Sprunki Phase 16" [ref=e599] [cursor=pointer]:
+            - /url: /sprunki-phase-16
+          - link "Sprunki Phase 17" [ref=e600] [cursor=pointer]:
+            - /url: /sprunki-phase-17
+        - generic [ref=e601]:
+          - img [ref=e602]
+          - generic [ref=e605]: 2026 Sprunki Game Fan Site. Not affiliated with the official developers.
+        - paragraph [ref=e606]: Sprunki Phases is an unofficial, fan-made site and is not affiliated with, endorsed by, or connected to the creators of Sprunki or Incredibox. All trademarks and game content belong to their respective owners. Information here is provided by fans and may not be officially verified.
+        - generic [ref=e607]:
+          - link "Blog" [ref=e608] [cursor=pointer]:
+            - /url: /blog
+          - link "Privacy Policy" [ref=e609] [cursor=pointer]:
+            - /url: /privacy
+          - link "Terms of Service" [ref=e610] [cursor=pointer]:
+            - /url: /terms
+          - link "About" [ref=e611] [cursor=pointer]:
+            - /url: /about
+  - region "Notifications alt+T"

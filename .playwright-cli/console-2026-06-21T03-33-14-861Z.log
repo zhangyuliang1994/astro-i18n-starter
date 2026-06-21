@@ -1,0 +1,4 @@
+[    2970ms] ReferenceError: e is not defined
+    at https://cupcities.com/:1:4251
+    at https://cupcities.com/:1:4420
+[    4350ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_CLOSED @ https://www.google-analytics.com/g/collect?v=2&tid=G-N6V1VRNF43&gtm=45je66h0v9253611247za200zd9253611247&_p=1782012798053&gcd=13l3l3l3l1l1&npa=0&dma=0&are=1&cid=870486958.1782012799&frm=0&pscdl=noapi&rcb=1&sr=1280x720&uaa=arm&uab=64&uafvl=Google%2520Chrome%3B149.0.7827.115%7CChromium%3B149.0.7827.115%7CNot)A%253BBrand%3B24.0.0.0&uam=&uamb=0&uap=macOS&uapv=14.1.1&uaw=0&ul=zh-cn&_s=1&tag_exp=115616985~115938466~115938469~119027224~119392696~119392704~119456239~119456247~119534187~119576876~119576880&sid=1782012798&sct=1&seg=0&dl=https%3A%2F%2Fcupcities.com%2F&dt=CupCities%3A%20World%20Cup%202026%20Host%20Cities%2C%20Stadiums%2C%20Fan%20Zones%20%26%20Matchday%20Guide&en=page_view&_fv=1&_nsi=1&_ss=1&_ee=1&tfd=4042:0

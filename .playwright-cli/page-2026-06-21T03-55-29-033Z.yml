@@ -1,0 +1,338 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - navigation "Main navigation" [ref=e7]:
+        - link "Home" [ref=e8] [cursor=pointer]:
+          - /url: /
+          - img "Logo" [ref=e9]
+          - generic [ref=e10]: Crimson Desert HQ
+        - navigation "Main" [ref=e11]:
+          - list [ref=e13]:
+            - listitem [ref=e14]:
+              - link "Home" [ref=e15] [cursor=pointer]:
+                - /url: /
+            - listitem [ref=e16]:
+              - link "Guides" [ref=e17] [cursor=pointer]:
+                - /url: /blog
+            - listitem [ref=e18]:
+              - link "Weapons" [ref=e19] [cursor=pointer]:
+                - /url: /weapons
+            - listitem [ref=e20]:
+              - link "Bosses" [ref=e21] [cursor=pointer]:
+                - /url: /bosses
+            - listitem [ref=e22]:
+              - link "Mounts" [ref=e23] [cursor=pointer]:
+                - /url: /mounts
+            - listitem [ref=e24]:
+              - link "Regions" [ref=e25] [cursor=pointer]:
+                - /url: /blog/category/regions
+        - button "Open site search" [ref=e27]:
+          - img [ref=e28]
+          - generic [ref=e31]: Search
+          - generic [ref=e32]: ⌘ K
+    - main [ref=e33]:
+      - generic [ref=e34]:
+        - generic [ref=e40]:
+          - paragraph [ref=e41]: Wiki & Strategy Guides
+          - paragraph [ref=e42]: Fan-made wiki — not affiliated with Pearl Abyss
+          - heading "Crimson Desert Guides, Bosses, Weapons & Help" [level=1] [ref=e43]
+          - paragraph [ref=e44]: Your ultimate resource for Crimson Desert. Find boss strategies, weapon stats, mount guides, and community guides all in one place.
+          - button "Open site search" [ref=e46]:
+            - img [ref=e47]
+            - generic [ref=e50]: Search guides, bosses, weapons...
+            - generic [ref=e51]: ⌘ K
+          - generic [ref=e52]:
+            - link "Browse Guides" [ref=e53] [cursor=pointer]:
+              - /url: /blog
+            - link "All Bosses" [ref=e54] [cursor=pointer]:
+              - /url: /bosses
+          - paragraph [ref=e55]: Updated Daily · 100+ Guides · Community Driven
+          - generic [ref=e56]:
+            - link "Boss Guides" [ref=e57] [cursor=pointer]:
+              - /url: /blog/category/boss-guide
+            - link "Weapons" [ref=e58] [cursor=pointer]:
+              - /url: /weapons
+            - link "Beginner Tips" [ref=e59] [cursor=pointer]:
+              - /url: /blog/category/beginner-tips
+            - link "Regions" [ref=e60] [cursor=pointer]:
+              - /url: /blog/category/regions
+            - link "Mounts" [ref=e61] [cursor=pointer]:
+              - /url: /blog/category/mounts
+        - generic [ref=e63]:
+          - generic [ref=e64]:
+            - heading "Knowledge Hub" [level=2] [ref=e65]
+            - paragraph [ref=e66]: Everything you need to conquer Crimson Desert
+          - generic [ref=e67]:
+            - link "Weapon Database Browse all weapons with stats, locations, and upgrade paths" [ref=e68] [cursor=pointer]:
+              - /url: /weapons
+              - generic [ref=e69]:
+                - img [ref=e71]
+                - generic [ref=e76]:
+                  - heading "Weapon Database" [level=3] [ref=e78]
+                  - paragraph [ref=e79]: Browse all weapons with stats, locations, and upgrade paths
+            - link "Boss Guides 3 guides Detailed strategies for every boss encounter" [ref=e80] [cursor=pointer]:
+              - /url: /blog/category/boss-guide
+              - generic [ref=e81]:
+                - img [ref=e83]
+                - generic [ref=e88]:
+                  - generic [ref=e89]:
+                    - heading "Boss Guides" [level=3] [ref=e90]
+                    - generic [ref=e91]: 3 guides
+                  - paragraph [ref=e92]: Detailed strategies for every boss encounter
+            - link "Mount Collection Mount entries with stats, types, and acquisition details" [ref=e93] [cursor=pointer]:
+              - /url: /mounts
+              - generic [ref=e94]:
+                - img [ref=e96]
+                - generic [ref=e98]:
+                  - heading "Mount Collection" [level=3] [ref=e100]
+                  - paragraph [ref=e101]: Mount entries with stats, types, and acquisition details
+            - link "Beginner Tips 57 guides Essential guides for new adventurers starting their journey" [ref=e102] [cursor=pointer]:
+              - /url: /blog/category/beginner-tips
+              - generic [ref=e103]:
+                - img [ref=e105]
+                - generic [ref=e107]:
+                  - generic [ref=e108]:
+                    - heading "Beginner Tips" [level=3] [ref=e109]
+                    - generic [ref=e110]: 57 guides
+                  - paragraph [ref=e111]: Essential guides for new adventurers starting their journey
+            - link "Builds & Loadouts Optimized character builds and equipment recommendations" [ref=e112] [cursor=pointer]:
+              - /url: /blog/category/builds
+              - generic [ref=e113]:
+                - img [ref=e115]
+                - generic [ref=e117]:
+                  - heading "Builds & Loadouts" [level=3] [ref=e119]
+                  - paragraph [ref=e120]: Optimized character builds and equipment recommendations
+            - link "System Requirements Check if your PC meets the requirements" [ref=e121] [cursor=pointer]:
+              - /url: /blog/system-requirements
+              - generic [ref=e122]:
+                - img [ref=e124]
+                - generic [ref=e126]:
+                  - heading "System Requirements" [level=3] [ref=e128]
+                  - paragraph [ref=e129]: Check if your PC meets the requirements
+        - generic [ref=e131]:
+          - generic [ref=e132]:
+            - generic [ref=e133]:
+              - heading "Latest Intel" [level=2] [ref=e134]
+              - paragraph [ref=e135]: Fresh guides and strategies from the community
+            - link "View All" [ref=e136] [cursor=pointer]:
+              - /url: /blog
+          - generic [ref=e137]:
+            - 'link "Crimson Desert Patch 1.10.00 Explained: Re-Blockade Rework, Pinball, Orb Roll, and Wyvern Mounts News Crimson Desert Patch 1.10.00 Explained: Re-Blockade Rework, Pinball, Orb Roll, and Wyvern Mounts Crimson Desert Patch 1.10.00 reworks Re-Blockade with Battle and Reconstruct stages, adds the Pinball and Orb Roll minigames, a new Wyvern mount, the Kuku Bird Chick pet, and a Carpet decoration category. avatar for Crimson Desert HQ Crimson Desert HQ 2026/06/05" [ref=e138] [cursor=pointer]':
+              - /url: /blog/crimson-desert-patch-1-10-00-explained
+              - generic [ref=e139]:
+                - generic [ref=e141]:
+                  - 'img "Crimson Desert Patch 1.10.00 Explained: Re-Blockade Rework, Pinball, Orb Roll, and Wyvern Mounts" [ref=e143]'
+                  - generic [ref=e146]: News
+                - generic [ref=e147]:
+                  - generic [ref=e148]:
+                    - 'heading "Crimson Desert Patch 1.10.00 Explained: Re-Blockade Rework, Pinball, Orb Roll, and Wyvern Mounts" [level=3] [ref=e149]'
+                    - paragraph [ref=e151]: Crimson Desert Patch 1.10.00 reworks Re-Blockade with Battle and Reconstruct stages, adds the Pinball and Orb Roll minigames, a new Wyvern mount, the Kuku Bird Chick pet, and a Carpet decoration category.
+                  - generic [ref=e152]:
+                    - generic [ref=e153]:
+                      - img "avatar for Crimson Desert HQ" [ref=e155]
+                      - generic [ref=e156]: Crimson Desert HQ
+                    - time [ref=e157]: 2026/06/05
+            - 'link "Crimson Desert Equipment Tempering Guide: How to Refine Weapons and Armor Beginner Tips Crimson Desert Equipment Tempering Guide: How to Refine Weapons and Armor Equipment tempering (also called refinement) in Crimson Desert is the main way to upgrade gear stats. Here is what tempering is, where to do it, which materials you need, and how Stage 4 and Refinement Tokens work. avatar for Crimson Desert HQ Crimson Desert HQ 2026/05/30" [ref=e158] [cursor=pointer]':
+              - /url: /blog/crimson-desert-equipment-tempering-guide
+              - generic [ref=e159]:
+                - generic [ref=e161]:
+                  - 'img "Crimson Desert Equipment Tempering Guide: How to Refine Weapons and Armor" [ref=e163]'
+                  - generic [ref=e166]: Beginner Tips
+                - generic [ref=e167]:
+                  - generic [ref=e168]:
+                    - 'heading "Crimson Desert Equipment Tempering Guide: How to Refine Weapons and Armor" [level=3] [ref=e169]'
+                    - paragraph [ref=e171]: Equipment tempering (also called refinement) in Crimson Desert is the main way to upgrade gear stats. Here is what tempering is, where to do it, which materials you need, and how Stage 4 and Refinement Tokens work.
+                  - generic [ref=e172]:
+                    - generic [ref=e173]:
+                      - img "avatar for Crimson Desert HQ" [ref=e175]
+                      - generic [ref=e176]: Crimson Desert HQ
+                    - time [ref=e177]: 2026/05/30
+            - 'link "Crimson Desert Patch 1.09.00 Explained: Controller Remapping, 30 New Pets, Seed Quickslot, and New Oongka and Damiane Skills News Crimson Desert Patch 1.09.00 Explained: Controller Remapping, 30 New Pets, Seed Quickslot, and New Oongka and Damiane Skills Crimson Desert Patch 1.09.00 adds controller remapping, around 30 new small-animal pets, new Oongka and Damiane skills, seed planting from the Food Quickslot, and a long fix list. avatar for Crimson Desert HQ Crimson Desert HQ 2026/05/30" [ref=e178] [cursor=pointer]':
+              - /url: /blog/crimson-desert-patch-1-09-00-explained
+              - generic [ref=e179]:
+                - generic [ref=e181]:
+                  - 'img "Crimson Desert Patch 1.09.00 Explained: Controller Remapping, 30 New Pets, Seed Quickslot, and New Oongka and Damiane Skills" [ref=e183]'
+                  - generic [ref=e186]: News
+                - generic [ref=e187]:
+                  - generic [ref=e188]:
+                    - 'heading "Crimson Desert Patch 1.09.00 Explained: Controller Remapping, 30 New Pets, Seed Quickslot, and New Oongka and Damiane Skills" [level=3] [ref=e189]'
+                    - paragraph [ref=e191]: Crimson Desert Patch 1.09.00 adds controller remapping, around 30 new small-animal pets, new Oongka and Damiane skills, seed planting from the Food Quickslot, and a long fix list.
+                  - generic [ref=e192]:
+                    - generic [ref=e193]:
+                      - img "avatar for Crimson Desert HQ" [ref=e195]
+                      - generic [ref=e196]: Crimson Desert HQ
+                    - time [ref=e197]: 2026/05/30
+            - link "How to Beat Beloth the Darksworn in Crimson Desert How to Beat Beloth the Darksworn in Crimson Desert Complete strategy guide for the Beloth the Darksworn boss fight in Crimson Desert — the Hoenmark Ruins ice halberdier widely called the hardest boss in the game. avatar for Kliff Kliff 2026/05/30" [ref=e198] [cursor=pointer]:
+              - /url: /blog/how-to-beat-beloth-the-darksworn
+              - generic [ref=e199]:
+                - img "How to Beat Beloth the Darksworn in Crimson Desert" [ref=e204]
+                - generic [ref=e205]:
+                  - generic [ref=e206]:
+                    - heading "How to Beat Beloth the Darksworn in Crimson Desert" [level=3] [ref=e207]
+                    - paragraph [ref=e209]: Complete strategy guide for the Beloth the Darksworn boss fight in Crimson Desert — the Hoenmark Ruins ice halberdier widely called the hardest boss in the game.
+                  - generic [ref=e210]:
+                    - generic [ref=e211]:
+                      - img "avatar for Kliff" [ref=e213]
+                      - generic [ref=e214]: Kliff
+                    - time [ref=e215]: 2026/05/30
+            - link "How to Beat Hexe Marie on Rematch (Hard Mode) in Crimson Desert How to Beat Hexe Marie on Rematch (Hard Mode) in Crimson Desert Strategy guide for the Hexe Marie boss rematch on Hard difficulty in Crimson Desert — Reminisce vs Resonate, food lockout timing, new Hard-mode aggression, and a clean do/don't list. avatar for Kliff Kliff 2026/05/30" [ref=e216] [cursor=pointer]:
+              - /url: /blog/how-to-beat-hexe-marie-rematch-hard
+              - generic [ref=e217]:
+                - img "How to Beat Hexe Marie on Rematch (Hard Mode) in Crimson Desert" [ref=e222]
+                - generic [ref=e223]:
+                  - generic [ref=e224]:
+                    - heading "How to Beat Hexe Marie on Rematch (Hard Mode) in Crimson Desert" [level=3] [ref=e225]
+                    - paragraph [ref=e227]: Strategy guide for the Hexe Marie boss rematch on Hard difficulty in Crimson Desert — Reminisce vs Resonate, food lockout timing, new Hard-mode aggression, and a clean do/don't list.
+                  - generic [ref=e228]:
+                    - generic [ref=e229]:
+                      - img "avatar for Kliff" [ref=e231]
+                      - generic [ref=e232]: Kliff
+                    - time [ref=e233]: 2026/05/30
+            - link "How to Get Soul Spear in Crimson Desert Weapons How to Get Soul Spear in Crimson Desert Soul Spear is a 27 ATK two-handed spear hidden in the Antumbra Ritual Grounds in Hernand. Here is the exact location, what its kill effect does, and why it is worth grabbing early. avatar for Crimson Desert HQ Crimson Desert HQ 2026/05/30" [ref=e234] [cursor=pointer]:
+              - /url: /blog/how-to-get-soul-spear-crimson-desert
+              - generic [ref=e235]:
+                - generic [ref=e237]:
+                  - img "How to Get Soul Spear in Crimson Desert" [ref=e240]
+                  - generic [ref=e243]: Weapons
+                - generic [ref=e244]:
+                  - generic [ref=e245]:
+                    - heading "How to Get Soul Spear in Crimson Desert" [level=3] [ref=e246]
+                    - paragraph [ref=e248]: Soul Spear is a 27 ATK two-handed spear hidden in the Antumbra Ritual Grounds in Hernand. Here is the exact location, what its kill effect does, and why it is worth grabbing early.
+                  - generic [ref=e249]:
+                    - generic [ref=e250]:
+                      - img "avatar for Crimson Desert HQ" [ref=e252]
+                      - generic [ref=e253]: Crimson Desert HQ
+                    - time [ref=e254]: 2026/05/30
+        - generic [ref=e257]:
+          - generic [ref=e258]:
+            - generic [ref=e259]:
+              - img [ref=e260]
+              - heading "Editor's Picks" [level=2] [ref=e262]
+            - generic [ref=e263]:
+              - link "1 How to Beat the Reed Devil Boss Guide" [ref=e264] [cursor=pointer]:
+                - /url: /blog/how-to-beat-reed-devil
+                - generic [ref=e265]: "1"
+                - generic [ref=e266]:
+                  - paragraph [ref=e267]: How to Beat the Reed Devil
+                  - paragraph [ref=e268]: Boss Guide
+                - img [ref=e269]
+              - link "2 Best Early Game Weapons Weapons" [ref=e271] [cursor=pointer]:
+                - /url: /blog/best-early-game-weapons
+                - generic [ref=e272]: "2"
+                - generic [ref=e273]:
+                  - paragraph [ref=e274]: Best Early Game Weapons
+                  - paragraph [ref=e275]: Weapons
+                - img [ref=e276]
+              - link "3 Hernand Region Complete Guide Regions" [ref=e278] [cursor=pointer]:
+                - /url: /blog/hernand-region-guide
+                - generic [ref=e279]: "3"
+                - generic [ref=e280]:
+                  - paragraph [ref=e281]: Hernand Region Complete Guide
+                  - paragraph [ref=e282]: Regions
+                - img [ref=e283]
+              - link "4 All 29 Mounts Guide Mounts" [ref=e285] [cursor=pointer]:
+                - /url: /blog/all-mounts-guide
+                - generic [ref=e286]: "4"
+                - generic [ref=e287]:
+                  - paragraph [ref=e288]: All 29 Mounts Guide
+                  - paragraph [ref=e289]: Mounts
+                - img [ref=e290]
+              - link "5 Best Builds Guide Builds" [ref=e292] [cursor=pointer]:
+                - /url: /blog/crimson-desert-best-builds
+                - generic [ref=e293]: "5"
+                - generic [ref=e294]:
+                  - paragraph [ref=e295]: Best Builds Guide
+                  - paragraph [ref=e296]: Builds
+                - img [ref=e297]
+          - generic [ref=e299]:
+            - heading "Frequently Asked Questions" [level=2] [ref=e300]
+            - generic [ref=e301]:
+              - generic [ref=e302]:
+                - heading "What is Crimson Desert?" [level=3] [ref=e303]:
+                  - button "What is Crimson Desert?" [expanded] [ref=e304]:
+                    - text: What is Crimson Desert?
+                    - img
+                - region "What is Crimson Desert?" [ref=e305]:
+                  - generic [ref=e306]: Crimson Desert is an open-world action RPG developed by Pearl Abyss, set on the continent of Pywel. You play as Kliff, leader of the mercenary group Greymanes, navigating a world of warring factions, mythical beasts, and ancient mysteries through dynamic real-time combat.
+              - heading "When does Crimson Desert release?" [level=3] [ref=e308]:
+                - button "When does Crimson Desert release?" [ref=e309]:
+                  - text: When does Crimson Desert release?
+                  - img
+              - heading "What platforms is Crimson Desert available on?" [level=3] [ref=e311]:
+                - button "What platforms is Crimson Desert available on?" [ref=e312]:
+                  - text: What platforms is Crimson Desert available on?
+                  - img
+              - heading "Is Crimson Desert related to Black Desert?" [level=3] [ref=e314]:
+                - button "Is Crimson Desert related to Black Desert?" [ref=e315]:
+                  - text: Is Crimson Desert related to Black Desert?
+                  - img
+              - heading "Is this an official Pearl Abyss website?" [level=3] [ref=e317]:
+                - button "Is this an official Pearl Abyss website?" [ref=e318]:
+                  - text: Is this an official Pearl Abyss website?
+                  - img
+        - generic [ref=e322]:
+          - generic [ref=e323]:
+            - paragraph [ref=e324]: Newsletter
+            - heading "Join the community" [level=2] [ref=e325]
+            - paragraph [ref=e326]: Subscribe to our newsletter for the latest news and updates
+          - generic [ref=e328]:
+            - generic [ref=e329]:
+              - generic [ref=e330]: Email
+              - textbox "Email" [ref=e331]
+            - button "Subscribe" [ref=e332]:
+              - img
+              - generic [ref=e333]: Subscribe
+    - contentinfo [ref=e334]:
+      - generic [ref=e336]:
+        - generic [ref=e338]:
+          - generic [ref=e339]:
+            - img "Logo" [ref=e340]
+            - generic [ref=e341]: Crimson Desert HQ
+          - paragraph [ref=e342]: Your ultimate resource for Crimson Desert guides, strategies, and game databases.
+          - link "Contact us" [ref=e343] [cursor=pointer]:
+            - /url: /contact
+            - img [ref=e344]
+            - text: Contact us
+          - navigation "Social links" [ref=e347]
+        - generic [ref=e348]:
+          - text: Database
+          - list [ref=e349]:
+            - listitem [ref=e350]:
+              - link "Boss Guides" [ref=e351] [cursor=pointer]:
+                - /url: /blog/category/boss-guide
+            - listitem [ref=e352]:
+              - link "Weapon Database" [ref=e353] [cursor=pointer]:
+                - /url: /weapons
+            - listitem [ref=e354]:
+              - link "Mounts" [ref=e355] [cursor=pointer]:
+                - /url: /mounts
+            - listitem [ref=e356]:
+              - link "Builds" [ref=e357] [cursor=pointer]:
+                - /url: /blog/category/builds
+        - generic [ref=e358]:
+          - text: Support
+          - list [ref=e359]:
+            - listitem [ref=e360]:
+              - link "Beginner Guide" [ref=e361] [cursor=pointer]:
+                - /url: /blog/category/beginner-tips
+            - listitem [ref=e362]:
+              - link "System Requirements" [ref=e363] [cursor=pointer]:
+                - /url: /blog/system-requirements
+            - listitem [ref=e364]:
+              - link "About" [ref=e365] [cursor=pointer]:
+                - /url: /about
+        - generic [ref=e366]:
+          - text: Legal
+          - list [ref=e367]:
+            - listitem [ref=e368]:
+              - link "Cookie Policy" [ref=e369] [cursor=pointer]:
+                - /url: /cookie
+            - listitem [ref=e370]:
+              - link "Privacy Policy" [ref=e371] [cursor=pointer]:
+                - /url: /privacy
+            - listitem [ref=e372]:
+              - link "Terms of Service" [ref=e373] [cursor=pointer]:
+                - /url: /terms
+      - generic [ref=e376]: © 2026 Crimson Desert HQ. Fan-made. Not affiliated with Pearl Abyss.
+  - region "Notifications alt+T"
+  - alert [ref=e377]
