@@ -1,0 +1,300 @@
+---
+title: "从 Vercel 迁移到 Cloudflare：一次 SEO 内容站的静态化和边缘化改造复盘"
+description: "复盘一个 SEO 内容站从 Vercel 迁移到 Cloudflare Workers 的过程：从 SaaS 模板瘦身、Next.js 静态导出、Worker 边缘路由，到 SEO 防索引、上线验证和回滚方案。"
+date: 2026-07-01
+cover: ./cover.webp
+tags: ["Cloudflare", "Vercel", "Cloudflare Workers", "Next.js", "SEO", "静态化", "迁移复盘"]
+categories: ["技术分享"]
+---
+
+最近我把一个内容型项目从 Vercel 迁到了 Cloudflare Workers。这是一个面向海外搜索流量的游戏内容站，核心诉求很明确：页面要稳定、SEO 不能掉、上线过程要可回滚，最好还能把不必要的模板功能清理掉。
+
+迁移的直接触发点，是 Vercel 免费额度里的计算资源开始不够用了。后台提示 `Exceeded free resources`，其中 Fluid Active CPU 已经超过免费额度，邮件里也明确提醒：免费团队已经用完包含的 Fluid Active CPU，如果继续超过免费用量，项目可能会被自动暂停。
+
+这次迁移不是换一个部署按钮那么简单。从 git 记录看，真正的迁移集中在 2026 年 6 月 24 日到 6 月 29 日，一共 6 个核心提交，涉及 293 个文件，新增约 3000 行，删除约 3.8 万行。这个数字很能说明问题：迁移的重点不是“加 Cloudflare”，而是先把项目改造成适合 Cloudflare 的形态。
+
+## 一、为什么要迁移
+
+![Vercel 免费额度告警与内容站流量压力](./imgs/01-vercel-resource-risk.webp)
+
+这个项目一开始来自一个 SaaS 模板，里面有很多对内容站来说并不必要的能力：登录注册、后台、Stripe 支付、积分系统、邮件、AI playground、数据库迁移、文件上传等。
+
+这些能力在 SaaS 产品里很合理，但对一个以 SEO 内容和静态页面为核心的站点来说，会带来几个问题：
+
+1. 运行时变重，部署环境也更复杂。
+2. 很多 API 和服务依赖并不适合直接搬到 Cloudflare Workers。
+3. 项目维护成本被模板功能放大，后续每次升级都要顾及一堆暂时用不到的模块。
+4. 当搜索流量增长后，动态渲染和函数执行会更快消耗平台免费额度。
+
+这次真正让我下决心迁移的，是资源账单和稳定性风险同时出现了。
+
+一方面，站点流量上涨是好事，但 Vercel 的提醒也很直接：免费额度里的 Fluid Active CPU 已经用满，继续增长就要么升级付费，要么面临项目被暂停的风险。对一个靠搜索流量持续进站的内容站来说，“可能被暂停”本身就是不可接受的。
+
+另一方面，这个站的业务形态并不需要大量服务端计算。绝大多数页面都是内容页、列表页、文档页和静态资源。既然访问压力主要来自读流量，那更合理的方向不是继续为动态运行时付费，而是把它改造成更静态、更边缘化的架构。
+
+所以这次迁移的第一步，不是写 Worker，而是做取舍：这个站到底需要什么？哪些运行时能力是真的业务需要，哪些只是模板带来的历史包袱？
+
+最后留下来的核心能力很简单：
+
+- 多语言内容页面；
+- 博客和文档内容；
+- sitemap、robots、canonical、hreflang 等 SEO 基础设施；
+- 少量 Worker-native API，比如 health、ping、search；
+- 静态资源托管和边缘缓存。
+
+其他暂时不服务于当前目标的模块，全部删除。
+
+## 二、迁移路线：让 Next.js 做静态内容，让 Worker 接管边缘逻辑
+
+![Next.js 静态导出与 Cloudflare Worker 边缘分发架构](./imgs/02-static-first-worker-architecture.webp)
+
+原来的项目是一个典型 Next.js 应用。迁到 Cloudflare 后，我没有强行把所有 Next.js 服务器逻辑塞进 Worker，而是把架构调整成了 static-first：
+
+Next.js 负责生成静态页面，Cloudflare Worker 负责请求入口。
+
+现在的构建脚本里多了一个专门面向 Cloudflare 的命令：
+
+```bash
+pnpm build:cf
+```
+
+它实际做了两件事：
+
+```bash
+CLOUDFLARE_STATIC_EXPORT=true next build
+tsx scripts/generate-llms-assets.mts
+```
+
+在 `next.config.ts` 里，打开 `CLOUDFLARE_STATIC_EXPORT` 后，Next.js 会使用 `output: 'export'`。也就是说，内容页面会被导出到 `out` 目录，再由 Cloudflare Workers Assets 托管。
+
+Worker 的配置也很直接：
+
+```toml
+name = "content-site"
+main = "src/worker.ts"
+
+[assets]
+directory = "out"
+binding = "ASSETS"
+html_handling = "none"
+not_found_handling = "none"
+run_worker_first = true
+```
+
+这里的关键是 `run_worker_first = true`。所有请求先进入 Worker，再由 Worker 判断是走 API、静态资源、默认语言 fallback、404，还是根域名跳转。
+
+这让整个站的边缘逻辑集中在 `src/worker.ts` 里，而不是分散在一堆平台配置和框架约定里。
+
+## 三、最大的一次改动：从 SaaS 模板瘦身成内容站
+
+6 月 29 日有一个很大的提交：
+
+```txt
+feat: enhance Cloudflare integration and clean up unused scripts and configurations
+```
+
+这个提交删除了很多原本来自模板的能力：
+
+- auth 登录注册；
+- Stripe 支付和 webhook；
+- credits 积分系统；
+- newsletter 邮件订阅；
+- admin/dashboard/settings 后台页面；
+- Drizzle 数据库配置和迁移；
+- AI chat/image/text playground；
+- S3 storage 上传；
+- Resend/Beehiiv 等邮件和订阅集成。
+
+同时新增了 Cloudflare 相关的基础层：
+
+- `src/worker.ts`：Worker 请求入口；
+- `src/api/health.ts`、`src/api/ping.ts`、`src/api/search.ts`：Worker-native API；
+- `src/lib/cloudflare/cache.ts`：边缘缓存封装；
+- `src/lib/cloudflare/kv.ts`：未来接 KV 的工具层；
+- `src/lib/cloudflare/d1.ts`：未来接 D1 的工具层；
+- `wrangler.toml`：Cloudflare 部署配置；
+- `src/env.ts`：Worker 环境变量和 binding 类型。
+
+这一步的本质是“减依赖”。迁移平台时，很多人会优先考虑兼容旧代码，但这个项目更适合反过来做：先删掉当前业务不需要的运行时依赖，再把剩下的部分迁到 Cloudflare。
+
+这样做之后，Cloudflare 适配工作反而简单了很多。
+
+## 四、Worker 做了哪些事
+
+迁移后的 Worker 主要负责五类逻辑。
+
+第一类是 API 路由。
+
+原来的 Next.js API route 被精简成 Worker-native handler：
+
+```txt
+/api/ping
+/api/health
+/api/search
+```
+
+其中 `/api/health` 会返回：
+
+```json
+{
+  "ok": true,
+  "runtime": "cloudflare-workers",
+  "site": "content-site",
+  "timestamp": "..."
+}
+```
+
+这个接口在迁移过程中非常有用，因为它能直接确认线上请求确实已经打到了 Cloudflare Workers，而不是还停留在旧平台。
+
+第二类是静态资源路由。
+
+Worker 会根据请求路径生成候选资源，比如：
+
+- `/` 对应默认语言首页；
+- `/example-page` 可以 fallback 到 `/en/example-page.html`；
+- `/docs/xxx.mdx` 可以映射到生成好的 LLM markdown 资源；
+- 带文件后缀的路径直接按静态文件处理。
+
+这个逻辑解决了静态导出后最容易遇到的问题：用户访问的是漂亮 URL，但产物目录里可能是 `.html` 或 `index.html`。
+
+第三类是缓存。
+
+项目新增了一个 Cloudflare cache 封装，对 GET 请求进行边缘缓存，并设置：
+
+```txt
+s-maxage=3600
+stale-while-revalidate=86400
+```
+
+这对内容站比较合适：页面不需要每次回源，旧内容也可以在重新验证期间继续服务。
+
+第四类是安全和索引控制。
+
+Worker 会统一添加安全响应头，比如：
+
+- `X-Content-Type-Options: nosniff`
+- `Referrer-Policy: strict-origin-when-cross-origin`
+- `X-Frame-Options: SAMEORIGIN`
+- `Permissions-Policy`
+
+同时，对 `workers.dev` staging 域名额外加：
+
+```txt
+X-Robots-Tag: noindex, nofollow
+```
+
+第五类是域名规范化。
+
+如果访问根域名，Worker 会 301 到带 `www` 的规范域名：
+
+```txt
+https://<www-production-domain>
+```
+
+这对 SEO 很重要。迁移过程中最怕同一批页面同时出现在生产域名、workers.dev 域名、根域名和 www 域名上，最后造成 canonical 混乱。
+
+## 五、SEO 是迁移里最容易被低估的部分
+
+这次迁移不是 URL 迁移，生产域名仍然是：
+
+```txt
+https://<www-production-domain>
+```
+
+但即使 URL 不变，SEO 仍然有很多坑。
+
+比如 staging 域名不能被索引。为此，Worker 对 workers.dev 做了两层保护：
+
+1. 响应头加 `X-Robots-Tag: noindex, nofollow`；
+2. 访问 `/robots.txt` 时返回 `Disallow: /`。
+
+再比如 sitemap 和 canonical 不能因为 staging 环境而变成 workers.dev。项目里的 `getBaseUrl()` 做了一个保护：如果环境变量里出现 `.workers.dev`，最终仍然回落到正式生产域名。
+
+还有一个细节是 robots 规则。
+
+迁移后专门修过一次：
+
+```txt
+fix: update robots.txt rules to remove disallow for _next directory
+```
+
+这个提交看起来很小，只改了一行，但很关键。因为静态站依然可能依赖 Next 生成的资源路径，如果错误地禁止 `_next`，搜索引擎和浏览器访问资源时就可能出现问题。
+
+迁移平台时，很多真正影响上线质量的问题，往往不是大功能，而是这些小规则。
+
+## 六、上线不是 deploy 完就结束
+
+![Cloudflare 迁移上线前后的验证清单](./imgs/03-launch-checklist.webp)
+
+迁移过程中我其实整理过不少临时文件和检查清单，很多只是阶段性的排查记录，后面清理代码时也一起删掉了。真正值得留下来的，不是某一个文件名，而是上线前后必须验证的几类问题。
+
+比如这些检查项，我觉得很值得保留：
+
+上线前检查 staging：
+
+```bash
+curl -I https://<worker-name>.<account>.workers.dev/
+curl -I https://<worker-name>.<account>.workers.dev/en
+curl -I https://<worker-name>.<account>.workers.dev/api/health
+curl https://<worker-name>.<account>.workers.dev/robots.txt
+curl -s https://<worker-name>.<account>.workers.dev/sitemap.xml | grep workers.dev
+```
+
+上线后检查生产：
+
+```bash
+curl -I https://<www-production-domain>/
+curl -I https://<www-production-domain>/en
+curl -I https://<www-production-domain>/api/health
+curl https://<www-production-domain>/robots.txt
+curl -s https://<www-production-domain>/sitemap.xml | grep workers.dev
+```
+
+预期结果也很清楚：
+
+- staging 可以访问，但不能被索引；
+- production 不能出现 `workers.dev`；
+- sitemap 只出现正式域名；
+- `/api/health` 返回 Cloudflare Workers 标记；
+- 根域名正确 301 到 www；
+- 如果出问题，可以移除 Worker Custom Domain，把 DNS/CNAME 切回 Vercel。
+
+这个 checklist 的价值不在于命令本身，而在于它把“上线成功”定义清楚了。
+
+不是页面能打开就叫成功。对内容站来说，SEO URL、robots、sitemap、canonical、API health、回滚路径都确认过，才算真正完成切换。
+
+## 七、这次迁移带来的几个经验
+
+第一，迁移前先判断项目真正需要什么。
+
+如果一个内容站只是需要静态页面、搜索流量和少量 API，就没必要保留完整 SaaS 模板的 auth、billing、dashboard、database。删掉不需要的东西，是迁移成功的一部分。
+
+第二，不要把 Cloudflare 当成另一个 Vercel。
+
+Cloudflare Workers 的优势在边缘运行、缓存、轻量 API 和静态资源分发。项目越贴近这些能力，迁移越顺。如果还带着大量 Node.js server runtime 假设，迁移过程会更痛苦。
+
+第三，SEO 迁移要单独设计。
+
+即使域名不变，也要处理 staging 防索引、canonical 生产域名、sitemap 域名、robots 规则、www/root 域名统一等问题。尤其是 `workers.dev`，一定不能让它进入搜索引擎索引。
+
+第四，保留回滚方案。
+
+迁移平台不是单向门。上线文档里明确写了回滚步骤：删除 Worker Custom Domain，恢复 DNS/CNAME 到 Vercel，清理 Cloudflare cache，再验证生产域名。这样上线时心态会稳很多。
+
+第五，健康检查接口很有用。
+
+`/api/health` 看起来只是一个小接口，但它能回答一个关键问题：当前生产流量到底跑在哪个 runtime 上？迁移期间，这比猜测和看控制台可靠。
+
+## 八、总结
+
+这次从 Vercel 到 Cloudflare 的迁移，表面上是部署平台变化，实际是一次项目形态重塑。
+
+迁移前，它更像一个保留了很多 SaaS 模板能力的 Next.js 应用。
+
+迁移后，它变成了一个 static-first 的内容站：Next.js 负责生成内容资产，Cloudflare Workers 负责边缘入口、API、缓存、路由、SEO 防护和域名规范化。
+
+对这类 SEO 内容站来说，这个方向是更清晰的：少一点运行时依赖，多一点静态化；少一点模板包袱，多一点边缘控制；少一点平台魔法，多一点可验证的上线流程。
+
+如果以后继续演进，我会优先把 Cloudflare KV 和 D1 接进来，承担搜索索引、内容缓存或轻量数据能力。但这一步不会急着做。迁移的第一阶段，最重要的是先把网站稳定、干净、可验证地跑在 Cloudflare 上。
+
+这次提交记录给我的最大提醒是：真正好的迁移，不是把旧系统原封不动搬过去，而是借迁移的机会重新确认边界，把项目改成更适合新平台的样子。
