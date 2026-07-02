@@ -1,0 +1,380 @@
+---
+import { LOCALES, useTranslations, type Lang } from "@/i18n";
+import Layout from "@/layouts/Base.astro";
+import PageHeadline from "@/components/PageHeadline.astro";
+
+const locale = Astro.currentLocale as Lang;
+const t = useTranslations(locale);
+
+const title = t({
+  en: "Ask",
+  "zh-cn": "问答",
+});
+
+const intro = t({
+  en: "Ask questions against the indexed blog archive.",
+  "zh-cn": "基于已索引的博客文章提问。",
+});
+
+const placeholder = t({
+  en: "What have I written about AI programming?",
+  "zh-cn": "根据我的博客，我对 AI 编程有什么看法？",
+});
+
+const askButton = t({
+  en: "Ask",
+  "zh-cn": "提问",
+});
+
+const askingText = t({
+  en: "Thinking",
+  "zh-cn": "思考中",
+});
+
+const answerTitle = t({
+  en: "Answer",
+  "zh-cn": "回答",
+});
+
+const sourcesTitle = t({
+  en: "Sources",
+  "zh-cn": "来源",
+});
+
+const emptyAnswer = t({
+  en: "The answer will appear here.",
+  "zh-cn": "回答会显示在这里。",
+});
+
+const emptySources = t({
+  en: "Relevant blog posts will appear here.",
+  "zh-cn": "相关博客文章会显示在这里。",
+});
+
+const emptyQuestionError = t({
+  en: "Enter a question first.",
+  "zh-cn": "请先输入问题。",
+});
+
+const requestError = t({
+  en: "The knowledge base is unavailable. Please try again later.",
+  "zh-cn": "知识库暂时不可用，请稍后再试。",
+});
+
+const sourceScoreLabel = t({
+  en: "Relevance",
+  "zh-cn": "相关度",
+});
+
+const askApiUrl =
+  import.meta.env.PUBLIC_ASK_API_URL ??
+  "https://blog-worker.zhangyuliang.workers.dev/api/ask";
+
+export const getStaticPaths = () =>
+  Object.keys(LOCALES).map((lang) => ({
+    params: { lang },
+  }));
+---
+
+<Layout {title} description={intro}>
+  <PageHeadline {title}>
+    <p>{intro}</p>
+  </PageHeadline>
+
+  <section
+    class="ask-console"
+    data-api-url={askApiUrl}
+    data-lang={locale}
+    data-empty-question-error={emptyQuestionError}
+    data-request-error={requestError}
+    data-empty-sources={emptySources}
+    data-asking-text={askingText}
+    data-source-score-label={sourceScoreLabel}
+  >
+    <form class="ask-form">
+      <label for="ask-question">{title}</label>
+      <div class="question-row">
+        <textarea
+          id="ask-question"
+          name="question"
+          rows="4"
+          maxlength="1000"
+          placeholder={placeholder}
+          required></textarea>
+        <button type="submit">
+          <span class="material-icons-sharp" aria-hidden="true">send</span>
+          <span class="button-label">{askButton}</span>
+        </button>
+      </div>
+    </form>
+
+    <div class="status-message" role="status" aria-live="polite"></div>
+
+    <section class="answer-panel" aria-labelledby="answer-title">
+      <h2 id="answer-title">
+        <span class="material-icons-sharp" aria-hidden="true">psychology</span>
+        {answerTitle}
+      </h2>
+      <div class="answer-content empty">{emptyAnswer}</div>
+    </section>
+
+    <section class="sources-panel" aria-labelledby="sources-title">
+      <h2 id="sources-title">
+        <span class="material-icons-sharp" aria-hidden="true">article</span>
+        {sourcesTitle}
+      </h2>
+      <ul class="sources-list" data-empty-text={emptySources}>
+        <li class="empty-source">{emptySources}</li>
+      </ul>
+    </section>
+  </section>
+
+  <script>
+    interface AskSource {
+      title?: string;
+      url?: string;
+      score?: number;
+    }
+
+    interface AskResponse {
+      answer?: string;
+      sources?: AskSource[];
+      error?: string;
+    }
+
+    const consoleEl = document.querySelector<HTMLElement>(".ask-console");
+    const form = consoleEl?.querySelector<HTMLFormElement>(".ask-form");
+    const textarea = consoleEl?.querySelector<HTMLTextAreaElement>("textarea");
+    const submitButton = consoleEl?.querySelector<HTMLButtonElement>("button");
+    const buttonLabel = consoleEl?.querySelector<HTMLElement>(".button-label");
+    const statusEl = consoleEl?.querySelector<HTMLElement>(".status-message");
+    const answerEl = consoleEl?.querySelector<HTMLElement>(".answer-content");
+    const sourcesEl = consoleEl?.querySelector<HTMLUListElement>(".sources-list");
+
+    const setStatus = (message: string, tone = "") => {
+      if (!statusEl) return;
+      statusEl.textContent = message;
+      statusEl.dataset.tone = tone;
+    };
+
+    const setAnswer = (answer: string, isEmpty = false) => {
+      if (!answerEl) return;
+      answerEl.textContent = answer;
+      answerEl.classList.toggle("empty", isEmpty);
+    };
+
+    const renderSources = (sources: AskSource[]) => {
+      if (!sourcesEl || !consoleEl) return;
+      sourcesEl.textContent = "";
+
+      if (!Array.isArray(sources) || sources.length === 0) {
+        const empty = document.createElement("li");
+        empty.className = "empty-source";
+        empty.textContent = sourcesEl.dataset.emptyText || "";
+        sourcesEl.append(empty);
+        return;
+      }
+
+      for (const source of sources) {
+        const item = document.createElement("li");
+        const link = document.createElement("a");
+        const score = document.createElement("span");
+        const href = typeof source.url === "string" ? source.url : "#";
+        const title = typeof source.title === "string" ? source.title : href;
+        const rawScore = typeof source.score === "number" ? source.score : null;
+
+        link.href = href;
+        link.textContent = title;
+        score.className = "source-score";
+        score.textContent = rawScore === null
+          ? ""
+          : `${consoleEl.dataset.sourceScoreLabel}: ${Math.round(rawScore * 100)}%`;
+
+        item.append(link, score);
+        sourcesEl.append(item);
+      }
+    };
+
+    form?.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      if (!consoleEl || !textarea || !submitButton || !buttonLabel) return;
+
+      const question = textarea.value.trim();
+      if (!question) {
+        setStatus(consoleEl.dataset.emptyQuestionError || "", "error");
+        textarea.focus();
+        return;
+      }
+
+      const idleLabel = buttonLabel.textContent || "";
+      submitButton.disabled = true;
+      buttonLabel.textContent = consoleEl.dataset.askingText || idleLabel;
+      setStatus("");
+
+      try {
+        const response = await fetch(consoleEl.dataset.apiUrl || "", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            lang: consoleEl.dataset.lang || "zh-cn",
+            question,
+            topK: 5,
+          }),
+        });
+
+        const payload = await response.json() as AskResponse;
+        if (!response.ok) {
+          throw new Error(payload?.error || "Request failed");
+        }
+
+        setAnswer(payload.answer || "", !payload.answer);
+        renderSources(payload.sources || []);
+      } catch (error) {
+        console.error(error);
+        setStatus(consoleEl.dataset.requestError || "", "error");
+      } finally {
+        submitButton.disabled = false;
+        buttonLabel.textContent = idleLabel;
+      }
+    });
+  </script>
+</Layout>
+
+<style>
+  .ask-console {
+    display: grid;
+    gap: var(--sp-s);
+    margin-block-start: var(--sp-m);
+  }
+
+  .ask-form {
+    display: grid;
+    gap: var(--sp-s);
+  }
+
+  label {
+    font-weight: 800;
+    color: var(--color-theme);
+  }
+
+  .question-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: var(--sp-s);
+    align-items: stretch;
+  }
+
+  textarea {
+    width: 100%;
+    min-height: 9rem;
+    resize: vertical;
+    border: 2px solid color-mix(in srgb, var(--color-main) 18%, transparent);
+    border-radius: 8px;
+    padding: 1rem;
+    color: var(--color-main);
+    background: color-mix(in srgb, var(--color-base) 96%, var(--color-main));
+    font: inherit;
+  }
+
+  textarea:focus {
+    outline: 3px solid color-mix(in srgb, var(--color-theme) 28%, transparent);
+    border-color: var(--color-theme);
+  }
+
+  button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    min-width: 7.5rem;
+    border: 0;
+    border-radius: 8px;
+    padding-inline: 1.1rem;
+    color: var(--color-base);
+    background: var(--color-theme);
+    font: inherit;
+    font-weight: 800;
+    cursor: pointer;
+  }
+
+  button:hover {
+    filter: brightness(1.08);
+  }
+
+  button:disabled {
+    cursor: wait;
+    opacity: 0.72;
+  }
+
+  .status-message {
+    min-height: 1.5rem;
+    font-size: 0.95rem;
+  }
+
+  .status-message[data-tone="error"] {
+    color: var(--color-caution);
+  }
+
+  .answer-panel,
+  .sources-panel {
+    border: 2px solid color-mix(in srgb, var(--color-main) 12%, transparent);
+    border-radius: 8px;
+    padding: var(--sp-s);
+    background: color-mix(in srgb, var(--color-base) 92%, var(--color-main));
+  }
+
+  h2 {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0;
+    color: var(--color-theme);
+    font-size: 1.15rem;
+  }
+
+  .answer-content {
+    margin-block-start: var(--sp-s);
+    white-space: pre-wrap;
+  }
+
+  .answer-content.empty,
+  .empty-source {
+    opacity: 0.68;
+  }
+
+  .sources-list {
+    display: grid;
+    gap: 0.8rem;
+    margin: var(--sp-s) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .sources-list li:not(.empty-source) {
+    display: grid;
+    gap: 0.25rem;
+  }
+
+  .sources-list a {
+    color: var(--color-theme);
+    font-weight: 700;
+    text-decoration: underline;
+    text-underline-offset: 0.18em;
+  }
+
+  .source-score {
+    font-size: 0.9rem;
+    opacity: 0.72;
+  }
+
+  @media (max-width: 640px) {
+    .question-row {
+      grid-template-columns: 1fr;
+    }
+
+    button {
+      min-height: 3rem;
+      width: 100%;
+    }
+  }
+</style>

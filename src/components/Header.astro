@@ -13,8 +13,11 @@ import AstroImage from "@/assets/astro-logo.svg";
 
 const locale = Astro.currentLocale as Lang;
 
+const normalizePath = (path: string) => path.replace(/\/$/, "") || "/";
+
 const isActive = (path: string) =>
-  getRelativeLocaleUrl(locale, path) === Astro.url.pathname;
+  normalizePath(getRelativeLocaleUrl(locale, path)) ===
+  normalizePath(Astro.url.pathname);
 ---
 
 <header class="l-header l-content">
@@ -82,6 +85,15 @@ const isActive = (path: string) =>
                 ar: "مشاريع",
               })
             }
+          </a>
+        </li>
+
+        <li>
+          <a
+            href={getRelativeLocaleUrl(locale, "/ask")}
+            class={isActive("/ask") ? "active" : null}
+          >
+            {t({ ja: "質問", en: "Ask", "zh-cn": "问答", ar: "اسأل" })}
           </a>
         </li>
 
