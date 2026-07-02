@@ -90,15 +90,6 @@ const isActive = (path: string) =>
 
         <li>
           <a
-            href={getRelativeLocaleUrl(locale, "/ask")}
-            class={isActive("/ask") ? "active" : null}
-          >
-            {t({ ja: "質問", en: "Ask", "zh-cn": "问答", ar: "اسأل" })}
-          </a>
-        </li>
-
-        <li>
-          <a
             href={getRelativeLocaleUrl(locale, "/about")}
             class={isActive("/about") ? "active" : null}
           >

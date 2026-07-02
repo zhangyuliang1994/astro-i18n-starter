@@ -1,0 +1,143 @@
+---
+import { Image } from "astro:assets";
+import { getRelativeLocaleUrl } from "astro:i18n";
+import { useTranslations, type Lang } from "@/i18n";
+import AvatarImage from "@/assets/about-avatar.png";
+
+const locale = Astro.currentLocale as Lang;
+const t = useTranslations(locale);
+const askPath = getRelativeLocaleUrl(locale, "/ask");
+const normalizedPath = Astro.url.pathname.replace(/\/$/, "");
+const normalizedAskPath = askPath.replace(/\/$/, "");
+const shouldRender = normalizedPath !== normalizedAskPath;
+
+const label = t({
+  en: "Hi! How can I help?",
+  "zh-cn": "Hi! 有什么可以帮你的吗？",
+});
+
+const ariaLabel = t({
+  en: "Open AI question answering",
+  "zh-cn": "打开 AI 问答",
+});
+---
+
+{
+  shouldRender && (
+    <a class="ask-entry" href={askPath} aria-label={ariaLabel}>
+      <span class="ask-bubble">{label}</span>
+      <span class="ask-avatar" aria-hidden="true">
+        <Image src={AvatarImage} alt="" width={88} height={88} />
+        <span class="status-dot"></span>
+      </span>
+    </a>
+  )
+}
+
+<style>
+  .ask-entry {
+    position: fixed;
+    right: clamp(1rem, 4vw, 2rem);
+    bottom: clamp(1rem, 4vw, 2rem);
+    z-index: 20;
+    display: grid;
+    justify-items: end;
+    gap: 0;
+    color: #fff;
+    text-decoration: none;
+    filter: drop-shadow(0 16px 28px rgb(70 91 180 / 0.22));
+  }
+
+  .ask-bubble {
+    position: relative;
+    display: block;
+    max-width: min(22rem, calc(100vw - 7rem));
+    padding: 0.9rem 1.45rem;
+    border-radius: 24px;
+    background: linear-gradient(135deg, #6676ed 0%, #7b4db3 100%);
+    font-size: 1rem;
+    font-weight: 800;
+    line-height: 1.35;
+    white-space: nowrap;
+  }
+
+  .ask-bubble::after {
+    content: "";
+    position: absolute;
+    right: 2.2rem;
+    bottom: -0.7rem;
+    width: 1.2rem;
+    height: 1.2rem;
+    background: #7b4db3;
+    clip-path: polygon(0 0, 100% 0, 35% 100%);
+  }
+
+  .ask-avatar {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 5.25rem;
+    height: 5.25rem;
+    margin-block-start: 0.45rem;
+    margin-inline-end: 1.1rem;
+    border: 6px solid #fff;
+    border-radius: 50%;
+    background: #fff;
+    overflow: visible;
+  }
+
+  .ask-avatar img {
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+    object-fit: cover;
+  }
+
+  .status-dot {
+    position: absolute;
+    right: -0.1rem;
+    bottom: 0.35rem;
+    width: 1.15rem;
+    height: 1.15rem;
+    border: 4px solid #fff;
+    border-radius: 50%;
+    background: #35d07f;
+  }
+
+  .ask-entry:hover {
+    translate: 0 -2px;
+    filter: drop-shadow(0 18px 32px rgb(70 91 180 / 0.28));
+  }
+
+  .ask-entry:focus-visible {
+    outline: 3px solid color-mix(in srgb, var(--color-theme) 45%, transparent);
+    outline-offset: 8px;
+    border-radius: 28px;
+  }
+
+  @media (max-width: 640px) {
+    .ask-entry {
+      right: 0.85rem;
+      bottom: 0.85rem;
+    }
+
+    .ask-bubble {
+      max-width: calc(100vw - 6rem);
+      padding: 0.75rem 1rem;
+      border-radius: 20px;
+      font-size: 0.9rem;
+    }
+
+    .ask-avatar {
+      width: 4.25rem;
+      height: 4.25rem;
+      border-width: 5px;
+      margin-inline-end: 0.8rem;
+    }
+
+    .status-dot {
+      width: 1rem;
+      height: 1rem;
+    }
+  }
+</style>

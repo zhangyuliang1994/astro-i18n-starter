@@ -3,6 +3,7 @@
 
 import Footer from "@/components/Footer.astro";
 import Header from "@/components/Header.astro";
+import AskEntry from "@/components/AskEntry.astro";
 import LocaleHtmlHead from "@/components/i18n/LocaleHtmlHead.astro";
 import LocaleSuggest from "@/components/i18n/LocaleSuggest.astro";
 
@@ -91,6 +92,7 @@ const localeDescription = description || t(SITE_DESCRIPTION);
     </main>
 
     <Footer />
+    <AskEntry />
 
     { import.meta.env.DEV && <style>:root { scroll-behavior: auto }</style> }
   </body>
