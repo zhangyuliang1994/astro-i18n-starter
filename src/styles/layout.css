@@ -1,17 +1,22 @@
-/* define the layout and structure of the entire page */
-
-.l-header {}
+/* Shared page structure */
 
 .l-main {
-	margin-block-start: var(--sp-m);
+	min-height: 52vh;
+	margin-block-start: 0;
+	padding-block: clamp(48px, 7vw, 88px) var(--sp-xl);
 }
 
 .l-content {
-	max-inline-size: 800px;
-	padding-inline: var(--sp-m);
+	width: min(100% - 48px, var(--container));
 	margin-inline: auto;
 }
 
 .l-footer {
-	margin-block-start: var(--sp-m);
+	margin-block-start: 0;
+}
+
+@media (max-width: 640px) {
+	.l-content {
+		width: min(100% - 40px, var(--container));
+	}
 }

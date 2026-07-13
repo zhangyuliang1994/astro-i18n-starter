@@ -58,6 +58,14 @@ const localeDescription = description || t(SITE_DESCRIPTION);
     <link rel="icon" sizes="192x192" href="/android-icon.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <meta name="color-scheme" content="light dark" />
+    <script is:inline>
+      (() => {
+        const saved = localStorage.getItem("theme");
+        if (saved === "light" || saved === "dark") {
+          document.documentElement.dataset.theme = saved;
+        }
+      })();
+    </script>
 
     <!-- OGP -->
     <meta property="og:type" content="website" />
@@ -74,8 +82,8 @@ const localeDescription = description || t(SITE_DESCRIPTION);
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 
-    <link rel="preload" as="style" fetchpriority="high" href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;800&display=swap" />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;800&display=swap" media="print" onload={`this.media='all'`} />
+    <link rel="preload" as="style" fetchpriority="high" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Manrope:wght@500;600;700;800&family=Noto+Sans:wght@400;600;700;800&display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Manrope:wght@500;600;700;800&family=Noto+Sans:wght@400;600;700;800&display=swap" media="print" onload={`this.media='all'`} />
 
     <link rel="preload" as="style" fetchpriority="high" href="https://fonts.googleapis.com/icon?family=Material+Icons+Sharp&display=swap" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons+Sharp&display=swap" media="print" onload={`this.media='all'`} />

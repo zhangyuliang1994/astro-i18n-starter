@@ -1,0 +1,55 @@
+---
+import { useTranslations, type Lang } from "@/i18n";
+
+const t = useTranslations(Astro.currentLocale as Lang);
+const label = t({
+  en: "Toggle color theme",
+  "zh-cn": "切换颜色主题",
+  ja: "カラーテーマを切り替える",
+  ar: "تبديل سمة اللون",
+});
+---
+
+<button class="theme-toggle" type="button" aria-label={label} title={label} data-theme-toggle>
+  <span class="material-icons-sharp theme-light" aria-hidden="true">light_mode</span>
+  <span class="material-icons-sharp theme-dark" aria-hidden="true">dark_mode</span>
+</button>
+
+<script is:inline>
+  document.querySelectorAll("[data-theme-toggle]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const root = document.documentElement;
+      const current = root.dataset.theme || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      const next = current === "dark" ? "light" : "dark";
+      root.dataset.theme = next;
+      localStorage.setItem("theme", next);
+    });
+  });
+</script>
+
+<style>
+  .theme-toggle {
+    display: inline-grid;
+    width: 44px;
+    height: 44px;
+    place-items: center;
+    border: 1px solid transparent;
+    border-radius: var(--radius-small);
+    color: var(--color-muted);
+  }
+
+  .theme-toggle:hover {
+    border-color: var(--color-border);
+    color: var(--color-theme);
+    background: var(--color-surface);
+  }
+
+  .theme-light { display: none; }
+  :global(:root[data-theme="dark"]) .theme-light { display: inline-block; }
+  :global(:root[data-theme="dark"]) .theme-dark { display: none; }
+
+  @media (prefers-color-scheme: dark) {
+    :global(:root:not([data-theme="light"])) .theme-light { display: inline-block; }
+    :global(:root:not([data-theme="light"])) .theme-dark { display: none; }
+  }
+</style>

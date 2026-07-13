@@ -1,3 +1,185 @@
 @import "reset";
 @import "base";
 @import "layout";
+
+/* Shared editorial primitives for collection and content pages. */
+body main.l-main > p.page-description,
+body main.l-main > p:not([class]) {
+	max-width: 760px;
+	color: var(--color-muted);
+	font-size: 1.05rem;
+	line-height: 1.75;
+}
+
+body main.l-main .categories-grid,
+body main.l-main .tags-grid,
+body main.l-main .posts-grid {
+	gap: 24px;
+}
+
+body main.l-main .category-card,
+body main.l-main .tag-card,
+body main.l-main .post-card,
+body main.l-main .content-section,
+body main.l-main .quick-link-card {
+	background: var(--color-surface) !important;
+	border: 1px solid var(--color-border) !important;
+	border-radius: var(--radius) !important;
+	box-shadow: none !important;
+	transform: none !important;
+}
+
+body main.l-main .category-card:hover,
+body main.l-main .tag-card:hover,
+body main.l-main .post-card:hover,
+body main.l-main .content-section:hover,
+body main.l-main .quick-link-card:hover {
+	background: var(--color-surface-high) !important;
+	border-color: var(--color-theme) !important;
+}
+
+body main.l-main .category-card,
+body main.l-main .tag-card {
+	min-height: 96px;
+	padding: 22px 24px !important;
+}
+
+body main.l-main .tag-card {
+	justify-content: space-between;
+	border-radius: var(--radius) !important;
+}
+
+body main.l-main .tag-name,
+body main.l-main .category-name,
+body main.l-main .post-title {
+	color: var(--color-main) !important;
+}
+
+body main.l-main .tag-count,
+body main.l-main .category-count,
+body main.l-main .posts-count,
+body main.l-main .post-date,
+body main.l-main time {
+	font-family: var(--font-mono);
+	color: var(--color-faint) !important;
+}
+
+body main.l-main .post-desc,
+body main.l-main .friend-description,
+body main.l-main .post-content p {
+	display: block !important;
+	overflow: visible !important;
+	-webkit-line-clamp: unset !important;
+}
+
+body main.l-main .tag-count,
+body main.l-main .tag,
+body main.l-main .tech-tag {
+	border-radius: 4px !important;
+	background: var(--color-code) !important;
+}
+
+body main.l-main .tag-header,
+body main.l-main .category-header {
+	background: var(--color-surface) !important;
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius) !important;
+}
+
+body main.l-main .about-container {
+	max-width: 840px;
+}
+
+body main.l-main .profile-section {
+	align-items: flex-start;
+	text-align: start;
+}
+
+body main.l-main .avatar-wrapper {
+	border: 1px solid var(--color-border-strong) !important;
+	box-shadow: none !important;
+}
+
+body main.l-main .social-link {
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius-small) !important;
+	background: var(--color-surface) !important;
+}
+
+body main.l-main .social-link:hover {
+	color: var(--color-theme) !important;
+	border-color: var(--color-theme);
+	box-shadow: none !important;
+	transform: none !important;
+}
+
+body main.l-main .section-title {
+	color: var(--color-main) !important;
+}
+
+body main.l-main .feature-list li + li,
+body main.l-main .contact-list li + li {
+	border-top: 1px solid var(--color-border);
+}
+
+body .ask-entry {
+	filter: none;
+}
+
+body .ask-entry .ask-bubble {
+	border: 1px solid var(--color-border-strong);
+	border-radius: var(--radius);
+	background: var(--color-surface-high);
+	color: var(--color-main);
+	font-family: var(--font-interface);
+	opacity: 0;
+	translate: 0 6px;
+	pointer-events: none;
+}
+
+body .ask-entry:hover .ask-bubble,
+body .ask-entry:focus-visible .ask-bubble {
+	opacity: 1;
+	translate: 0 0;
+}
+
+body .ask-entry .ask-bubble::after {
+	background: var(--color-surface-high);
+}
+
+body .ask-entry .ask-avatar {
+	border-color: var(--color-surface-high);
+	background: var(--color-surface-high);
+}
+
+@media (max-width: 640px) {
+	body main.l-main .categories-grid,
+	body main.l-main .tags-grid,
+	body main.l-main .posts-grid {
+		grid-template-columns: 1fr;
+	}
+
+	body main.l-main .tag-header,
+	body main.l-main .category-header {
+		align-items: flex-start;
+		padding: 16px !important;
+		text-align: start;
+	}
+
+	body .ask-entry .ask-bubble {
+		display: none;
+	}
+
+	body .ask-entry .ask-avatar {
+		width: 44px;
+		height: 44px;
+		margin: 0;
+		border-width: 3px;
+	}
+
+	body .ask-entry .status-dot {
+		width: 0.75rem;
+		height: 0.75rem;
+		border-width: 2px;
+	}
+}

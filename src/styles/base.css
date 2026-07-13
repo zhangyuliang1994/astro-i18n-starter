@@ -1,58 +1,95 @@
-/* basic site style */
-
-:lang(ar) {
-	* {
-		letter-spacing: 0 !important;
-	}
-}
+/* Modern Builder Editorial design tokens */
 
 :root {
-	@media (prefers-color-scheme: dark) {
-		--color-theme: #ef4d1a;
-		--color-accent: #943e0d;
-		--color-base: #342c28;
-		--color-main: #faf9f6;
-		--color-caution: #ffaa2b;
-	}
-	@media (prefers-color-scheme: light) {
-		--color-theme: #ef4d1a;
-		--color-accent: #ffcc21;
-		--color-base: #faf9f6;
-		--color-main: #342c28;
-		--color-caution: #a80a00;
-	}
+	--color-theme: #c52a0c;
+	--color-theme-hover: #a82208;
+	--color-accent: #f4d8d0;
+	--color-base: #f7f7f4;
+	--color-surface: #fcfcfa;
+	--color-surface-high: #ffffff;
+	--color-main: #191918;
+	--color-muted: #686863;
+	--color-faint: #92918b;
+	--color-border: #e2dfd9;
+	--color-border-strong: #cac8c1;
+	--color-code: #eeede8;
+	--color-caution: #a80a00;
+	--shadow-focus: 0 0 0 3px color-mix(in srgb, var(--color-theme) 22%, transparent);
 
+	--sp-xl: 96px;
 	--sp-l: 64px;
 	--sp-m: 32px;
 	--sp-s: 16px;
-	@media (width < 480px) {
-		--sp-l: 48px;
-		--sp-m: 16px;
-		--sp-s: 8px;
-	}
-
-	--english-font: "Noto Sans", "Robot", "Avenir Next", "Avenir",
-		"Century Gothic", "SF Pro Text", "Arial", -apple-system, BlinkMacSystemFont,
-		sans-serif;
+	--sp-xs: 8px;
+	--container: 1140px;
+	--reading: 760px;
+	--radius: 12px;
+	--radius-small: 8px;
+	--font-interface: "Manrope", "Noto Sans SC", "Noto Sans", system-ui, sans-serif;
+	--font-body: "Noto Sans SC", "Noto Sans", system-ui, sans-serif;
+	--font-mono: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+	--english-font: var(--font-interface);
 
 	color: var(--color-main);
 	background-color: var(--color-base);
 	accent-color: var(--color-theme);
+	color-scheme: light;
+	font-family: var(--font-body);
+	font-size: 16px;
+	font-weight: 400;
+	line-height: 1.65;
+	text-rendering: optimizeLegibility;
+}
 
-	background-image: radial-gradient(
-		color-mix(in srgb, var(--color-main) 10%, transparent) 1px,
-		var(--color-base) 1px
-	);
-	background-size: 16px 16px;
+:root[data-theme="dark"] {
+	--color-theme: #ff6a45;
+	--color-theme-hover: #ff8061;
+	--color-accent: #4d291f;
+	--color-base: #111210;
+	--color-surface: #171815;
+	--color-surface-high: #1d1e1a;
+	--color-main: #f2f1ea;
+	--color-muted: #aaa9a2;
+	--color-faint: #777872;
+	--color-border: #30312d;
+	--color-border-strong: #4b4c47;
+	--color-code: #22231f;
+	--color-caution: #ffb65c;
+	color-scheme: dark;
+}
 
-	line-height: 1.6;
-	font-weight: 500;
-	font-size: 18px;
-	font-family: "Noto Sans", system-ui, "SF Pro Text", -apple-system,
-		BlinkMacSystemFont, sans-serif;
-	@media (width < 480px) {
-		font-size: 16px;
+@media (prefers-color-scheme: dark) {
+	:root:not([data-theme="light"]) {
+		--color-theme: #ff6a45;
+		--color-theme-hover: #ff8061;
+		--color-accent: #4d291f;
+		--color-base: #111210;
+		--color-surface: #171815;
+		--color-surface-high: #1d1e1a;
+		--color-main: #f2f1ea;
+		--color-muted: #aaa9a2;
+		--color-faint: #777872;
+		--color-border: #30312d;
+		--color-border-strong: #4b4c47;
+		--color-code: #22231f;
+		--color-caution: #ffb65c;
+		color-scheme: dark;
 	}
+}
+
+html {
+	background: var(--color-base);
+	scroll-padding-top: 88px;
+}
+
+body {
+	min-width: 320px;
+	min-height: 100vh;
+	background-color: var(--color-base);
+	background-image: radial-gradient(color-mix(in srgb, var(--color-main) 10%, transparent) 1px, transparent 1px);
+	background-position: -12px -12px;
+	background-size: 24px 24px;
+	color: var(--color-main);
 }
 
 h1,
@@ -62,7 +99,15 @@ h4,
 button,
 input,
 label {
-	line-height: 1.4;
+	font-family: var(--font-interface);
+	line-height: 1.25;
+}
+
+h1,
+h2,
+h3,
+h4 {
+	letter-spacing: -0.025em;
 }
 
 p {
@@ -71,22 +116,32 @@ p {
 
 p a {
 	color: var(--color-theme);
-	text-decoration: underline;
+	text-decoration-thickness: 1px;
+	text-underline-offset: 0.18em;
 }
 
 a,
-button {
-	transition: 0.2s ease-out;
-	&:hover,
-	&:active {
-		transition: 0.2s ease-out;
-	}
+button,
+select,
+summary {
+	transition: color 160ms ease, border-color 160ms ease, background-color 160ms ease, opacity 160ms ease;
+}
+
+a:focus-visible,
+button:focus-visible,
+select:focus-visible,
+summary:focus-visible {
+	outline: 2px solid var(--color-theme);
+	outline-offset: 3px;
+}
+
+::selection {
+	background: color-mix(in srgb, var(--color-theme) 24%, transparent);
 }
 
 svg,
 path {
 	fill: currentColor;
-	aspect-ratio: 1;
 }
 
 [class^="material-icons"] {
@@ -97,7 +152,13 @@ path {
 	width: 1em;
 	height: 1em;
 	overflow: hidden;
-	&:dir(rtl).dir {
-		scale: -1 1;
+}
+
+@media (max-width: 640px) {
+	:root {
+		--sp-xl: 64px;
+		--sp-l: 48px;
+		--sp-m: 24px;
+		--sp-s: 14px;
 	}
 }

@@ -1,184 +1,59 @@
 ---
-// Footer UI displayed on each page.
 import LocalesHomeList from "@/components/i18n/LocalesHomeList.astro";
 import { useTranslations, type Lang } from "@/i18n";
 const t = useTranslations(Astro.currentLocale as Lang);
 ---
 
-<footer class="l-footer l-content">
-  <div class="footer-content">
-    <div class="footer-tagline">
-      {
-        t({
-          ja: "✨ インスピレーションを記録し、思考を沈殿させる",
-          en: "✨ Capture inspiration, cultivate thoughts",
-          "zh-cn": "✨ 记录灵感，沉淀思考",
-          ar: "✨ التقاط الإلهام، زراعة الأفكار",
-        })
-      }
+<footer class="site-footer">
+  <div class="footer-inner l-content">
+    <div class="footer-primary">
+      <div class="footer-tagline">
+        {t({ ja: "✨ インスピレーションを記録し、思考を沈殿させる", en: "✨ Capture inspiration, cultivate thoughts", "zh-cn": "✨ 记录灵感，沉淀思考", ar: "✨ التقاط الإلهام، زراعة الأفكار" })}
+      </div>
+      <div class="copy">
+        {t({ en: "©2024 - 2025 By frency", "zh-cn": "©2024 - 2026 By xiaofeng", ja: "©2024 - 2026 By xiaofeng", ar: "©2024 - 2026 By xiaofeng" })}
+      </div>
     </div>
-
-    <ul class="locale-list">
-      <LocalesHomeList />
-    </ul>
-
-    <div class="copy">
-      {
-        t({
-          en: "©2024 - 2025 By frency",
-          "zh-cn": "©2024 - 2026 By xiaofeng",
-          ja: "©2024 - 2026 By xiaofeng",
-          ar: "©2024 - 2026 By xiaofeng",
-        })
-      }
-    </div>
-
-    <div class="icp-info">
-      <a
-        href="https://beian.miit.gov.cn/"
-        target="_blank"
-        rel="noopener noreferrer">苏ICP备2023046043号-3</a
-      >
+    <div class="footer-secondary">
+      <ul class="locale-list"><LocalesHomeList /></ul>
+      <div class="icp-info">
+        <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer">苏ICP备2023046043号-3</a>
+      </div>
     </div>
   </div>
-
-  <div class="footer-glow"></div>
 </footer>
 
 <style>
-  footer {
-    position: relative;
-    width: 736px;
-    max-width: 100%;
-    margin-inline: auto;
-    padding-block: var(--sp-s) var(--sp-m);
-    text-align: center;
-    background: linear-gradient(135deg, var(--color-theme), var(--color-main));
-    color: var(--color-base);
-    border-radius: 16px;
-    overflow: hidden;
+  .site-footer {
+    border-top: 1px solid var(--color-border);
+    background: color-mix(in srgb, var(--color-surface) 94%, transparent);
   }
-
-  .footer-content {
-    position: relative;
-    z-index: 2;
+  .footer-inner {
+    display: flex;
+    justify-content: space-between;
+    gap: 48px;
+    padding-block: 40px;
   }
-
-  .footer-glow {
-    position: absolute;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 60%;
-    height: 100%;
-    background: radial-gradient(
-      ellipse at center top,
-      rgba(255, 255, 255, 0.15) 0%,
-      transparent 70%
-    );
-    pointer-events: none;
-  }
-
-  .footer-tagline {
-    font-size: 1rem;
-    font-weight: 500;
-    letter-spacing: 0.01em;
-    margin-block-end: var(--sp-m);
-    opacity: 0.95;
-    line-height: 1.6;
-  }
-
-  .locale-list {
-    display: none;
-  }
-
+  .footer-primary,
+  .footer-secondary { display: grid; gap: 12px; }
+  .footer-secondary { justify-items: end; text-align: end; }
+  .footer-tagline { font-weight: 600; color: var(--color-main); }
+  .copy,
+  .icp-info { color: var(--color-faint); font-family: var(--font-mono); font-size: 0.75rem; }
+  .icp-info a:hover { color: var(--color-theme); }
+  .locale-list { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px 18px; }
   .locale-list :global(a) {
     display: inline-flex;
+    min-height: 32px;
     align-items: center;
-    padding: 0.6em 1.2em;
-    background: rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    border-radius: 999px;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    text-decoration: none;
-    color: inherit;
+    color: var(--color-muted);
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
   }
-
-  .locale-list :global(a:hover) {
-    background: rgba(255, 255, 255, 0.35);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-  }
-
-  .locale-list :global(a::before) {
-    content: "translate";
-    font-family: "Material Icons Sharp";
-    margin-inline-end: 0.4em;
-    opacity: 0.8;
-    font-size: 1.1em;
-  }
-
-  .copy {
-    display: block;
-    margin-block-start: 0;
-    padding: 0;
-    font-size: 0.85rem;
-    font-weight: 400;
-    letter-spacing: 0.02em;
-    opacity: 0.85;
-    color: inherit;
-    line-height: 1.5;
-  }
-
-  .icp-info {
-    margin-block-start: 0.25rem;
-    font-size: 0.75rem;
-    opacity: 0.7;
-  }
-
-  .icp-info a {
-    color: inherit;
-    text-decoration: none;
-    transition: opacity 0.2s;
-  }
-
-  .icp-info a:hover {
-    opacity: 1;
-    text-decoration: underline;
-  }
-
-  @media (max-width: 600px) {
-    footer {
-      padding-block: var(--sp-s) var(--sp-m);
-      border-radius: 16px 16px 0 0;
-    }
-
-    .footer-tagline {
-      font-size: 0.9rem;
-      margin-block-end: var(--sp-s);
-    }
-
-    .locale-list {
-      gap: 0.5rem;
-      margin-block-start: var(--sp-s);
-    }
-
-    .locale-list :global(a) {
-      padding: 0.4em 0.9em;
-      font-size: 0.85rem;
-    }
-
-    .copy {
-      margin-block-start: 0;
-      font-size: 0.75rem;
-      padding: 0;
-    }
-
-    .icp-info {
-      font-size: 0.7rem;
-    }
+  .locale-list :global(a:hover) { color: var(--color-theme); }
+  @media (max-width: 640px) {
+    .footer-inner { flex-direction: column; gap: 28px; padding-block: 32px; }
+    .footer-secondary { justify-items: start; text-align: start; }
+    .locale-list { justify-content: flex-start; }
   }
 </style>

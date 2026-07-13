@@ -1,33 +1,21 @@
 ---
-// Select UI to switch between locales.
-
 import { getLocalePaths, LOCALES } from "@/i18n";
 ---
 
-<label>
-  <span class="material-icons-sharp">translate</span>
-  <select data-languageSelect>
-    {
-      getLocalePaths(Astro.url).map(({ path, lang }) => (
-        <option
-          label={LOCALES[lang].label}
-          value={path}
-          data-lang={lang}
-          selected={lang === Astro.currentLocale}
-          dir={LOCALES[lang].dir || null}
-        />
-      ))
-    }
+<label class="locale-select">
+  <span class="material-icons-sharp" aria-hidden="true">language</span>
+  <span class="sr-only">Language</span>
+  <select data-languageSelect aria-label="Language">
+    {getLocalePaths(Astro.url).map(({ path, lang }) => (
+      <option label={LOCALES[lang].label} value={path} data-lang={lang} selected={lang === Astro.currentLocale} dir={LOCALES[lang].dir || null} />
+    ))}
   </select>
-  <span class="material-icons-sharp">expand_more</span>
+  <span class="material-icons-sharp chevron" aria-hidden="true">expand_more</span>
 </label>
 
 <script is:inline>
-  const selects = document.querySelectorAll("[data-languageSelect]");
-
-  selects.forEach((select) => {
+  document.querySelectorAll("[data-languageSelect]").forEach((select) => {
     select.addEventListener("change", (event) => {
-      // used for 404 page
       localStorage.selectedLang = event.target?.selectedOptions[0].dataset.lang;
       location.href = event.target?.value;
     });
@@ -35,36 +23,35 @@ import { getLocalePaths, LOCALES } from "@/i18n";
 </script>
 
 <style>
-  label {
+  .locale-select {
     position: relative;
-    display: inline-block;
-    width: 240px;
-    text-align-last: left;
-    .material-icons-sharp {
-      pointer-events: none;
-      position: absolute;
-      color: var(--color-theme);
-      &:first-child {
-        font-size: 24px;
-        inset: 8px auto 8px 8px;
-        opacity: 0.4;
-      }
-      &:last-child {
-        font-size: 28px;
-        inset: 6px 6px 6px auto;
-      }
-    }
+    display: inline-flex;
+    align-items: center;
+    min-width: 122px;
+    height: 44px;
+    color: var(--color-muted);
+  }
+  .locale-select > .material-icons-sharp:first-child {
+    position: absolute;
+    z-index: 1;
+    left: 10px;
+    pointer-events: none;
   }
   select {
     width: 100%;
-    height: 40px;
-    padding-inline: 38px;
-    cursor: pointer;
+    height: 44px;
+    padding: 0 34px 0 34px;
     appearance: none;
-    border-radius: 6px;
-    font-family: "Noto Sans";
+    border: 1px solid transparent;
+    border-radius: var(--radius-small);
+    background: transparent;
     color: var(--color-main);
-    background-color: var(--color-base);
-    border: 2px solid var(--color-theme);
+    cursor: pointer;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
   }
+  select:hover { border-color: var(--color-border); background: var(--color-surface); }
+  .chevron { position: absolute; right: 8px; pointer-events: none; }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
+  @media (max-width: 960px) { .locale-select { width: 100%; } }
 </style>

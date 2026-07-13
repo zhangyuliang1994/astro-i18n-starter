@@ -59,11 +59,15 @@ const pageTitle = page.currentPage > 1
         const [, ...id] = post.id.split("/");
         return (
           <li>
-            <a href={`/${locale}/blog/${id.join("/")}/`}>
+            <a href={`/${locale}/blog/${id.join("/")}/`} class="blog-row">
               {post.data.cover && (
-                <Image src={post.data.cover} alt={post.data.title} />
+                <div class="blog-cover"><Image src={post.data.cover} alt={post.data.title} /></div>
               )}
-              <h2>{post.data.title}</h2>
+              <div class="blog-copy">
+                <time datetime={post.data.date.toISOString()}>{post.data.date.toLocaleDateString(locale)}</time>
+                <h2>{post.data.title}</h2>
+                <p>{post.data.description}</p>
+              </div>
             </a>
           </li>
         );
@@ -75,20 +79,33 @@ const pageTitle = page.currentPage > 1
 </Layout>
 
 <style>
-  p {
+  :global(main) > p {
     margin-block-start: var(--sp-s);
   }
   ul {
     margin-block-start: var(--sp-m);
     display: grid;
-    gap: var(--sp-s);
-    grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));
+    gap: 0;
   }
 
   li {
-    margin-block-end: 1rem;
-    img {
-      border-radius: 6px;
-    }
+    border-bottom: 1px solid var(--color-border);
+  }
+  .blog-row {
+    display: grid;
+    grid-template-columns: minmax(180px, 28%) 1fr;
+    gap: 28px;
+    padding-block: 28px;
+    color: inherit;
+  }
+  .blog-row:hover h2 { color: var(--color-theme); }
+  .blog-cover { aspect-ratio: 16 / 10; overflow: hidden; border-radius: var(--radius-small); background: var(--color-code); }
+  .blog-cover img { width: 100%; height: 100%; object-fit: cover; }
+  .blog-copy time { color: var(--color-faint); font-family: var(--font-mono); font-size: 0.78rem; }
+  .blog-copy h2 { margin-top: 8px; font-size: clamp(1.25rem, 3vw, 1.75rem); }
+  .blog-copy p { margin-top: 10px; color: var(--color-muted); font-size: 0.95rem; line-height: 1.65; }
+  @media (max-width: 640px) {
+    .blog-row { grid-template-columns: 1fr; gap: 18px; }
+    .blog-cover { aspect-ratio: 16 / 9; }
   }
 </style>

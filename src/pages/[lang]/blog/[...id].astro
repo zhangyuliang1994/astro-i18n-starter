@@ -28,9 +28,12 @@ const title = post.data.title;
 
   <header>
     <h1>{title}</h1>
-    <time datetime={post.data.date.toISOString()}>
-      {post.data.date.toLocaleDateString(lang)}
-    </time>
+    <p class="description">{post.data.description}</p>
+    <div class="article-meta">
+      <time datetime={post.data.date.toISOString()}>{post.data.date.toLocaleDateString(lang)}</time>
+      {post.data.categories?.map((category) => <a href={`/${lang}/categories/${category}/`}>{category}</a>)}
+      {post.data.tags?.map((tag) => <a href={`/${lang}/tags/${tag}/`}>#{tag}</a>)}
+    </div>
   </header>
 
   <Content class="material-icons" />
@@ -38,16 +41,27 @@ const title = post.data.title;
 
 <style>
   header {
-    text-align: center;
-    border-block-end: 1px solid var(--color-theme);
-    padding-block-end: var(--sp-m);
+    margin-top: 28px;
+    padding-block-end: 32px;
+    border-block-end: 1px solid var(--color-border);
+    text-align: start;
     h1 {
-      color: var(--color-theme);
-      font-size: 1.8rem;
+      color: var(--color-main);
+      font-size: clamp(2.2rem, 6vw, 3.75rem);
+      font-weight: 800;
+      letter-spacing: -0.05em;
+      line-height: 1.08;
     }
   }
+  .description { margin-top: 18px; color: var(--color-muted); font-size: 1.05rem; line-height: 1.7; }
+  .article-meta { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-top: 20px; font-family: var(--font-mono); font-size: 0.75rem; }
+  .article-meta a { color: var(--color-muted); text-decoration: none; }
+  .article-meta a:hover { color: var(--color-theme); }
   .cover {
-    border-radius: 16px;
+    width: 100%;
+    max-height: 460px;
+    border-radius: var(--radius);
     margin: 0;
+    object-fit: cover;
   }
 </style>
