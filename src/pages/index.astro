@@ -16,22 +16,32 @@ const langs = Object.keys(LOCALES);
 // Use relative path for redirects to work on any deployment platform
 const baseUrl = "/";
 const defaultLocale = DEFAULT_LOCALE;
+const siteOrigin = Astro.site?.origin || "https://frency.me";
+const localePaths = getLocalePaths(Astro.url);
+const defaultLocalePath = localePaths.find(({ lang }) => lang === defaultLocale);
+const canonicalUrl = new URL(`/${defaultLocale}/`, siteOrigin);
 ---
 
 <html lang={DEFAULT_LOCALE}>
   <head>
     <meta charset="UTF-8" />
     <title>redirect...</title>
+    <link rel="canonical" href={canonicalUrl} />
     <link rel="sitemap" href="/sitemap-index.xml" />
     <meta name="generator" content={Astro.generator} />
     {
-      getLocalePaths(Astro.url).map((props) => (
+      localePaths.map((props) => (
         <link
           rel="alternate"
           hreflang={LOCALES[props.lang].lang || props.lang}
-          href={Astro.site?.origin + props.path}
+          href={new URL(props.path, siteOrigin)}
         />
       ))
+    }
+    {
+      defaultLocalePath && (
+        <link rel="alternate" hreflang="x-default" href={new URL(defaultLocalePath.path, siteOrigin)} />
+      )
     }
 
     <!-- icon -->
@@ -45,8 +55,8 @@ const defaultLocale = DEFAULT_LOCALE;
     <meta property="og:title" content={t(SITE_TITLE)} />
     <meta property="og:site_name" content={t(SITE_TITLE)} />
     <meta property="og:description" content={t(SITE_DESCRIPTION)} />
-    <meta property="og:image" content={Astro.site + "ogp.png"} />
-    <meta property="og:url" content={Astro.url} />
+    <meta property="og:image" content={new URL("/ogp.png", siteOrigin)} />
+    <meta property="og:url" content={canonicalUrl} />
     <meta property="og:locale" content={DEFAULT_LOCALE} />
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:site" content={t(X_ACCOUNT)} />

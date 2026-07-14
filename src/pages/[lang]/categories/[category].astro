@@ -39,6 +39,11 @@ const postsCountText = t({
     ar: `${posts.length} مقال`,
 });
 
+const description = t({
+    en: `Browse ${posts.length} post${posts.length !== 1 ? "s" : ""} in ${category}.`,
+    "zh-cn": `浏览“${category}”分类下的 ${posts.length} 篇文章。`,
+});
+
 export const getStaticPaths = async () => {
     const posts = await getCollection("blog");
     const paths: { params: { lang: string; category: string } }[] = [];
@@ -60,7 +65,7 @@ export const getStaticPaths = async () => {
 };
 ---
 
-<Layout {title}>
+<Layout {title} {description}>
     <PageHeadline {title} />
 
     <div class="category-header">

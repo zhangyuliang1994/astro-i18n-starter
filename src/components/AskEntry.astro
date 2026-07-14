@@ -116,9 +116,13 @@ const ariaLabel = t({
   }
 
   @media (max-width: 640px) {
+    :global(body:has(.ask-entry)) {
+      padding-block-end: calc(44px + 2.55rem + env(safe-area-inset-bottom));
+    }
+
     .ask-entry {
       right: 0.85rem;
-      bottom: 0.85rem;
+      bottom: max(0.85rem, env(safe-area-inset-bottom));
     }
 
     .ask-bubble {

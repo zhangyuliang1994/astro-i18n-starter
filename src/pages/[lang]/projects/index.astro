@@ -19,13 +19,18 @@ const title = t({
     ar: "مشاريع",
 });
 
+const description = t({
+    en: "Explore Frency's independent products, websites, and software projects.",
+    "zh-cn": "查看小峰的独立产品、网站与软件项目。",
+});
+
 export const getStaticPaths = () =>
     Object.keys(LOCALES).map((lang) => ({
         params: { lang },
     }));
 ---
 
-<Layout {title}>
+<Layout {title} {description}>
     <PageHeadline {title} />
 
     <ul>

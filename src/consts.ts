@@ -9,8 +9,8 @@ export const SITE_TITLE: string | Multilingual = {
 };
 
 export const SITE_DESCRIPTION: string | Multilingual = {
-	en: "A starter template for Astro with i18n support.",
-	"zh-cn": "具有 i18n 支持的 Astro 入门模板。",
+	en: "frency.me is Frency's digital garden about AI, indie development, SEO, software engineering, and building for global markets.",
+	"zh-cn": "xiaofeng.show 是小峰的个人数字花园，记录 AI、独立开发、SEO、软件工程与出海实践。",
 };
 
 export const X_ACCOUNT: string | Multilingual = "@psephopaiktes";
@@ -33,7 +33,7 @@ export const FRIEND_LINKS: FriendLink[] = [
 		url: "https://blog.yuisama.top:8000/kibou/",
 		avatar: "https://blog.yuisama.top:8000/kibou/img/avatar.jpg",
 		description: {
-			en: "おとといはウサギお見たの、昨日は鹿、今日はあなた",
+			en: "The day before yesterday I saw a rabbit, yesterday a deer, and today, you.",
 			"zh-cn": "おとといはウサギお見たの、昨日は鹿、今日はあなた"
 		}
 	},
@@ -42,7 +42,7 @@ export const FRIEND_LINKS: FriendLink[] = [
 		url: "https://www.xhjvyq.cn/",
 		avatar: "https://www.xhjvyq.cn/favicon.ico",
 		description: {
-			en: "欲买桂花同载酒，终不似，少年游。",
+			en: "I wish I could buy osmanthus wine and sail with you, but youth can never be relived.",
 			"zh-cn": "欲买桂花同载酒，终不似，少年游。"
 		}
 	},
@@ -74,4 +74,3 @@ export const FRIEND_LINKS: FriendLink[] = [
 		}
 	}
 ];
-

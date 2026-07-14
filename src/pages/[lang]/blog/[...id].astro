@@ -17,9 +17,10 @@ const post = Astro.props;
 
 const { Content } = await render(post);
 const title = post.data.title;
+const description = post.data.description;
 ---
 
-<Layout {title}>
+<Layout {title} {description}>
   {
     post.data.cover && (
       <Image src={post.data.cover} alt={post.data.title} class="cover" />

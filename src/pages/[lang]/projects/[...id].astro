@@ -20,9 +20,10 @@ const project = Astro.props;
 
 const { Content } = await render(project);
 const title = project.data.title;
+const description = project.data.description;
 ---
 
-<Layout {title}>
+<Layout {title} {description}>
     {
         project.data.cover && (
             <Image

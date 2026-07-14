@@ -4,20 +4,22 @@
 
 import { LOCALES, type Lang } from "@/i18n";
 const currentLocale = Astro.currentLocale as Lang;
+const suggestionPrefix = currentLocale === "zh-cn" ? "切换至" : "View in";
+const closeLabel = currentLocale === "zh-cn" ? "关闭语言建议" : "Dismiss language suggestion";
 ---
 
 <div id="js-languageSuggest">
   <a id="js-link" href="#">
-    <span class="material-icons-sharp">autorenew</span>
+    <span class="material-icons-sharp" aria-hidden="true">autorenew</span>
     <span id="js-linkText"></span>
   </a>
 
-  <button id="js-close">
-    <span class="material-icons-sharp">close</span>
+  <button id="js-close" type="button" aria-label={closeLabel}>
+    <span class="material-icons-sharp" aria-hidden="true">close</span>
   </button>
 </div>
 
-<script is:inline define:vars={{ currentLocale, LOCALES }}>
+<script is:inline define:vars={{ currentLocale, LOCALES, suggestionPrefix }}>
   const browserLang = navigator.language.toLowerCase();
   const suggest = document.getElementById("js-languageSuggest");
 
@@ -28,7 +30,7 @@ const currentLocale = Astro.currentLocale as Lang;
 
     pathnames[1] = lang;
     link.href = pathnames.join("/");
-    linkText.innerText = LOCALES[lang].label;
+    linkText.innerText = `${suggestionPrefix} ${LOCALES[lang].label}`;
     suggest.style.display = "block";
   };
 
@@ -53,22 +55,45 @@ const currentLocale = Astro.currentLocale as Lang;
 
 <style>
   #js-languageSuggest {
-    height: 44px;
+    min-height: 36px;
     display: none;
     position: relative;
     text-align: center;
-    background: var(--color-main);
-    color: var(--color-base);
+    border-block-end: 1px solid var(--color-border);
+    background: var(--color-surface);
+    color: var(--color-muted);
+    font-family: var(--font-interface);
+    font-size: 0.85rem;
   }
   #js-link {
-    line-height: 44px;
+    display: inline-flex;
+    min-height: 36px;
+    align-items: center;
+    gap: 0.35rem;
+    padding-inline: 3rem;
+    color: inherit;
+  }
+  #js-link:hover {
+    color: var(--color-theme);
+  }
+  #js-link .material-icons-sharp {
+    font-size: 1rem;
   }
   #js-close {
     position: absolute;
-    inset: 0;
-    font-size: 24px;
-    width: 44px;
-    aspect-ratio: 1;
-    opacity: 0.5;
+    inset-block: 0;
+    inset-inline-end: 0;
+    display: grid;
+    width: 36px;
+    place-items: center;
+    color: inherit;
+    opacity: 0.65;
+  }
+  #js-close:hover {
+    color: var(--color-main);
+    opacity: 1;
+  }
+  #js-close .material-icons-sharp {
+    font-size: 1.1rem;
   }
 </style>

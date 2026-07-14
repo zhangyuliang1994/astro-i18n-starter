@@ -37,19 +37,19 @@ const title = t({
 const pageTitle = page.currentPage > 1 
   ? `${title} - ${t({ ja: "ページ", en: "Page", "zh-cn": "第", ar: "صفحة" })} ${page.currentPage}`
   : title;
+
+const description = t({
+  en: "Technical notes, SEO strategies, and practical lessons from building products for global markets.",
+  "zh-cn": "分享技术难题、SEO 策略，以及出海建站的实践经验。",
+});
 ---
 
-<Layout title={pageTitle}>
+<Layout title={pageTitle} {description}>
   <PageHeadline {title} />
 
   <p>
     {
-      t({
-        ja: "技術的な課題、SEO戦略、海外サイト構築の経験を共有しています。",
-        en: "Sharing technical challenges, SEO strategies, and experiences in building overseas websites.",
-        "zh-cn": "分享技术难题、SEO 策略，以及出海建站的实践经验。",
-        ar: "مشاركة التحديات التقنية واستراتيجيات SEO وتجارب بناء المواقع الخارجية.",
-      })
+      description
     }
   </p>
 

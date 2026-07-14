@@ -15,7 +15,7 @@ interface LocaleSetting {
 export const LOCALES_SETTING: LocaleSetting = {
 	en: {
 		label: "English",
-		lang: "en-US",
+		lang: "en",
 	},
 	"zh-cn": {
 		label: "简体中文",

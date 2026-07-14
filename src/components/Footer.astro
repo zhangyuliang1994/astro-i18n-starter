@@ -2,6 +2,8 @@
 import LocalesHomeList from "@/components/i18n/LocalesHomeList.astro";
 import { useTranslations, type Lang } from "@/i18n";
 const t = useTranslations(Astro.currentLocale as Lang);
+const currentYear = new Date().getFullYear();
+const copyrightOwner = t({ en: "frency", "zh-cn": "xiaofeng" });
 ---
 
 <footer class="site-footer">
@@ -11,7 +13,7 @@ const t = useTranslations(Astro.currentLocale as Lang);
         {t({ ja: "✨ インスピレーションを記録し、思考を沈殿させる", en: "✨ Capture inspiration, cultivate thoughts", "zh-cn": "✨ 记录灵感，沉淀思考", ar: "✨ التقاط الإلهام، زراعة الأفكار" })}
       </div>
       <div class="copy">
-        {t({ en: "©2024 - 2025 By frency", "zh-cn": "©2024 - 2026 By xiaofeng", ja: "©2024 - 2026 By xiaofeng", ar: "©2024 - 2026 By xiaofeng" })}
+        ©2024 - {currentYear} By {copyrightOwner}
       </div>
     </div>
     <div class="footer-secondary">
