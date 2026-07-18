@@ -13,6 +13,8 @@
 		"start": "astro dev --open",
 		"build": "astro check && astro build",
 		"preview": "astro preview",
+		"sync:blog-index": "node scripts/sync-blog-index.mjs",
+		"sync:blog-index:all": "node scripts/sync-blog-index.mjs --all",
 		"astro": "astro"
 	},
 	"dependencies": {

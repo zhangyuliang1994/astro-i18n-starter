@@ -60,3 +60,44 @@ jobs:
           branch: main
           folder: dist
           commit-message: Deploy from ${{ github.sha }}
+
+  sync-knowledge-base:
+    name: 同步文章到 AI 知识库
+    needs: build-and-deploy
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: 检出完整提交历史
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 安装 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: 检查知识库凭据
+        env:
+          BLOG_KB_ADMIN_TOKEN: ${{ secrets.BLOG_KB_ADMIN_TOKEN }}
+        run: |
+          if [ -z "$BLOG_KB_ADMIN_TOKEN" ]; then
+            echo "::error::请在仓库 Actions secrets 中配置 BLOG_KB_ADMIN_TOKEN"
+            exit 1
+          fi
+
+      - name: 增量同步新增、修改和删除的文章
+        if: github.event_name == 'push' && github.event.before != '0000000000000000000000000000000000000000'
+        env:
+          BLOG_KB_ADMIN_TOKEN: ${{ secrets.BLOG_KB_ADMIN_TOKEN }}
+          BLOG_KB_WORKER_URL: ${{ vars.BLOG_KB_WORKER_URL || 'https://api.frency.me' }}
+          SYNC_BASE_SHA: ${{ github.event.before }}
+        run: npm run sync:blog-index
+
+      - name: 全量同步文章
+        if: github.event_name != 'push' || github.event.before == '0000000000000000000000000000000000000000'
+        env:
+          BLOG_KB_ADMIN_TOKEN: ${{ secrets.BLOG_KB_ADMIN_TOKEN }}
+          BLOG_KB_WORKER_URL: ${{ vars.BLOG_KB_WORKER_URL || 'https://api.frency.me' }}
+        run: npm run sync:blog-index:all
