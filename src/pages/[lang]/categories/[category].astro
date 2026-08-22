@@ -246,6 +246,7 @@ export const getStaticPaths = async () => {
 
     .post-tags {
         display: flex;
+        flex-wrap: wrap;
         gap: 0.25rem;
     }
 
@@ -267,5 +268,7 @@ export const getStaticPaths = async () => {
         .posts-grid {
             grid-template-columns: 1fr;
         }
+
+        .post-content { padding: 20px; }
     }
 </style>

@@ -50,7 +50,7 @@ a {
 	text-decoration-skip-ink: none;
 	color: currentColor;
 	text-decoration: none;
-	word-break: break-all;
+	overflow-wrap: anywhere;
 }
 
 p a {
@@ -64,6 +64,12 @@ picture {
 	max-width: 100%;
 	height: auto;
 	font-style: italic;
+}
+
+video,
+canvas,
+svg {
+	max-width: 100%;
 }
 
 input,

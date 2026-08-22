@@ -86,6 +86,7 @@ const description = t({
     margin-block-start: var(--sp-m);
     display: grid;
     gap: 0;
+    max-width: 1120px;
   }
 
   li {
@@ -93,19 +94,21 @@ const description = t({
   }
   .blog-row {
     display: grid;
-    grid-template-columns: minmax(180px, 28%) 1fr;
-    gap: 28px;
-    padding-block: 28px;
+    grid-template-columns: minmax(220px, 30%) minmax(0, 1fr);
+    gap: clamp(22px, 3vw, 36px);
+    padding-block: clamp(24px, 3vw, 34px);
     color: inherit;
   }
   .blog-row:hover h2 { color: var(--color-theme); }
   .blog-cover { aspect-ratio: 16 / 10; overflow: hidden; border-radius: var(--radius-small); background: var(--color-code); }
   .blog-cover img { width: 100%; height: 100%; object-fit: cover; }
   .blog-copy time { color: var(--color-faint); font-family: var(--font-mono); font-size: 0.78rem; }
-  .blog-copy h2 { margin-top: 8px; font-size: clamp(1.25rem, 3vw, 1.75rem); }
+  .blog-copy { align-self: center; min-width: 0; }
+  .blog-copy h2 { margin-top: 8px; font-size: clamp(1.3rem, 2.2vw, 1.8rem); }
   .blog-copy p { margin-top: 10px; color: var(--color-muted); font-size: 0.95rem; line-height: 1.65; }
   @media (max-width: 640px) {
-    .blog-row { grid-template-columns: 1fr; gap: 18px; }
+    .blog-row { grid-template-columns: 1fr; gap: 18px; padding-block: 24px; }
     .blog-cover { aspect-ratio: 16 / 9; }
+    .blog-copy h2 { font-size: 1.3rem; }
   }
 </style>

@@ -5,16 +5,24 @@
 /* Shared editorial primitives for collection and content pages. */
 body main.l-main > p.page-description,
 body main.l-main > p:not([class]) {
-	max-width: 760px;
+	max-width: 780px;
 	color: var(--color-muted);
 	font-size: 1.05rem;
 	line-height: 1.75;
 }
 
+body main.l-main > *,
+body main.l-main section,
+body main.l-main li,
+body main.l-main a {
+	min-width: 0;
+}
+
 body main.l-main .categories-grid,
 body main.l-main .tags-grid,
 body main.l-main .posts-grid {
-	gap: 24px;
+	gap: clamp(16px, 2vw, 24px);
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
 }
 
 body main.l-main .category-card,
@@ -77,6 +85,14 @@ body main.l-main .tag,
 body main.l-main .tech-tag {
 	border-radius: 4px !important;
 	background: var(--color-code) !important;
+}
+
+body main.l-main .post-card,
+body main.l-main .category-card,
+body main.l-main .tag-card,
+body main.l-main .quick-link-card,
+body main.l-main .content-section {
+	min-width: 0;
 }
 
 body main.l-main .tag-header,
@@ -164,6 +180,17 @@ body .ask-entry .ask-avatar {
 		align-items: flex-start;
 		padding: 16px !important;
 		text-align: start;
+	}
+
+	body main.l-main .category-card,
+	body main.l-main .tag-card {
+		min-height: 0;
+		padding: 18px !important;
+	}
+
+	body main.l-main .profile-section {
+		align-items: center;
+		text-align: center;
 	}
 
 	body .ask-entry .ask-bubble {

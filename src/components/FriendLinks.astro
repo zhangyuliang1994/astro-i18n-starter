@@ -22,7 +22,7 @@ const t = useTranslations(locale);
 </div>
 
 <style>
-  .friend-links { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; margin-block-start: 48px; }
+  .friend-links { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(18px, 2vw, 24px); margin-block-start: clamp(32px, 4vw, 48px); }
   .friend-card {
     position: relative;
     display: flex;
@@ -43,5 +43,5 @@ const t = useTranslations(locale);
   .friend-description { margin-top: 10px; color: var(--color-muted); font-size: 0.9rem; line-height: 1.55; }
   .domain { display: block; margin-top: 14px; color: var(--color-faint); font-family: var(--font-mono); font-size: 0.7rem; overflow-wrap: anywhere; }
   @media (max-width: 760px) { .friend-links { grid-template-columns: 1fr; } }
-  @media (max-width: 420px) { .friend-card { min-height: 0; padding: 20px; } .avatar { width: 48px; height: 48px; } }
+  @media (max-width: 420px) { .friend-card { min-height: 0; gap: 16px; padding: 20px; } .avatar { width: 48px; height: 48px; } }
 </style>

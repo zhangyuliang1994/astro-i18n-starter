@@ -429,4 +429,11 @@ const labels = {
     opacity: 0.75;
     line-height: 1.55;
   }
+
+  @media (max-width: 640px) {
+    .growth-sim { padding: 18px; }
+    .gs-controls { grid-template-columns: 1fr; }
+    .gs-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .gs-log-toggle { width: 100%; margin-inline-start: 0; }
+  }
 </style>

@@ -44,11 +44,16 @@ const description = doc.data.description;
         padding-block-end: var(--sp-m);
         h1 {
             color: var(--color-theme);
-            font-size: 1.8rem;
+            font-size: clamp(1.8rem, 4vw, 2.8rem);
         }
     }
     .cover {
         border-radius: 16px;
         margin: 0;
+    }
+    @media (max-width: 640px) {
+        header { padding-block-end: 24px; text-align: start; }
+        header h1 { font-size: 1.8rem; }
+        .cover { border-radius: var(--radius-small); }
     }
 </style>

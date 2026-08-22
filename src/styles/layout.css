@@ -3,11 +3,11 @@
 .l-main {
 	min-height: 52vh;
 	margin-block-start: 0;
-	padding-block: clamp(48px, 7vw, 88px) var(--sp-xl);
+	padding-block: clamp(40px, 5.5vw, 72px) clamp(64px, 8vw, 104px);
 }
 
 .l-content {
-	width: min(100% - 48px, var(--container));
+	width: min(calc(100% - (var(--page-gutter) * 2)), var(--container));
 	margin-inline: auto;
 }
 
@@ -16,7 +16,7 @@
 }
 
 @media (max-width: 640px) {
-	.l-content {
-		width: min(100% - 40px, var(--container));
+	.l-main {
+		padding-block: 32px 72px;
 	}
 }

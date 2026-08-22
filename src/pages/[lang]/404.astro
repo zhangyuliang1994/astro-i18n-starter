@@ -130,4 +130,12 @@ export const getStaticPaths = () => localeParams;
       text-decoration: underline;
     }
   }
+
+  @media (max-width: 640px) {
+    .container { padding: 40px 20px; border-width: 3px; }
+    .container > h1 { font-size: 1.5rem; }
+    .container > h1 b { font-size: 3em; }
+    .gotop { font-size: 1rem; }
+    .langList ul { flex-wrap: wrap; }
+  }
 </style>

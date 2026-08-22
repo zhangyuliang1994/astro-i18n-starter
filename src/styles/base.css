@@ -16,13 +16,15 @@
 	--color-caution: #a80a00;
 	--shadow-focus: 0 0 0 3px color-mix(in srgb, var(--color-theme) 22%, transparent);
 
-	--sp-xl: 96px;
-	--sp-l: 64px;
-	--sp-m: 32px;
-	--sp-s: 16px;
+	--sp-xl: clamp(64px, 7vw, 96px);
+	--sp-l: clamp(44px, 5vw, 64px);
+	--sp-m: clamp(24px, 3vw, 32px);
+	--sp-s: clamp(14px, 1.5vw, 16px);
 	--sp-xs: 8px;
-	--container: 1140px;
-	--reading: 760px;
+	--container: 1240px;
+	--reading: 980px;
+	--page-gutter: clamp(16px, 3vw, 32px);
+	--header-height: 68px;
 	--radius: 12px;
 	--radius-small: 8px;
 	--font-interface: "Manrope", "Noto Sans SC", "Noto Sans", system-ui, sans-serif;
@@ -79,12 +81,13 @@
 
 html {
 	background: var(--color-base);
-	scroll-padding-top: 88px;
+	scroll-padding-top: calc(var(--header-height) + 24px);
 }
 
 body {
-	min-width: 320px;
+	min-width: 0;
 	min-height: 100vh;
+	overflow-x: clip;
 	background-color: var(--color-base);
 	background-image: radial-gradient(color-mix(in srgb, var(--color-main) 10%, transparent) 1px, transparent 1px);
 	background-position: -12px -12px;
@@ -144,6 +147,13 @@ path {
 	fill: currentColor;
 }
 
+img,
+video,
+canvas,
+iframe {
+	max-inline-size: 100%;
+}
+
 [class^="material-icons"] {
 	vertical-align: middle;
 	font-size: 1.1em;
@@ -155,10 +165,5 @@ path {
 }
 
 @media (max-width: 640px) {
-	:root {
-		--sp-xl: 64px;
-		--sp-l: 48px;
-		--sp-m: 24px;
-		--sp-s: 14px;
-	}
+	:root { --header-height: 64px; }
 }

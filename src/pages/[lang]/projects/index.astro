@@ -63,8 +63,8 @@ export const getStaticPaths = () =>
     ul {
         margin-block-start: var(--sp-l);
         display: grid;
-        gap: 24px;
-        grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));
+        gap: clamp(18px, 2vw, 24px);
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
     }
 
     li a {
@@ -77,11 +77,12 @@ export const getStaticPaths = () =>
     }
     li a:hover { border-color: var(--color-theme); background: var(--color-surface-high); }
     li img { width: 100%; aspect-ratio: 16 / 9; border-radius: 0; object-fit: cover; }
-    .project-copy { padding: 24px; }
+    .project-copy { padding: clamp(20px, 2.2vw, 26px); }
     time { color: var(--color-faint); font-family: var(--font-mono); font-size: 0.75rem; }
     h2 { margin-top: 8px; font-size: 1.45rem; }
     p { color: var(--color-muted); font-size: 0.95rem; line-height: 1.65; }
     @media (max-width: 640px) {
         ul { grid-template-columns: 1fr; margin-top: 32px; }
+        h2 { font-size: 1.3rem; }
     }
 </style>

@@ -244,6 +244,8 @@ export const getStaticPaths = () =>
   .ask-console {
     display: grid;
     gap: var(--sp-s);
+    width: 100%;
+    max-width: 1000px;
     margin-block-start: var(--sp-m);
   }
 
@@ -353,6 +355,7 @@ export const getStaticPaths = () =>
   .sources-list li:not(.empty-source) {
     display: grid;
     gap: 0.25rem;
+    min-width: 0;
   }
 
   .sources-list a {
@@ -360,6 +363,7 @@ export const getStaticPaths = () =>
     font-weight: 700;
     text-decoration: underline;
     text-underline-offset: 0.18em;
+    overflow-wrap: anywhere;
   }
 
   .source-score {
@@ -376,5 +380,8 @@ export const getStaticPaths = () =>
       min-height: 3rem;
       width: 100%;
     }
+
+    .answer-panel,
+    .sources-panel { padding: 18px; }
   }
 </style>

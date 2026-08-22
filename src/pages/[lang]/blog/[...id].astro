@@ -48,7 +48,7 @@ const description = post.data.description;
     text-align: start;
     h1 {
       color: var(--color-main);
-      font-size: clamp(2.2rem, 6vw, 3.75rem);
+      font-size: clamp(2.1rem, 4.5vw, 3.6rem);
       font-weight: 800;
       letter-spacing: -0.05em;
       line-height: 1.08;
@@ -60,9 +60,16 @@ const description = post.data.description;
   .article-meta a:hover { color: var(--color-theme); }
   .cover {
     width: 100%;
-    max-height: 460px;
+    max-height: 520px;
     border-radius: var(--radius);
     margin: 0;
     object-fit: cover;
+  }
+  @media (max-width: 640px) {
+    header { margin-top: 22px; padding-block-end: 26px; }
+    header h1 { font-size: clamp(1.85rem, 9vw, 2.35rem); line-height: 1.12; }
+    .description { margin-top: 14px; font-size: 1rem; }
+    .article-meta { gap: 7px 12px; margin-top: 16px; }
+    .cover { max-height: none; border-radius: var(--radius-small); }
   }
 </style>

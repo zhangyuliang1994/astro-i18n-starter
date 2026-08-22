@@ -54,8 +54,8 @@ export const getStaticPaths = () =>
     ul {
         margin-block-start: var(--sp-m);
         display: grid;
-        gap: var(--sp-s);
-        grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));
+        gap: clamp(18px, 2vw, 24px);
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
     }
 
     li {
@@ -63,5 +63,9 @@ export const getStaticPaths = () =>
         img {
             border-radius: 6px;
         }
+    }
+
+    @media (max-width: 640px) {
+        ul { grid-template-columns: 1fr; }
     }
 </style>

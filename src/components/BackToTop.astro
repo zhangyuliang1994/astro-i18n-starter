@@ -11,8 +11,8 @@
 <style>
     .back-to-top {
         position: fixed;
-        bottom: 2rem;
-        right: 2rem;
+        bottom: 13rem;
+        right: clamp(1rem, 4vw, 2.6rem);
         z-index: 100;
         opacity: 0;
         visibility: hidden;
@@ -63,9 +63,11 @@
 
     @media (max-width: 768px) {
         .back-to-top {
-            bottom: 1.5rem;
-            right: 1.5rem;
+            bottom: calc(5.25rem + env(safe-area-inset-bottom));
+            right: 0.85rem;
         }
+
+        button { width: 2.75rem; height: 2.75rem; }
     }
 </style>
 

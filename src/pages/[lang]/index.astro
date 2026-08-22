@@ -127,32 +127,32 @@ export const getStaticPaths = () =>
 <style>
   .hero-container {
     display: grid;
-    min-height: clamp(320px, 48vw, 500px);
+    min-height: clamp(300px, 36vw, 460px);
     align-items: center;
     border-bottom: 1px solid var(--color-border);
   }
 
   .hero-card {
     position: relative;
-    max-width: 900px;
-    padding-left: clamp(20px, 6vw, 72px);
+    max-width: 1080px;
+    padding-inline-start: clamp(32px, 5vw, 64px);
   }
 
   .hero-card::before {
     content: "/";
     position: absolute;
     top: 0.18em;
-    left: 0;
+    inset-inline-start: 0;
     color: var(--color-theme);
     font-family: var(--font-mono);
-    font-size: clamp(2rem, 5vw, 4rem);
+    font-size: clamp(2rem, 4vw, 3.5rem);
     font-weight: 700;
   }
 
   .hero-title {
     margin: 0;
     color: var(--color-main);
-    font-size: clamp(3.5rem, 10vw, 7rem);
+    font-size: clamp(3.5rem, 7vw, 6rem);
     font-weight: 800;
     letter-spacing: -0.07em;
     line-height: 0.95;
@@ -204,7 +204,7 @@ export const getStaticPaths = () =>
   .post-list {
     display: grid;
     gap: 24px;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
     list-style: none;
     padding: 0;
   }
@@ -245,7 +245,7 @@ export const getStaticPaths = () =>
   }
 
   .post-content h3 {
-    font-size: 1.4rem;
+    font-size: clamp(1.2rem, 1.8vw, 1.4rem);
     font-weight: 700;
     margin-bottom: 0.5rem;
     color: var(--color-main);
@@ -267,7 +267,7 @@ export const getStaticPaths = () =>
 
   .quick-links {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: var(--sp-s);
     margin-block: var(--sp-l) 0;
   }
@@ -307,12 +307,16 @@ export const getStaticPaths = () =>
   }
 
   @media (max-width: 640px) {
-    .hero-container { min-height: 330px; }
-    .hero-card { padding-left: 28px; }
+    .hero-container { min-height: 280px; }
+    .hero-card { padding-inline-start: 28px; }
     .hero-title { font-size: clamp(2.4rem, 12vw, 3.2rem); }
     .hero-card::before { font-size: 2rem; }
+    .hero-subtitle { margin-top: 18px; font-size: 1.05rem; }
+    .latest-posts { padding-block: 56px 36px; }
     .post-list,
     .quick-links { grid-template-columns: 1fr; }
     .section-header { align-items: flex-end; gap: 16px; }
+    .post-content { padding: 20px; }
+    .quick-link-card { min-height: 112px; }
   }
 </style>
