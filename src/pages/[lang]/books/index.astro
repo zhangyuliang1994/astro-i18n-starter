@@ -1,0 +1,382 @@
+---
+import { LOCALES, useTranslations, type Lang } from "@/i18n";
+import Layout from "@/layouts/Base.astro";
+import PageHeadline from "@/components/PageHeadline.astro";
+import { Image } from "astro:assets";
+import { getCollection } from "astro:content";
+
+const locale = Astro.currentLocale as Lang;
+const t = useTranslations(locale);
+
+const books = (await getCollection("books"))
+  .filter((book) => book.id.split("/")[0] === locale)
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+const title = t({
+  en: "Reading Notes",
+  "zh-cn": "读书笔记",
+  ja: "読書ノート",
+  ar: "ملاحظات القراءة",
+});
+
+const description = t({
+  en: "Curated reading notes, key takeaways, and mental models from books that shaped my thinking.",
+  "zh-cn": "输出是最好的输入。记录阅读过的书籍、核心认知模型、金句摘录与实践思考。",
+  ja: "思考を形成した書籍の読書メモ、重要なポイント、メンタルモデル。",
+  ar: "ملاحظات قراءة منتقاة، ونماذج ذهنية شكلت طريقة تفكيري.",
+});
+
+const statusLabels: Record<string, string> = {
+  all: t({ en: "All", "zh-cn": "全部", ja: "すべて", ar: "الكل" }),
+  recommended: t({ en: "Recommended", "zh-cn": "力荐", ja: "おすすめ", ar: "موصى به" }),
+  reading: t({ en: "Reading", "zh-cn": "在读", ja: "読書中", ar: "قيد القراءة" }),
+  finished: t({ en: "Finished", "zh-cn": "已读完", ja: "読了", ar: "مكتمل" }),
+};
+
+export const getStaticPaths = () =>
+  Object.keys(LOCALES).map((lang) => ({
+    params: { lang },
+  }));
+---
+
+<Layout {title} {description}>
+  <PageHeadline {title} />
+  <p class="page-description">{description}</p>
+
+  <div class="filter-bar" role="tablist" aria-label="Book status filters">
+    <button class="filter-btn active" data-filter="all" type="button">
+      {statusLabels.all} ({books.length})
+    </button>
+    <button class="filter-btn" data-filter="recommended" type="button">
+      ⭐ {statusLabels.recommended} ({books.filter(b => b.data.status === 'recommended').length})
+    </button>
+    <button class="filter-btn" data-filter="reading" type="button">
+      📖 {statusLabels.reading} ({books.filter(b => b.data.status === 'reading').length})
+    </button>
+    <button class="filter-btn" data-filter="finished" type="button">
+      ✓ {statusLabels.finished} ({books.filter(b => b.data.status === 'finished').length})
+    </button>
+  </div>
+
+  <div class="books-grid">
+    {
+      books.map((book) => {
+        const [, ...id] = book.id.split("/");
+        return (
+          <article class="book-card" data-status={book.data.status}>
+            <a href={`/${locale}/books/${id.join("/")}/`} class="book-card-link">
+              <div class="book-cover-wrap">
+                {book.data.cover && (
+                  <Image
+                    src={book.data.cover}
+                    alt={book.data.title}
+                    class="book-cover-img"
+                    width={400}
+                    height={600}
+                  />
+                )}
+                <div class="book-spine-line" aria-hidden="true" />
+                <span class:list={["book-status-badge", `status-${book.data.status}`]}>
+                  {book.data.status === "recommended" && `⭐ ${statusLabels.recommended}`}
+                  {book.data.status === "reading" && `📖 ${statusLabels.reading}`}
+                  {book.data.status === "finished" && `✓ ${statusLabels.finished}`}
+                  {book.data.rating && <span class="rating-num">· {book.data.rating.toFixed(1)}</span>}
+                </span>
+              </div>
+
+              <div class="book-meta">
+                <div class="book-header-line">
+                  <h2 class="book-title">{book.data.title}</h2>
+                  {book.data.author && <span class="book-author">{book.data.author}</span>}
+                </div>
+
+                <p class="book-desc">{book.data.description}</p>
+
+                {book.data.tags && book.data.tags.length > 0 && (
+                  <div class="book-tags">
+                    {book.data.tags.map((tag) => (
+                      <span class="book-tag">#{tag}</span>
+                    ))}
+                  </div>
+                )}
+
+                <div class="book-footer">
+                  <time datetime={book.data.date.toISOString()}>
+                    {book.data.date.toLocaleDateString(locale, {
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
+                    })}
+                  </time>
+                  <span class="read-note-btn">
+                    {t({ en: "Read Notes", "zh-cn": "阅读笔记", ja: "ノートを読む", ar: "قراءة الملاحظات" })}
+                    <span class="material-icons-sharp">arrow_forward</span>
+                  </span>
+                </div>
+              </div>
+            </a>
+          </article>
+        );
+      })
+    }
+  </div>
+</Layout>
+
+<script>
+  function setupFilters() {
+    const buttons = document.querySelectorAll<HTMLButtonElement>(".filter-btn");
+    const cards = document.querySelectorAll<HTMLElement>(".book-card");
+
+    buttons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        buttons.forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+
+        const filter = btn.dataset.filter;
+        cards.forEach((card) => {
+          if (filter === "all" || card.dataset.status === filter) {
+            card.style.display = "";
+          } else {
+            card.style.display = "none";
+          }
+        });
+      });
+    });
+  }
+
+  setupFilters();
+  document.addEventListener("astro:page-load", setupFilters);
+</script>
+
+<style>
+  .page-description {
+    color: var(--color-muted);
+    margin-block: var(--sp-s) var(--sp-m);
+    font-size: 1.05rem;
+    line-height: 1.7;
+    max-width: 720px;
+  }
+
+  .filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-block-end: var(--sp-l);
+  }
+
+  .filter-btn {
+    appearance: none;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 9999px;
+    padding: 6px 16px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-muted);
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .filter-btn:hover {
+    border-color: var(--color-theme);
+    color: var(--color-main);
+  }
+
+  .filter-btn.active {
+    background: var(--color-theme);
+    border-color: var(--color-theme);
+    color: #ffffff;
+  }
+
+  .books-grid {
+    display: grid;
+    gap: 28px;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr));
+    margin-block-end: var(--sp-xl);
+  }
+
+  .book-card {
+    height: 100%;
+  }
+
+  .book-card-link {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+  }
+
+  .book-card-link:hover {
+    transform: translateY(-4px);
+    border-color: var(--color-theme);
+    box-shadow: 0 12px 28px color-mix(in srgb, var(--color-main) 6%, transparent);
+  }
+
+  .book-cover-wrap {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    background: var(--color-code);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .book-cover-img {
+    width: auto;
+    height: 88%;
+    max-width: 70%;
+    object-fit: cover;
+    border-radius: 4px 8px 8px 4px;
+    box-shadow: -4px 6px 16px color-mix(in srgb, #000 35%, transparent),
+                0 1px 3px color-mix(in srgb, #000 20%, transparent);
+    transition: transform 0.3s ease;
+  }
+
+  .book-card-link:hover .book-cover-img {
+    transform: scale(1.04) rotate(-1deg);
+  }
+
+  .book-spine-line {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(90deg, rgba(0,0,0,0.06) 0%, transparent 6%, transparent 94%, rgba(0,0,0,0.06) 100%);
+  }
+
+  .book-status-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 9999px;
+    backdrop-filter: blur(8px);
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .status-recommended {
+    background: color-mix(in srgb, var(--color-theme) 90%, #000);
+    color: #fff;
+  }
+
+  .status-reading {
+    background: #0f766e;
+    color: #fff;
+  }
+
+  .status-finished {
+    background: color-mix(in srgb, var(--color-muted) 85%, #000);
+    color: #fff;
+  }
+
+  .rating-num {
+    opacity: 0.9;
+    font-family: var(--font-mono);
+  }
+
+  .book-meta {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding: 20px;
+    gap: 12px;
+  }
+
+  .book-header-line {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .book-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--color-main);
+    line-height: 1.35;
+    margin: 0;
+  }
+
+  .book-author {
+    font-size: 0.85rem;
+    color: var(--color-muted);
+    font-family: var(--font-mono);
+  }
+
+  .book-desc {
+    font-size: 0.92rem;
+    color: var(--color-muted);
+    line-height: 1.6;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .book-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: auto;
+    padding-top: 6px;
+  }
+
+  .book-tag {
+    font-size: 0.72rem;
+    font-family: var(--font-mono);
+    color: var(--color-faint);
+    background: var(--color-code);
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+
+  .book-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 14px;
+    margin-top: 8px;
+    border-top: 1px solid var(--color-border);
+    font-size: 0.8rem;
+    color: var(--color-faint);
+  }
+
+  .book-footer time {
+    font-family: var(--font-mono);
+  }
+
+  .read-note-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--color-theme);
+    font-weight: 600;
+    font-size: 0.82rem;
+  }
+
+  .read-note-btn .material-icons-sharp {
+    font-size: 14px;
+    transition: transform 0.2s ease;
+  }
+
+  .book-card-link:hover .read-note-btn .material-icons-sharp {
+    transform: translateX(4px);
+  }
+
+  @media (max-width: 640px) {
+    .books-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

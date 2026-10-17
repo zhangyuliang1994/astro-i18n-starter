@@ -1,0 +1,321 @@
+---
+import Layout from "@/layouts/Article.astro";
+import { getCollection, render } from "astro:content";
+import { Image } from "astro:assets";
+import { useTranslations, type Lang } from "@/i18n";
+import { getRelativeLocaleUrl } from "astro:i18n";
+
+export async function getStaticPaths() {
+  const books = await getCollection("books");
+
+  return books.map((book) => {
+    const [lang, ...id] = book.id.split("/");
+    return {
+      params: { lang, id: id.join("/") || undefined },
+      props: book,
+    };
+  });
+}
+
+const { lang } = Astro.params;
+const book = Astro.props;
+const locale = lang as Lang;
+const t = useTranslations(locale);
+
+const { Content } = await render(book);
+const title = book.data.title;
+const description = book.data.description;
+
+const statusLabels: Record<string, string> = {
+  recommended: t({ en: "Recommended", "zh-cn": "力荐", ja: "おすすめ", ar: "موصى به" }),
+  reading: t({ en: "Currently Reading", "zh-cn": "正在阅读", ja: "読書中", ar: "قيد القراءة" }),
+  finished: t({ en: "Finished", "zh-cn": "已读完", ja: "読了", ar: "مكتمل" }),
+};
+---
+
+<Layout {title} {description}>
+  <div class="book-detail-header">
+    <div class="book-cover-stage">
+      {
+        book.data.cover && (
+          <Image
+            src={book.data.cover}
+            alt={book.data.title}
+            class="book-detail-cover"
+            width={320}
+            height={480}
+          />
+        )
+      }
+    </div>
+
+    <div class="book-detail-info">
+      <div class="book-status-row">
+        <span class:list={["book-status-pill", `status-${book.data.status}`]}>
+          {book.data.status === "recommended" && `⭐ ${statusLabels.recommended}`}
+          {book.data.status === "reading" && `📖 ${statusLabels.reading}`}
+          {book.data.status === "finished" && `✓ ${statusLabels.finished}`}
+        </span>
+        {
+          book.data.rating && (
+            <span class="book-rating-pill">
+              ★ {book.data.rating.toFixed(1)} / 5.0
+            </span>
+          )
+        }
+      </div>
+
+      <h1 class="book-title">{title}</h1>
+
+      {
+        book.data.author && (
+          <p class="book-author">
+            <span class="label">{t({ en: "Author:", "zh-cn": "作者：", ja: "著者：", ar: "المؤلف:" })}</span>
+            <span class="value">{book.data.author}</span>
+          </p>
+        )
+      }
+
+      <div class="book-meta-row">
+        <time datetime={book.data.date.toISOString()}>
+          {t({ en: "Updated:", "zh-cn": "笔记日期：", ja: "記録日：", ar: "تاريخ:" })}
+          {" "}
+          {book.data.date.toLocaleDateString(locale, {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          })}
+        </time>
+
+        {
+          book.data.tags && book.data.tags.length > 0 && (
+            <div class="book-tags">
+              {book.data.tags.map((tag) => (
+                <span class="book-tag">#{tag}</span>
+              ))}
+            </div>
+          )
+        }
+      </div>
+
+      <div class="book-verdict">
+        <div class="verdict-title">{t({ en: "Executive Takeaway", "zh-cn": "核心感悟", ja: "要点メモ", ar: "ملخص الفكرة" })}</div>
+        <p>{description}</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="notes-divider">
+    <span>{t({ en: "Reading Notes & Reflections", "zh-cn": "阅读笔记与深度思考", ja: "読書メモ・考察", ar: "الملاحظات والخواطر" })}</span>
+  </div>
+
+  <Content class="material-icons" />
+
+  <div class="book-detail-footer">
+    <a href={getRelativeLocaleUrl(locale, "/books")} class="back-link">
+      <span class="material-icons-sharp">arrow_back</span>
+      {t({ en: "Back to Reading Notes", "zh-cn": "返回读书笔记列表", ja: "読書ノート一覧に戻る", ar: "العودة إلى ملاحظات القراءة" })}
+    </a>
+  </div>
+</Layout>
+
+<style>
+  .book-detail-header {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 36px;
+    align-items: start;
+    padding-block: 16px 36px;
+    border-block-end: 1px solid var(--color-border);
+  }
+
+  .book-cover-stage {
+    display: flex;
+    justify-content: center;
+  }
+
+  .book-detail-cover {
+    width: 100%;
+    max-width: 220px;
+    height: auto;
+    aspect-ratio: 2 / 3;
+    object-fit: cover;
+    border-radius: 4px 8px 8px 4px;
+    box-shadow: -8px 12px 28px color-mix(in srgb, #000 35%, transparent),
+                0 2px 4px color-mix(in srgb, #000 15%, transparent);
+  }
+
+  .book-detail-info {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .book-status-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .book-status-pill {
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 3px 12px;
+    border-radius: 9999px;
+  }
+
+  .book-rating-pill {
+    font-size: 0.8rem;
+    font-weight: 600;
+    font-family: var(--font-mono);
+    color: var(--color-theme);
+    background: var(--color-code);
+    padding: 3px 10px;
+    border-radius: 9999px;
+  }
+
+  .status-recommended {
+    background: color-mix(in srgb, var(--color-theme) 90%, #000);
+    color: #fff;
+  }
+
+  .status-reading {
+    background: #0f766e;
+    color: #fff;
+  }
+
+  .status-finished {
+    background: color-mix(in srgb, var(--color-muted) 85%, #000);
+    color: #fff;
+  }
+
+  .book-title {
+    color: var(--color-main);
+    font-size: clamp(1.8rem, 3.5vw, 2.5rem);
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 1.15;
+    margin: 4px 0 0;
+  }
+
+  .book-author {
+    font-size: 1rem;
+    color: var(--color-muted);
+    margin: 0;
+  }
+
+  .book-author .value {
+    color: var(--color-main);
+    font-weight: 600;
+  }
+
+  .book-meta-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    font-size: 0.85rem;
+    color: var(--color-faint);
+    font-family: var(--font-mono);
+    margin-top: 4px;
+  }
+
+  .book-tags {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .book-tag {
+    background: var(--color-code);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+  }
+
+  .book-verdict {
+    margin-top: 14px;
+    padding: 14px 18px;
+    border-radius: var(--radius);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+  }
+
+  .verdict-title {
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-theme);
+    margin-bottom: 6px;
+    font-family: var(--font-mono);
+  }
+
+  .book-verdict p {
+    font-size: 0.95rem;
+    color: var(--color-muted);
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  .notes-divider {
+    display: flex;
+    align-items: center;
+    margin-block: 40px 24px;
+    text-align: center;
+  }
+
+  .notes-divider::before,
+  .notes-divider::after {
+    content: "";
+    flex: 1;
+    border-bottom: 1px dashed var(--color-border);
+  }
+
+  .notes-divider span {
+    padding: 0 16px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--color-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-family: var(--font-mono);
+  }
+
+  .book-detail-footer {
+    margin-top: 48px;
+    padding-top: 24px;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--color-theme);
+    font-weight: 600;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: opacity 0.2s ease;
+  }
+
+  .back-link:hover {
+    opacity: 0.75;
+  }
+
+  @media (max-width: 680px) {
+    .book-detail-header {
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+
+    .book-cover-stage {
+      justify-content: flex-start;
+    }
+
+    .book-detail-cover {
+      max-width: 160px;
+    }
+  }
+</style>
