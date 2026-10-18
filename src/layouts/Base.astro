@@ -3,9 +3,8 @@
 
 import Footer from "@/components/Footer.astro";
 import Header from "@/components/Header.astro";
-import AskEntry from "@/components/AskEntry.astro";
+import BackToTop from "@/components/BackToTop.astro";
 import LocaleHtmlHead from "@/components/i18n/LocaleHtmlHead.astro";
-import LocaleSuggest from "@/components/i18n/LocaleSuggest.astro";
 
 import { SITE_TITLE, SITE_DESCRIPTION, X_ACCOUNT } from "@/consts";
 import { useTranslations, LOCALES, getLocalePaths, DEFAULT_LOCALE, type Lang } from "@/i18n";
@@ -16,11 +15,15 @@ interface Props {
   title?: string;
   description?: string;
   frontmatter?: undefined;
+  isArticle?: boolean;
+  isHome?: boolean;
 }
 
 const {
   title,
   description,
+  isArticle = false,
+  isHome = false,
 } = Astro.props.frontmatter || Astro.props;
 
 const locale = Astro.currentLocale as Lang;
@@ -33,12 +36,6 @@ const defaultLocalePath = localePaths.find(({ lang }) => lang === DEFAULT_LOCALE
 const ogImageUrl = new URL("/ogp.png", siteOrigin);
 ---
 
-<!--
-
-  Source Code:
-  https://github.com/psephopaiktes/astro-i18n-starter
-
--->
 <html lang={LOCALES[locale].lang || locale} dir={LOCALES[locale].dir || null}>
   <head>
     <meta charset="UTF-8" />
@@ -76,8 +73,14 @@ const ogImageUrl = new URL("/ogp.png", siteOrigin);
     <script is:inline>
       (() => {
         const saved = localStorage.getItem("theme");
-        if (saved === "light" || saved === "dark") {
-          document.documentElement.dataset.theme = saved;
+        const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        const isDark = saved === "dark" || (!saved && prefersDark);
+        if (isDark) {
+          document.documentElement.dataset.theme = "dark";
+          document.documentElement.classList.add("dark");
+        } else {
+          document.documentElement.dataset.theme = "light";
+          document.documentElement.classList.remove("dark");
         }
       })();
     </script>
@@ -97,8 +100,8 @@ const ogImageUrl = new URL("/ogp.png", siteOrigin);
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 
-    <link rel="preload" as="style" fetchpriority="high" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Manrope:wght@500;600;700;800&family=Noto+Sans:wght@400;600;700;800&display=swap" />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Manrope:wght@500;600;700;800&family=Noto+Sans:wght@400;600;700;800&display=swap" media="print" onload={`this.media='all'`} />
+    <link rel="preload" as="style" fetchpriority="high" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;0,6..72,700;1,6..72,400&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;0,6..72,700;1,6..72,400&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" media="print" onload={`this.media='all'`} />
 
     <link rel="preload" as="style" fetchpriority="high" href="https://fonts.googleapis.com/icon?family=Material+Icons+Sharp&display=swap" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons+Sharp&display=swap" media="print" onload={`this.media='all'`} />
@@ -107,15 +110,14 @@ const ogImageUrl = new URL("/ogp.png", siteOrigin);
   </head>
 
   <body>
-    <LocaleSuggest />
     <Header />
 
-    <main class="l-main l-content">
+    <main class:list={["l-main", isHome && "is-home", isArticle ? "l-content-article" : "l-content"]}>
       <slot />
     </main>
 
     <Footer />
-    <AskEntry />
+    <BackToTop />
 
     { import.meta.env.DEV && <style>:root { scroll-behavior: auto }</style> }
   </body>

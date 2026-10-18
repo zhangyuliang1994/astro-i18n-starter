@@ -1,0 +1,100 @@
+---
+import { Image } from "astro:assets";
+import { useTranslations, type Lang } from "@/i18n";
+import { getRelativeLocaleUrl } from "astro:i18n";
+import type { CollectionEntry } from "astro:content";
+
+interface Props {
+  books: CollectionEntry<"books">[];
+  locale: Lang;
+}
+
+const { books, locale } = Astro.props;
+const t = useTranslations(locale);
+const isEn = locale === "en";
+
+const statusBadge = (book: CollectionEntry<"books">) => {
+  const status = book.data.status;
+  const rating = book.data.rating ? `★ ${book.data.rating.toFixed(1)}` : "";
+  let label = isEn ? "Recommended" : "力荐";
+  if (status === "reading") label = isEn ? "Reading" : "在读";
+  if (status === "finished") label = isEn ? "Finished" : "已读完";
+  return rating ? `${label} · ${rating}` : label;
+};
+---
+
+<section class="bookshelf-section">
+  <!-- Section Header -->
+  <div class="mb-6 flex items-center justify-between">
+    <div class="flex items-center gap-2.5">
+      <span class="h-5 w-1.5 rounded-full bg-[var(--accent)]"></span>
+      <h2 class="text-[22px] font-bold tracking-tight text-[var(--text-primary)]">
+        {t({ en: "Reading Notes", "zh-cn": "读书笔记", ja: "読書ノート", ar: "ملاحظات القراءة" })}
+      </h2>
+      <span class="font-mono-tabular text-[14px] text-[var(--text-muted)]">(Bookshelf)</span>
+    </div>
+    <a
+      href={getRelativeLocaleUrl(locale, "/books")}
+      class="group inline-flex items-center gap-1.5 rounded-full bg-[var(--bg-muted)] px-4 py-1.5 text-[14.5px] font-medium text-[var(--text-primary)] hover:bg-[var(--accent-subtle)] hover:text-[var(--accent)] transition-all"
+    >
+      <span>{t({ en: "View Bookshelf", "zh-cn": "全部书架", ja: "本棚を見る", ar: "عرض الكل" })}</span>
+      <span class="transition-transform group-hover:translate-x-1">→</span>
+    </a>
+  </div>
+
+  <!-- 2-column Compact Book Cards (Zero Gray Box Gap) -->
+  <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+    {
+      books.map((book) => {
+        const [, ...id] = book.id.split("/");
+        const bookHref = getRelativeLocaleUrl(locale, `/books/${id.join("/")}/`);
+        return (
+          <a
+            href={bookHref}
+            class="group flex items-start gap-5 rounded-xl border border-[var(--border)] bg-[var(--bg-surface)] p-5 transition-all hover:border-[var(--accent)]/50 hover:shadow-md"
+          >
+            <!-- Left 2:3 3D Book Cover -->
+            <div class="book-cover-3d aspect-[2/3] w-24 sm:w-[110px] shrink-0 overflow-hidden bg-[var(--bg-muted)] transition-transform duration-300 group-hover:-translate-y-1">
+              {book.data.cover && (
+                <Image
+                  src={book.data.cover}
+                  alt={book.data.title}
+                  width={240}
+                  height={360}
+                  class="h-full w-full object-cover"
+                  loading="lazy"
+                />
+              )}
+            </div>
+
+            <!-- Right Book Info & Review -->
+            <div class="flex flex-1 flex-col justify-between">
+              <div>
+                <!-- Seal-style badge -->
+                <div class="mb-2 inline-flex items-center gap-1 rounded-md bg-[var(--accent-subtle)] px-2.5 py-0.5 font-mono-tabular text-[12px] font-semibold text-[var(--accent)]">
+                  <span>{statusBadge(book)}</span>
+                </div>
+
+                <h3 class="mb-1 font-serif text-[18px] font-bold leading-snug text-[var(--text-primary)] group-hover:text-[var(--accent)] transition-colors line-clamp-1">
+                  {book.data.title}
+                </h3>
+                {book.data.author && (
+                  <p class="mb-2 text-[13.5px] text-[var(--text-muted)]">{book.data.author}</p>
+                )}
+                <p class="text-[14.5px] leading-[1.65] text-[var(--text-secondary)] line-clamp-3">
+                  {book.data.description}
+                </p>
+              </div>
+            </div>
+          </a>
+        );
+      })
+    }
+  </div>
+</section>
+
+<style>
+  .bookshelf-section {
+    margin-top: 56px;
+  }
+</style>

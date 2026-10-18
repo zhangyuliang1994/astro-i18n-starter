@@ -3,11 +3,20 @@
 .l-main {
 	min-height: 52vh;
 	margin-block-start: 0;
-	padding-block: clamp(40px, 5.5vw, 72px) clamp(64px, 8vw, 104px);
+	padding-block: clamp(24px, 3.5vw, 40px) clamp(48px, 6vw, 80px);
+}
+
+.l-main.is-home {
+	padding-block-start: 0;
 }
 
 .l-content {
-	width: min(calc(100% - (var(--page-gutter) * 2)), var(--container));
+	width: min(calc(100% - (var(--page-gutter) * 2)), var(--container-wide, 1160px));
+	margin-inline: auto;
+}
+
+.l-content-article {
+	width: min(calc(100% - (var(--page-gutter) * 2)), var(--container-article, 1080px));
 	margin-inline: auto;
 }
 
@@ -17,6 +26,9 @@
 
 @media (max-width: 640px) {
 	.l-main {
-		padding-block: 32px 72px;
+		padding-block: 16px 56px;
+	}
+	.l-main.is-home {
+		padding-block-start: 0;
 	}
 }

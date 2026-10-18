@@ -58,59 +58,49 @@ export const getStaticPaths = () =>
     </button>
   </div>
 
+  <!-- 5-column pure 2:3 3D book cover gallery (eliminating large gray box) -->
   <div class="books-grid">
     {
       books.map((book) => {
         const [, ...id] = book.id.split("/");
         return (
-          <article class="book-card" data-status={book.data.status}>
-            <a href={`/${locale}/books/${id.join("/")}/`} class="book-card-link">
-              <div class="book-cover-wrap">
+          <article class="book-gallery-item" data-status={book.data.status}>
+            <a href={`/${locale}/books/${id.join("/")}/`} class="book-gallery-link group">
+              <!-- 2:3 3D Book Cover -->
+              <div class="book-cover-3d relative aspect-[2/3] w-full overflow-hidden bg-[var(--bg-muted)] transition-transform duration-300 group-hover:-translate-y-2">
                 {book.data.cover && (
                   <Image
                     src={book.data.cover}
                     alt={book.data.title}
-                    class="book-cover-img"
-                    width={400}
-                    height={600}
+                    class="h-full w-full object-cover"
+                    width={320}
+                    height={480}
+                    loading="lazy"
                   />
                 )}
-                <div class="book-spine-line" aria-hidden="true" />
-                <span class:list={["book-status-badge", `status-${book.data.status}`]}>
-                  {book.data.status === "recommended" && `⭐ ${statusLabels.recommended}`}
-                  {book.data.status === "reading" && `📖 ${statusLabels.reading}`}
-                  {book.data.status === "finished" && `✓ ${statusLabels.finished}`}
-                  {book.data.rating && <span class="rating-num">· {book.data.rating.toFixed(1)}</span>}
-                </span>
+                {book.data.rating ? (
+                  <span class="absolute top-2 right-2 rounded-full bg-black/60 backdrop-blur-md px-2 py-0.5 font-mono-tabular text-[11px] font-semibold text-white shadow-sm">
+                    ★ {book.data.rating.toFixed(1)}
+                  </span>
+                ) : (
+                  <span class="absolute top-2 right-2 rounded-full bg-black/50 backdrop-blur-md px-2 py-0.5 font-mono-tabular text-[11px] text-white/90">
+                    {book.data.status === "reading" ? "在读" : "已读"}
+                  </span>
+                )}
               </div>
 
-              <div class="book-meta">
-                <div class="book-header-line">
-                  <h2 class="book-title">{book.data.title}</h2>
-                  {book.data.author && <span class="book-author">{book.data.author}</span>}
-                </div>
-
-                <p class="book-desc">{book.data.description}</p>
-
-                {book.data.tags && book.data.tags.length > 0 && (
-                  <div class="book-tags">
-                    {book.data.tags.map((tag) => (
-                      <span class="book-tag">#{tag}</span>
-                    ))}
-                  </div>
-                )}
-
-                <div class="book-footer">
-                  <time datetime={book.data.date.toISOString()}>
-                    {book.data.date.toLocaleDateString(locale, {
-                      year: "numeric",
-                      month: "short",
-                      day: "numeric",
-                    })}
-                  </time>
-                  <span class="read-note-btn">
-                    {t({ en: "Read Notes", "zh-cn": "阅读笔记", ja: "ノートを読む", ar: "قراءة الملاحظات" })}
-                    <span class="material-icons-sharp">arrow_forward</span>
+              <!-- Metadata directly below cover -->
+              <div class="book-info">
+                <h2 class="book-title group-hover:text-[var(--accent)] transition-colors">
+                  {book.data.title}
+                </h2>
+                {book.data.author && <p class="book-author">{book.data.author}</p>}
+                <div class="book-status-row">
+                  <span class="book-status-dot" data-status={book.data.status}></span>
+                  <span class="book-status-text">
+                    {book.data.status === "recommended" && statusLabels.recommended}
+                    {book.data.status === "reading" && statusLabels.reading}
+                    {book.data.status === "finished" && statusLabels.finished}
                   </span>
                 </div>
               </div>
@@ -125,7 +115,7 @@ export const getStaticPaths = () =>
 <script>
   function setupFilters() {
     const buttons = document.querySelectorAll<HTMLButtonElement>(".filter-btn");
-    const cards = document.querySelectorAll<HTMLElement>(".book-card");
+    const cards = document.querySelectorAll<HTMLElement>(".book-gallery-item");
 
     buttons.forEach((btn) => {
       btn.addEventListener("click", () => {
@@ -150,7 +140,7 @@ export const getStaticPaths = () =>
 
 <style>
   .page-description {
-    color: var(--color-muted);
+    color: var(--text-secondary);
     margin-block: var(--sp-s) var(--sp-m);
     font-size: 1.05rem;
     line-height: 1.7;
@@ -166,217 +156,117 @@ export const getStaticPaths = () =>
 
   .filter-btn {
     appearance: none;
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
     border-radius: 9999px;
     padding: 6px 16px;
     font-size: 0.85rem;
     font-weight: 600;
-    color: var(--color-muted);
+    color: var(--text-secondary);
     cursor: pointer;
     transition: all 0.2s ease;
   }
 
   .filter-btn:hover {
-    border-color: var(--color-theme);
-    color: var(--color-main);
+    border-color: var(--accent);
+    color: var(--accent);
   }
 
   .filter-btn.active {
-    background: var(--color-theme);
-    border-color: var(--color-theme);
+    background: var(--accent);
+    border-color: var(--accent);
     color: #ffffff;
   }
 
   .books-grid {
     display: grid;
-    gap: 28px;
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr));
+    gap: 32px 24px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     margin-block-end: var(--sp-xl);
   }
 
-  .book-card {
+  @media (min-width: 640px) {
+    .books-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 860px) {
+    .books-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 1080px) {
+    .books-grid {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+  }
+
+  .book-gallery-item {
     height: 100%;
   }
 
-  .book-card-link {
+  .book-gallery-link {
     display: flex;
     flex-direction: column;
-    height: 100%;
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius);
-    overflow: hidden;
     text-decoration: none;
     color: inherit;
-    transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
   }
 
-  .book-card-link:hover {
-    transform: translateY(-4px);
-    border-color: var(--color-theme);
-    box-shadow: 0 12px 28px color-mix(in srgb, var(--color-main) 6%, transparent);
-  }
-
-  .book-cover-wrap {
-    position: relative;
-    width: 100%;
-    aspect-ratio: 16 / 10;
-    background: var(--color-code);
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .book-cover-img {
-    width: auto;
-    height: 88%;
-    max-width: 70%;
-    object-fit: cover;
-    border-radius: 4px 8px 8px 4px;
-    box-shadow: -4px 6px 16px color-mix(in srgb, #000 35%, transparent),
-                0 1px 3px color-mix(in srgb, #000 20%, transparent);
-    transition: transform 0.3s ease;
-  }
-
-  .book-card-link:hover .book-cover-img {
-    transform: scale(1.04) rotate(-1deg);
-  }
-
-  .book-spine-line {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    background: linear-gradient(90deg, rgba(0,0,0,0.06) 0%, transparent 6%, transparent 94%, rgba(0,0,0,0.06) 100%);
-  }
-
-  .book-status-badge {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    font-size: 0.75rem;
-    font-weight: 700;
-    padding: 3px 10px;
-    border-radius: 9999px;
-    backdrop-filter: blur(8px);
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-  }
-
-  .status-recommended {
-    background: color-mix(in srgb, var(--color-theme) 90%, #000);
-    color: #fff;
-  }
-
-  .status-reading {
-    background: #0f766e;
-    color: #fff;
-  }
-
-  .status-finished {
-    background: color-mix(in srgb, var(--color-muted) 85%, #000);
-    color: #fff;
-  }
-
-  .rating-num {
-    opacity: 0.9;
-    font-family: var(--font-mono);
-  }
-
-  .book-meta {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    padding: 20px;
-    gap: 12px;
-  }
-
-  .book-header-line {
+  .book-info {
+    margin-top: 12px;
     display: flex;
     flex-direction: column;
     gap: 4px;
   }
 
   .book-title {
-    font-size: 1.25rem;
+    font-family: var(--font-serif);
+    font-size: 1rem;
     font-weight: 700;
-    color: var(--color-main);
+    color: var(--text-primary);
     line-height: 1.35;
     margin: 0;
-  }
-
-  .book-author {
-    font-size: 0.85rem;
-    color: var(--color-muted);
-    font-family: var(--font-mono);
-  }
-
-  .book-desc {
-    font-size: 0.92rem;
-    color: var(--color-muted);
-    line-height: 1.6;
-    margin: 0;
     display: -webkit-box;
-    -webkit-line-clamp: 3;
+    -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
 
-  .book-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-top: auto;
-    padding-top: 6px;
-  }
-
-  .book-tag {
-    font-size: 0.72rem;
-    font-family: var(--font-mono);
-    color: var(--color-faint);
-    background: var(--color-code);
-    padding: 2px 8px;
-    border-radius: 4px;
-  }
-
-  .book-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding-top: 14px;
-    margin-top: 8px;
-    border-top: 1px solid var(--color-border);
-    font-size: 0.8rem;
-    color: var(--color-faint);
-  }
-
-  .book-footer time {
-    font-family: var(--font-mono);
-  }
-
-  .read-note-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    color: var(--color-theme);
-    font-weight: 600;
+  .book-author {
     font-size: 0.82rem;
+    color: var(--text-muted);
+    font-family: var(--font-sans);
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
-  .read-note-btn .material-icons-sharp {
-    font-size: 14px;
-    transition: transform 0.2s ease;
+  .book-status-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 4px;
+    font-size: 0.75rem;
+    font-family: var(--font-mono);
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
   }
 
-  .book-card-link:hover .read-note-btn .material-icons-sharp {
-    transform: translateX(4px);
+  .book-status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--text-muted);
   }
 
-  @media (max-width: 640px) {
-    .books-grid {
-      grid-template-columns: 1fr;
-    }
+  .book-status-dot[data-status="recommended"] {
+    background: var(--accent);
+  }
+
+  .book-status-dot[data-status="reading"] {
+    background: #10b981;
   }
 </style>

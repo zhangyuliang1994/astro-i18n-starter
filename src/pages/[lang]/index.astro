@@ -1,22 +1,24 @@
 ---
 import { LOCALES, useTranslations, type Lang } from "@/i18n";
 import Layout from "@/layouts/Base.astro";
-const t = useTranslations(Astro.currentLocale as Lang);
+import Hero from "@/components/Hero.astro";
+import PostCard from "@/components/PostCard.astro";
+import BookshelfSection from "@/components/BookshelfSection.astro";
 import { getRelativeLocaleUrl } from "astro:i18n";
 import { getCollection } from "astro:content";
-import { Image } from "astro:assets";
 
 const locale = Astro.currentLocale as Lang;
+const t = useTranslations(locale);
 
 const posts = (await getCollection("blog"))
   .filter((post) => post.id.split("/")[0] === locale)
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
-  .slice(0, 3); // Get top 3 latest posts
+  .slice(0, 6);
 
 const books = (await getCollection("books"))
   .filter((book) => book.id.split("/")[0] === locale)
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
-  .slice(0, 3); // Get top 3 latest books
+  .slice(0, 4);
 
 export const getStaticPaths = () =>
   Object.keys(LOCALES).map((lang) => ({
@@ -24,555 +26,126 @@ export const getStaticPaths = () =>
   }));
 ---
 
-<Layout>
-  <div class="hero-container">
-    <div class="hero-card">
-      <h1 class="hero-title">
-        {
-          locale === "en" ? (
-            <span class="domain-text">frency.me</span>
-          ) : (
-            <span class="domain-text">xiaofeng.show</span>
-          )
-        }
-      </h1>
-      <p class="hero-subtitle">
-        {
-          t({
-            en: "Welcome to my digital garden.",
-            "zh-cn": "欢迎来到我的数字花园。",
-            ja: "私のデジタルガーデンへようこそ。",
-            ar: "مرحبا بكم في حديقتي الرقمية.",
-          })
-        }
-      </p>
-    </div>
-  </div>
+<Layout isHome={true}>
+  <Hero locale={locale} />
 
-  <section class="latest-posts">
-    <div class="section-header">
-      <h2>
-        {
-          t({
-            en: "Latest Posts",
-            "zh-cn": "最新文章",
-            ja: "最新の投稿",
-            ar: "أحدث المشاركات",
-          })
-        }
-      </h2>
-      <a href={getRelativeLocaleUrl(locale, "/blog")} class="view-all">
-        {
-          t({
-            en: "View All",
-            "zh-cn": "查看全部",
-            ja: "すべて見る",
-            ar: "عرض الكل",
-          })
-        }
-        <span class="material-icons-sharp">arrow_forward</span>
+  <!-- Latest Posts -->
+  <section class="mt-12 sm:mt-14">
+    <div class="mb-6 flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <span class="h-5 w-1.5 rounded-full bg-[var(--accent)]"></span>
+        <h2 class="text-[22px] font-bold tracking-tight text-[var(--text-primary)]">
+          {t({ en: "Latest Posts", "zh-cn": "最新文章", ja: "最新の投稿", ar: "أحدث المشاركات" })}
+        </h2>
+        <span class="font-mono-tabular text-[14px] text-[var(--text-muted)]">(Articles)</span>
+      </div>
+      <a
+        href={getRelativeLocaleUrl(locale, "/blog")}
+        class="group inline-flex items-center gap-1.5 rounded-full bg-[var(--bg-muted)] px-4 py-1.5 text-[14.5px] font-medium text-[var(--text-primary)] hover:bg-[var(--accent-subtle)] hover:text-[var(--accent)] transition-all"
+      >
+        <span>{t({ en: "View All", "zh-cn": "查看全部", ja: "すべて見る", ar: "عرض الكل" })}</span>
+        <span class="transition-transform group-hover:translate-x-1">→</span>
       </a>
     </div>
 
-    <ul class="post-list">
+    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
       {
-        posts.map((post) => {
+        posts.map((post, idx) => {
           const [, ...id] = post.id.split("/");
           return (
-            <li>
-              <a href={`/${locale}/blog/${id.join("/")}/`} class="post-card">
-                {post.data.cover && (
-                  <div class="post-image-container">
-                    <Image src={post.data.cover} alt={post.data.title} />
-                  </div>
-                )}
-                <div class="post-content">
-                  <h3>{post.data.title}</h3>
-                  <time datetime={post.data.date.toISOString()}>
-                    {post.data.date.toLocaleDateString(locale)}
-                  </time>
-                  <p>{post.data.description}</p>
-                </div>
-              </a>
-            </li>
+            <PostCard
+              title={post.data.title}
+              description={post.data.description}
+              pubDate={post.data.date.toLocaleDateString(locale)}
+              category={post.data.categories?.[0]}
+              cover={post.data.cover}
+              href={getRelativeLocaleUrl(locale, `/blog/${id.join("/")}/`)}
+              eager={idx < 3}
+            />
           );
         })
       }
-    </ul>
+    </div>
   </section>
 
-  {
-    books.length > 0 && (
-      <section class="reading-shelf">
-        <div class="section-header">
-          <div class="section-title-wrap">
-            <h2>
-              {
-                t({
-                  en: "Reading Notes",
-                  "zh-cn": "读书笔记",
-                  ja: "読書ノート",
-                  ar: "ملاحظات القراءة",
-                })
-              }
-            </h2>
-            <span class="section-subtitle">
-              {
-                t({
-                  en: "Digital Bookshelf & Mental Models",
-                  "zh-cn": "数字书架 · 核心认知与深度书评",
-                  ja: "デジタル本棚・思考メモ",
-                  ar: "ملاحظات وتأملات في الكتب",
-                })
-              }
-            </span>
-          </div>
-          <a href={getRelativeLocaleUrl(locale, "/books")} class="view-all">
-            {
-              t({
-                en: "View All",
-                "zh-cn": "查看全部",
-                ja: "すべて見る",
-                ar: "عرض الكل",
-              })
-            }
-            <span class="material-icons-sharp">arrow_forward</span>
-          </a>
+  <!-- Bookshelf Section -->
+  {books.length > 0 && <BookshelfSection books={books} locale={locale} />}
+
+  <!-- Quick Navigation Links -->
+  <section class="mt-14 mb-8">
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <a href={getRelativeLocaleUrl(locale, "/categories")} class="quick-link-card">
+        <span class="material-icons-sharp icon">category</span>
+        <div class="quick-text">
+          <span class="quick-title">{t({ en: "Categories", "zh-cn": "全站分类", ja: "カテゴリー", ar: "التصنيفات" })}</span>
+          <span class="quick-desc">{t({ en: "Explore by topic", "zh-cn": "按知识体系浏览", ja: "トピック別", ar: "تصفح حسب الموضوع" })}</span>
         </div>
-
-        <ul class="book-list">
-          {books.map((book) => {
-            const [, ...id] = book.id.split("/");
-            return (
-              <li>
-                <a href={`/${locale}/books/${id.join("/")}/`} class="book-card">
-                  <div class="book-cover-container">
-                    {book.data.cover && (
-                      <Image
-                        src={book.data.cover}
-                        alt={book.data.title}
-                        class="book-cover"
-                        width={300}
-                        height={450}
-                      />
-                    )}
-                    <span class:list={["book-status-tag", `status-${book.data.status}`]}>
-                      {book.data.status === "recommended" && "⭐ 力荐"}
-                      {book.data.status === "reading" && "📖 在读"}
-                      {book.data.status === "finished" && "✓ 已读"}
-                      {book.data.rating && ` · ${book.data.rating.toFixed(1)}`}
-                    </span>
-                  </div>
-                  <div class="book-content">
-                    <div class="book-header">
-                      <h3>{book.data.title}</h3>
-                      {book.data.author && <span class="book-author">{book.data.author}</span>}
-                    </div>
-                    <p>{book.data.description}</p>
-                    <div class="book-card-bottom">
-                      <time datetime={book.data.date.toISOString()}>
-                        {book.data.date.toLocaleDateString(locale)}
-                      </time>
-                      <span class="read-more">
-                        {t({ en: "Read Notes", "zh-cn": "阅读笔记", ja: "ノート", ar: "ملاحظات" })} →
-                      </span>
-                    </div>
-                  </div>
-                </a>
-              </li>
-            );
-          })}
-        </ul>
-      </section>
-    )
-  }
-
-  <section class="quick-links">
-    <a href={getRelativeLocaleUrl(locale, "/tags")} class="quick-link-card">
-      <span class="material-icons-sharp icon">label</span>
-      <h3>{t({ en: "Tags", "zh-cn": "标签", ja: "タグ", ar: "الوسوم" })}</h3>
-    </a>
-    <a
-      href={getRelativeLocaleUrl(locale, "/categories")}
-      class="quick-link-card"
-    >
-      <span class="material-icons-sharp icon">category</span>
-      <h3>
-        {
-          t({
-            en: "Categories",
-            "zh-cn": "分类",
-            ja: "カテゴリー",
-            ar: "التصنيفات",
-          })
-        }
-      </h3>
-    </a>
-    <a href={getRelativeLocaleUrl(locale, "/about")} class="quick-link-card">
-      <span class="material-icons-sharp icon">person</span>
-      <h3>{t({ en: "About", "zh-cn": "关于", ja: "約", ar: "حول" })}</h3>
-    </a>
+      </a>
+      <a href={getRelativeLocaleUrl(locale, "/tags")} class="quick-link-card">
+        <span class="material-icons-sharp icon">label</span>
+        <div class="quick-text">
+          <span class="quick-title">{t({ en: "Tags", "zh-cn": "标签图谱", ja: "タグ", ar: "الوسوم" })}</span>
+          <span class="quick-desc">{t({ en: "Filter content quickly", "zh-cn": "细粒度快速检索", ja: "クイック検索", ar: "البحث بالوسوم" })}</span>
+        </div>
+      </a>
+      <a href={getRelativeLocaleUrl(locale, "/about")} class="quick-link-card">
+        <span class="material-icons-sharp icon">person</span>
+        <div class="quick-text">
+          <span class="quick-title">{t({ en: "About Me", "zh-cn": "关于作者", ja: "プロフィール", ar: "حول" })}</span>
+          <span class="quick-desc">{t({ en: "Background & career", "zh-cn": "技术栈与经历", ja: "経歴・スキル", ar: "نبذة عني" })}</span>
+        </div>
+      </a>
+    </div>
   </section>
 </Layout>
 
 <style>
-  .hero-container {
-    display: grid;
-    min-height: clamp(300px, 36vw, 460px);
-    align-items: center;
-    border-bottom: 1px solid var(--color-border);
-  }
-
-  .hero-card {
-    position: relative;
-    max-width: 1080px;
-    padding-inline-start: clamp(32px, 5vw, 64px);
-  }
-
-  .hero-card::before {
-    content: "/";
-    position: absolute;
-    top: 0.18em;
-    inset-inline-start: 0;
-    color: var(--color-theme);
-    font-family: var(--font-mono);
-    font-size: clamp(2rem, 4vw, 3.5rem);
-    font-weight: 700;
-  }
-
-  .hero-title {
-    margin: 0;
-    color: var(--color-main);
-    font-size: clamp(3.5rem, 7vw, 6rem);
-    font-weight: 800;
-    letter-spacing: -0.07em;
-    line-height: 0.95;
-    font-family: var(--font-interface);
-  }
-
-  .domain-text {
-    color: inherit;
-  }
-
-  .hero-subtitle {
-    max-width: 620px;
-    margin-top: 24px;
-    color: var(--color-muted);
-    font-size: clamp(1.1rem, 2vw, 1.35rem);
-  }
-
-  .latest-posts { padding-block: var(--sp-xl) var(--sp-l); }
-  .section-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 24px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid var(--color-border);
-  }
-
-  h2 {
-    color: var(--color-main);
-    font-size: 1.65rem;
-  }
-
-  .view-all {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    font-weight: 600;
-    color: var(--color-theme);
-    font-family: var(--font-mono);
-    font-size: 0.78rem;
-    text-decoration: none;
-    transition: opacity 0.2s;
-  }
-
-  .view-all:hover {
-    opacity: 0.7;
-  }
-
-  .post-list {
-    display: grid;
-    gap: 24px;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
-    list-style: none;
-    padding: 0;
-  }
-
-  .post-card {
-    display: block;
-    height: 100%;
-    background: var(--color-surface);
-    border-radius: var(--radius);
-    overflow: hidden;
-    text-decoration: none;
-    color: inherit;
-    transition:
-      border-color 0.2s,
-      background-color 0.2s;
-    border: 1px solid var(--color-border);
-  }
-
-  .post-card:hover {
-    border-color: var(--color-theme);
-    background: var(--color-surface-high);
-  }
-
-  .post-image-container {
-    width: 100%;
-    aspect-ratio: 16/9;
-    overflow: hidden;
-  }
-
-  .post-image-container img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .post-content {
-    padding: 1.5rem;
-  }
-
-  .post-content h3 {
-    font-size: clamp(1.2rem, 1.8vw, 1.4rem);
-    font-weight: 700;
-    margin-bottom: 0.5rem;
-    color: var(--color-main);
-  }
-
-  .post-content time {
-    display: block;
-    font-size: 0.9rem;
-    color: var(--color-faint);
-    font-family: var(--font-mono);
-    margin-bottom: 0.5rem;
-  }
-
-  .post-content p {
-    font-size: 1rem;
-    color: var(--color-muted);
-    line-height: 1.5;
-  }
-
-  .quick-links {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: var(--sp-s);
-    margin-block: var(--sp-l) 0;
-  }
-
   .quick-link-card {
     display: flex;
-    flex-direction: column;
     align-items: center;
-    justify-content: center;
-    padding: 1.25rem;
-    min-height: 150px;
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
+    gap: 16px;
+    padding: 20px 22px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
     border-radius: var(--radius);
     text-decoration: none;
-    color: var(--color-main);
-    transition:
-      background 0.2s,
-      border-color 0.2s;
+    color: var(--text-primary);
+    transition: all 0.2s ease;
   }
 
   .quick-link-card:hover {
-    background: var(--color-surface-high);
-    border-color: var(--color-theme);
-    color: var(--color-theme);
+    border-color: var(--accent);
+    background: var(--bg-surface);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+  }
+
+  .quick-link-card:hover .icon {
+    color: var(--accent);
+    transform: scale(1.1);
   }
 
   .quick-link-card .icon {
-    font-size: 2.5rem;
-    margin-bottom: 0.5rem;
-    opacity: 0.8;
+    font-size: 2rem;
+    color: var(--text-muted);
+    transition: transform 0.2s ease, color 0.2s ease;
+    flex-shrink: 0;
   }
 
-  .quick-link-card h3 {
-    font-size: 1.2rem;
-    font-weight: 600;
-  }
-
-  .reading-shelf {
-    padding-block: var(--sp-l);
-    border-top: 1px solid var(--color-border);
-  }
-
-  .section-title-wrap {
-    display: flex;
-    align-items: baseline;
-    gap: 16px;
-    flex-wrap: wrap;
-  }
-
-  .section-subtitle {
-    font-size: 0.85rem;
-    color: var(--color-faint);
-    font-family: var(--font-mono);
-  }
-
-  .book-list {
-    display: grid;
-    gap: 24px;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
-    list-style: none;
-    padding: 0;
-  }
-
-  .book-card {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    background: var(--color-surface);
-    border-radius: var(--radius);
-    overflow: hidden;
-    text-decoration: none;
-    color: inherit;
-    transition:
-      border-color 0.25s,
-      background-color 0.25s,
-      transform 0.25s,
-      box-shadow 0.25s;
-    border: 1px solid var(--color-border);
-  }
-
-  .book-card:hover {
-    border-color: var(--color-theme);
-    background: var(--color-surface-high);
-    transform: translateY(-4px);
-    box-shadow: 0 10px 24px color-mix(in srgb, var(--color-main) 6%, transparent);
-  }
-
-  .book-cover-container {
-    position: relative;
-    width: 100%;
-    aspect-ratio: 16 / 10;
-    overflow: hidden;
-    background: var(--color-code);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .book-cover {
-    width: auto;
-    height: 86%;
-    max-width: 65%;
-    object-fit: cover;
-    border-radius: 4px 8px 8px 4px;
-    box-shadow: -4px 6px 14px color-mix(in srgb, #000 35%, transparent);
-    transition: transform 0.3s ease;
-  }
-
-  .book-card:hover .book-cover {
-    transform: scale(1.05) rotate(-1deg);
-  }
-
-  .book-status-tag {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    font-size: 0.72rem;
-    font-weight: 700;
-    padding: 3px 8px;
-    border-radius: 9999px;
-    color: #fff;
-    backdrop-filter: blur(8px);
-  }
-
-  .book-status-tag.status-recommended {
-    background: color-mix(in srgb, var(--color-theme) 90%, #000);
-  }
-
-  .book-status-tag.status-reading {
-    background: #0f766e;
-  }
-
-  .book-status-tag.status-finished {
-    background: color-mix(in srgb, var(--color-muted) 85%, #000);
-  }
-
-  .book-content {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    padding: 1.25rem 1.5rem 1.5rem;
-    gap: 8px;
-  }
-
-  .book-header {
+  .quick-text {
     display: flex;
     flex-direction: column;
     gap: 2px;
   }
 
-  .book-content h3 {
-    font-size: clamp(1.15rem, 1.6vw, 1.35rem);
+  .quick-title {
+    font-size: 1.05rem;
     font-weight: 700;
-    color: var(--color-main);
-    margin: 0;
+    color: var(--text-primary);
   }
 
-  .book-author {
-    font-size: 0.82rem;
-    color: var(--color-faint);
-    font-family: var(--font-mono);
-  }
-
-  .book-content p {
-    font-size: 0.92rem;
-    color: var(--color-muted);
-    line-height: 1.55;
-    margin: 0;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-
-  .book-card-bottom {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: auto;
-    padding-top: 12px;
-    border-top: 1px solid var(--color-border);
-    font-size: 0.8rem;
-    color: var(--color-faint);
-  }
-
-  .book-card-bottom time {
-    font-family: var(--font-mono);
-  }
-
-  .read-more {
-    font-weight: 600;
-    color: var(--color-theme);
-    font-size: 0.8rem;
-    transition: transform 0.2s;
-  }
-
-  .book-card:hover .read-more {
-    transform: translateX(3px);
-  }
-
-  @media (max-width: 640px) {
-    .hero-container { min-height: 280px; }
-    .hero-card { padding-inline-start: 28px; }
-    .hero-title { font-size: clamp(2.4rem, 12vw, 3.2rem); }
-    .hero-card::before { font-size: 2rem; }
-    .hero-subtitle { margin-top: 18px; font-size: 1.05rem; }
-    .latest-posts { padding-block: 56px 36px; }
-    .reading-shelf { padding-block: 40px 24px; }
-    .post-list,
-    .book-list,
-    .quick-links { grid-template-columns: 1fr; }
-    .section-header { align-items: flex-end; gap: 16px; }
-    .post-content { padding: 20px; }
-    .quick-link-card { min-height: 112px; }
+  .quick-desc {
+    font-size: 0.85rem;
+    color: var(--text-muted);
   }
 </style>
