@@ -17,13 +17,13 @@ It only supports the subdirectory URL format. Each language is managed with a UR
 
 ## AI knowledge base synchronization
 
-Blog articles under `src/content/blog/**/index.mdx` are synchronized to the
-RAG knowledge base by `.github/workflows/deploy.yml` after the site deploys.
+Content under `src/content/blog/**/index.mdx` and `src/content/books/**/index.mdx`
+is synchronized to the RAG knowledge base by `.github/workflows/deploy.yml` after the site deploys.
 
-- Pushes use Git history to upsert changed articles and remove superseded or
+- Pushes use Git history to upsert changed articles/books and remove superseded or
   deleted chunks.
-- Manual workflow runs perform a full reconciliation and remove remote blog
-  chunks that no longer exist in this repository.
+- Manual workflow runs perform a full reconciliation and remove remote chunks
+  that no longer exist in this repository.
 - The synchronization job intentionally fails without credentials so a stale
   knowledge base is visible instead of being silently ignored.
 

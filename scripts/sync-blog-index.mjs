@@ -6,8 +6,21 @@ import process from "node:process";
 import { execFileSync } from "node:child_process";
 
 const REPOSITORY_ROOT = process.cwd();
-const CONTENT_ROOT = path.join(REPOSITORY_ROOT, "src/content/blog");
-const CONTENT_PREFIX = "src/content/blog/";
+const COLLECTIONS = [
+  {
+    source: "blog",
+    dir: path.join(REPOSITORY_ROOT, "src/content/blog"),
+    prefix: "src/content/blog/",
+    urlPrefix: "blog",
+  },
+  {
+    source: "books",
+    dir: path.join(REPOSITORY_ROOT, "src/content/books"),
+    prefix: "src/content/books/",
+    urlPrefix: "books",
+  },
+];
+const CONTENT_PREFIXES = COLLECTIONS.map((c) => c.prefix);
 const WORKER_URL = (process.env.BLOG_KB_WORKER_URL || "https://api.frency.me").replace(/\/$/, "");
 const ADMIN_TOKEN = process.env.BLOG_KB_ADMIN_TOKEN || "";
 const BASE_SHA = process.env.SYNC_BASE_SHA || process.env.GITHUB_EVENT_BEFORE || "";
@@ -26,7 +39,7 @@ if (CHUNK_OVERLAP >= CHUNK_SIZE) {
 const changes = FULL_SYNC ? await getAllCurrentPosts() : await getChangedPosts(BASE_SHA);
 
 if (changes.length === 0) {
-  console.log("No blog article changes to synchronize.");
+  console.log("No article or book changes to synchronize.");
   process.exit(0);
 }
 
@@ -72,17 +85,27 @@ if (DRY_RUN) {
 await sendBatches("/api/admin/upsert", "chunks", chunksToUpsert, BATCH_SIZE);
 
 if (FULL_SYNC) {
-  const remoteIds = await listRemoteChunkIds("blog");
+  const remoteIds = [];
+  for (const col of COLLECTIONS) {
+    const ids = await listRemoteChunkIds(col.source);
+    remoteIds.push(...ids);
+  }
   idsToDelete = remoteIds.filter((id) => !newChunksById.has(id));
   console.log(`Full reconciliation found ${idsToDelete.length} orphaned remote chunk(s).`);
 }
 
 await sendBatches("/api/admin/delete", "ids", idsToDelete, DELETE_BATCH_SIZE);
 
-console.log("Blog knowledge base synchronization completed.");
+console.log("Knowledge base synchronization completed.");
 
 async function getAllCurrentPosts() {
-  const files = await findIndexMdxFiles(CONTENT_ROOT);
+  const files = [];
+  for (const col of COLLECTIONS) {
+    if (existsSync(col.dir)) {
+      const colFiles = await findIndexMdxFiles(col.dir);
+      files.push(...colFiles);
+    }
+  }
   return Promise.all(files.map(async (absoluteFile) => ({
     file: path.relative(REPOSITORY_ROOT, absoluteFile).split(path.sep).join("/"),
     before: null,
@@ -97,8 +120,8 @@ async function getChangedPosts(baseSha) {
   }
 
   assertGitCommit(baseSha);
-  const output = git(["diff", "--name-only", "-z", baseSha, "HEAD", "--", CONTENT_PREFIX]);
-  const files = [...new Set(output.split("\0").filter(isBlogIndexFile))].sort();
+  const output = git(["diff", "--name-only", "-z", baseSha, "HEAD", "--", ...CONTENT_PREFIXES]);
+  const files = [...new Set(output.split("\0").filter(isContentIndexFile))].sort();
 
   return files.map((file) => ({
     file,
@@ -110,19 +133,27 @@ async function getChangedPosts(baseSha) {
 }
 
 function chunksForArticle(file, raw) {
-  const relative = file.slice(CONTENT_PREFIX.length);
+  const col = COLLECTIONS.find((c) => file.startsWith(c.prefix));
+  if (!col) {
+    throw new Error(`Unexpected article path: ${file}`);
+  }
+
+  const relative = file.slice(col.prefix.length);
   const parts = relative.split("/");
   const lang = parts[0];
   const slug = parts.slice(1, -1).join("/");
 
   if (!lang || !slug) {
-    throw new Error(`Unexpected blog article path: ${file}`);
+    throw new Error(`Unexpected article path: ${file}`);
   }
 
   const { frontmatter, body } = parseFrontmatter(raw);
-  const text = cleanMarkdown(body);
+  const authorPrefix = frontmatter.author
+    ? `${lang === "en" ? "Author" : "作者"}: ${frontmatter.author}\n\n`
+    : "";
+  const text = cleanMarkdown(authorPrefix + body);
   const pieces = splitText(text, CHUNK_SIZE, CHUNK_OVERLAP);
-  const contentId = `${lang}/${slug}`;
+  const contentId = col.source === "blog" ? `${lang}/${slug}` : `${col.source}/${lang}/${slug}`;
 
   return pieces.map((piece, index) => {
     const hash = createHash("sha256")
@@ -134,9 +165,9 @@ function chunksForArticle(file, raw) {
       id: `${lang.replace(/[^a-z0-9-]/gi, "")}-${hash}`,
       contentId,
       lang,
-      source: "blog",
+      source: col.source,
       slug,
-      url: `/${lang}/blog/${slug}/`,
+      url: `/${lang}/${col.urlPrefix}/${slug}/`,
       title: frontmatter.title || slug,
       description: frontmatter.description || "",
       text: piece,
@@ -323,8 +354,8 @@ function git(args) {
   return execFileSync("git", args, { cwd: REPOSITORY_ROOT, encoding: "utf8" });
 }
 
-function isBlogIndexFile(file) {
-  return file.startsWith(CONTENT_PREFIX) && file.endsWith("/index.mdx");
+function isContentIndexFile(file) {
+  return CONTENT_PREFIXES.some((prefix) => file.startsWith(prefix)) && file.endsWith("/index.mdx");
 }
 
 function positiveNumber(value, fallback) {
