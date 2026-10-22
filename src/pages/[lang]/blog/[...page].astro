@@ -6,6 +6,7 @@ import { getCollection } from "astro:content";
 import PageHeadline from "@/components/PageHeadline.astro";
 import Pagination from "@/components/Pagination.astro";
 import type { GetStaticPaths } from "astro";
+import { getTraditionalDateLabel } from "@/utils/lunar";
 
 export const getStaticPaths = (async ({ paginate }) => {
   const allPosts = await getCollection("blog");
@@ -73,7 +74,7 @@ const description = t({
               <div class="blog-copy">
                 <div class="meta-line">
                   <time datetime={post.data.date.toISOString()}>
-                    {post.data.date.toLocaleDateString(locale)}
+                    {getTraditionalDateLabel(post.data.date, locale === "en")}
                   </time>
                   {post.data.categories?.[0] && (
                     <span class="category-pill">#{post.data.categories[0]}</span>
@@ -151,8 +152,8 @@ const description = t({
   }
 
   .category-pill {
-    padding: 2px 7px;
-    border-radius: 4px;
+    padding: 1px 7px;
+    border-radius: var(--radius-small);
     background: var(--bg-muted);
     color: var(--text-secondary);
     font-size: 0.78rem;
@@ -161,10 +162,11 @@ const description = t({
 
   .blog-copy h2 {
     margin-top: 8px;
+    font-family: var(--font-serif);
     font-size: clamp(1.2rem, 2vw, 1.55rem);
     font-weight: 700;
     color: var(--text-primary);
-    line-height: 1.35;
+    line-height: 1.38;
     transition: color 0.2s ease;
   }
 

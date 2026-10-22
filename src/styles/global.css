@@ -5,19 +5,78 @@
 @tailwind components;
 @tailwind utilities;
 
-/* 中英双语差异化正文行高与字距 */
+/* 中英双语差异化正文行高、字距与 Heti 标点排版 */
 html[lang^="zh"] .prose-custom,
 html[lang^="zh"] .article-shell {
-	font-size: 1.0625rem; /* 17px */
-	line-height: 1.85;
+	font-family: var(--font-serif);
+	font-size: 1.09375rem; /* 17.5px 黄金阅读字号 */
+	line-height: 1.82;
+	letter-spacing: 0.015em;
+	text-align: justify;
+	text-justify: inter-ideograph;
+}
+
+html[lang^="zh"] .prose-custom h1,
+html[lang^="zh"] .prose-custom h2,
+html[lang^="zh"] .prose-custom h3,
+html[lang^="zh"] .prose-custom h4,
+html[lang^="zh"] .article-shell h1,
+html[lang^="zh"] .article-shell h2,
+html[lang^="zh"] .article-shell h3,
+html[lang^="zh"] .article-shell h4 {
+	font-family: var(--font-title);
 	letter-spacing: 0.01em;
+}
+
+html[lang^="zh"] .prose-custom blockquote,
+html[lang^="zh"] .article-shell blockquote {
+	font-family: var(--font-title);
+	font-style: normal;
+	letter-spacing: 0.015em;
 }
 
 html[lang^="en"] .prose-custom,
 html[lang^="en"] .article-shell {
+	font-family: var(--font-serif);
 	font-size: 1.0625rem;
-	line-height: 1.68;
-	letter-spacing: -0.005em;
+	line-height: 1.7;
+	letter-spacing: -0.003em;
+}
+
+html[lang^="en"] .prose-custom blockquote,
+html[lang^="en"] .article-shell blockquote {
+	font-family: var(--font-serif);
+	font-style: italic;
+}
+
+/* 中文标点避头尾与连字符微调 */
+html[lang^="zh"] p,
+html[lang^="zh"] li {
+	word-break: break-word;
+	overflow-wrap: break-word;
+}
+
+/* 印章样式专用类 */
+.seal-stamp {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 2px 6px;
+	border: 1px solid var(--accent);
+	background: var(--accent-subtle);
+	color: var(--accent);
+	font-family: var(--font-title);
+	font-size: 0.82rem;
+	line-height: 1.2;
+	border-radius: 2px;
+	box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 30%, transparent);
+	user-select: none;
+}
+
+.seal-stamp.seal-solid {
+	background: var(--accent);
+	color: #FFFFFF;
+	font-weight: 600;
 }
 
 /* 等宽数字对齐（日期、阅读时长、评分） */
@@ -122,14 +181,13 @@ html.dark .article-shell img {
 	color: var(--text-secondary);
 }
 .prose-custom blockquote {
-	padding: 1.1em 1.35em;
+	padding: 1.1em 1.4em;
 	border-inline-start: 3px solid var(--accent);
 	background: var(--bg-muted);
 	color: var(--text-secondary);
 	border-radius: 0 var(--radius-small) var(--radius-small) 0;
-	margin-block: 1.5em;
-	font-family: var(--font-serif);
-	font-style: italic;
+	margin-block: 1.6em;
+	line-height: 1.75;
 }
 .prose-custom blockquote p:first-child {
 	margin-top: 0;

@@ -1,19 +1,20 @@
 /* Modern Builder Editorial design tokens & Warm Stone system */
 
 :root {
-	/* New Precise Design System Tokens (Light Mode - Warm Paper) */
-	--bg-primary: #FAF8F5;
-	--bg-surface: #FFFFFF;
-	--bg-muted: #F2EFE9;
-	--text-primary: #1C1917;
-	--text-secondary: #44403C;
-	--text-muted: #78716C;
-	--accent: #E04F33;
-	--accent-hover: #C83E23;
-	--accent-subtle: #FCECE8;
-	--border: #E6E1D8;
-	--border-strong: #D6D0C5;
-	--dot-color: #DFDAD0;
+	/* New Chinese Scholarly & Paper Design System Tokens (Light Mode - 宣纸米白与朱砂) */
+	--bg-primary: #F8F6F1;
+	--bg-surface: #FFFEFC;
+	--bg-muted: #F0EDE4;
+	--text-primary: #23211E;
+	--text-secondary: #55524C;
+	--text-muted: #8C877D;
+	--accent: #B93826;
+	--accent-hover: #A12D1C;
+	--accent-subtle: rgba(185, 56, 38, 0.08);
+	--accent-gold: #B88B4A;
+	--border: #E5E0D5;
+	--border-strong: #CCC6B8;
+	--dot-color: #E2DDD2;
 
 	/* Aliases for backwards compatibility with existing components */
 	--color-theme: var(--accent);
@@ -28,7 +29,7 @@
 	--color-border: var(--border);
 	--color-border-strong: var(--border-strong);
 	--color-code: var(--bg-muted);
-	--color-caution: #C83E23;
+	--color-caution: #B93826;
 	--shadow-focus: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent);
 
 	--sp-xl: clamp(48px, 5.5vw, 64px);
@@ -39,14 +40,15 @@
 	--container: 1160px;
 	--container-wide: 1160px;
 	--container-article: 1080px;
-	--reading: 1080px;
+	--reading: 740px;
 	--page-gutter: clamp(16px, 3vw, 32px);
 	--header-height: 64px;
-	--radius: 12px;
-	--radius-small: 8px;
+	--radius: 6px;
+	--radius-small: 4px;
 
+	--font-title: "LXGW WenKai", "霞鹜文楷", "Kaiti SC", "STKaiti", "KaiTi", serif;
 	--font-sans: "Inter", -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
-	--font-serif: "Newsreader", "Songti SC", "Noto Serif SC", serif;
+	--font-serif: "Newsreader", "Source Han Serif SC", "Noto Serif SC", "Songti SC", "STSong", serif;
 	--font-mono: "JetBrains Mono", "Fira Code", ui-monospace, SFMono-Regular, monospace;
 	--font-interface: var(--font-sans);
 	--font-body: var(--font-sans);
@@ -66,18 +68,19 @@
 
 :root[data-theme="dark"],
 html.dark {
-	--bg-primary: #141413;
-	--bg-surface: #1C1B1A;
-	--bg-muted: #262523;
-	--text-primary: #EDEDEB;
-	--text-secondary: #B8B4AE;
-	--text-muted: #8A8580;
-	--accent: #F26B4E;
-	--accent-hover: #FF8266;
-	--accent-subtle: rgba(242, 107, 78, 0.15);
-	--border: #2C2A28;
-	--border-strong: #3A3835;
-	--dot-color: #242321;
+	--bg-primary: #181816;
+	--bg-surface: #20201D;
+	--bg-muted: #282824;
+	--text-primary: #E8E5DD;
+	--text-secondary: #A8A49B;
+	--text-muted: #737068;
+	--accent: #D85842;
+	--accent-hover: #E6735E;
+	--accent-subtle: rgba(216, 88, 66, 0.15);
+	--accent-gold: #D4A86A;
+	--border: #2F2E2A;
+	--border-strong: #42403B;
+	--dot-color: #242320;
 
 	--color-theme: var(--accent);
 	--color-theme-hover: var(--accent-hover);
@@ -91,24 +94,25 @@ html.dark {
 	--color-border: var(--border);
 	--color-border-strong: var(--border-strong);
 	--color-code: var(--bg-muted);
-	--color-caution: #ffb65c;
+	--color-caution: #D85842;
 	color-scheme: dark;
 }
 
 @media (prefers-color-scheme: dark) {
 	:root:not([data-theme="light"]):not(.light) {
-		--bg-primary: #141413;
-		--bg-surface: #1C1B1A;
-		--bg-muted: #262523;
-		--text-primary: #EDEDEB;
-		--text-secondary: #B8B4AE;
-		--text-muted: #8A8580;
-		--accent: #F26B4E;
-		--accent-hover: #FF8266;
-		--accent-subtle: rgba(242, 107, 78, 0.15);
-		--border: #2C2A28;
-		--border-strong: #3A3835;
-		--dot-color: #242321;
+		--bg-primary: #181816;
+		--bg-surface: #20201D;
+		--bg-muted: #282824;
+		--text-primary: #E8E5DD;
+		--text-secondary: #A8A49B;
+		--text-muted: #737068;
+		--accent: #D85842;
+		--accent-hover: #E6735E;
+		--accent-subtle: rgba(216, 88, 66, 0.15);
+		--accent-gold: #D4A86A;
+		--border: #2F2E2A;
+		--border-strong: #42403B;
+		--dot-color: #242320;
 
 		--color-theme: var(--accent);
 		--color-theme-hover: var(--accent-hover);
@@ -122,7 +126,7 @@ html.dark {
 		--color-border: var(--border);
 		--color-border-strong: var(--border-strong);
 		--color-code: var(--bg-muted);
-		--color-caution: #ffb65c;
+		--color-caution: #D85842;
 		color-scheme: dark;
 	}
 }
@@ -141,24 +145,27 @@ body {
 	color: var(--text-primary);
 }
 
-/* 暖白点阵背景：柔和径向衰减遮罩，避免长文阅读区产生高频摩尔纹干扰 */
+/* 宣纸肌理与轻量微粒底色 (纯 CSS + 内联 SVG 噪点，0 外部图片请求) */
 body::before {
 	content: "";
 	position: fixed;
 	inset: 0;
 	z-index: -1;
 	pointer-events: none;
-	background-image: radial-gradient(var(--dot-color) 1.25px, transparent 1.25px);
-	background-size: 22px 22px;
-	mask-image: radial-gradient(ellipse 90% 80% at 50% 15%, #000 40%, rgba(0, 0, 0, 0.25) 100%);
-	-webkit-mask-image: radial-gradient(ellipse 90% 80% at 50% 15%, #000 40%, rgba(0, 0, 0, 0.25) 100%);
+	background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.035'/%3E%3C/svg%3E");
+	opacity: 0.75;
+}
+
+:root[data-theme="dark"] body::before,
+html.dark body::before {
+	opacity: 0.025;
 }
 
 .bg-dot-grid {
 	background-image: radial-gradient(var(--dot-color) 1.25px, transparent 1.25px);
-	background-size: 22px 22px;
-	mask-image: radial-gradient(ellipse 90% 80% at 50% 15%, #000 40%, rgba(0, 0, 0, 0.25) 100%);
-	-webkit-mask-image: radial-gradient(ellipse 90% 80% at 50% 15%, #000 40%, rgba(0, 0, 0, 0.25) 100%);
+	background-size: 24px 24px;
+	mask-image: radial-gradient(ellipse 90% 80% at 50% 15%, #000 40%, rgba(0, 0, 0, 0.2) 100%);
+	-webkit-mask-image: radial-gradient(ellipse 90% 80% at 50% 15%, #000 40%, rgba(0, 0, 0, 0.2) 100%);
 }
 
 h1,

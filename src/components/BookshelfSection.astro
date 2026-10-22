@@ -27,15 +27,15 @@ const statusBadge = (book: CollectionEntry<"books">) => {
   <!-- Section Header -->
   <div class="mb-6 flex items-center justify-between">
     <div class="flex items-center gap-2.5">
-      <span class="h-5 w-1.5 rounded-full bg-[var(--accent)]"></span>
-      <h2 class="text-[22px] font-bold tracking-tight text-[var(--text-primary)]">
+      <span class="h-4 w-1 rounded-[1px] bg-[var(--accent)]"></span>
+      <h2 class="font-title text-[22px] font-bold tracking-normal text-[var(--text-primary)]">
         {t({ en: "Reading Notes", "zh-cn": "读书笔记", ja: "読書ノート", ar: "ملاحظات القراءة" })}
       </h2>
-      <span class="font-mono-tabular text-[14px] text-[var(--text-muted)]">(Bookshelf)</span>
+      <span class="font-mono-tabular text-[13.5px] text-[var(--text-muted)]">(Bookshelf)</span>
     </div>
     <a
       href={getRelativeLocaleUrl(locale, "/books")}
-      class="group inline-flex items-center gap-1.5 rounded-full bg-[var(--bg-muted)] px-4 py-1.5 text-[14.5px] font-medium text-[var(--text-primary)] hover:bg-[var(--accent-subtle)] hover:text-[var(--accent)] transition-all"
+      class="group inline-flex items-center gap-1.5 rounded-[var(--radius-small)] border border-[var(--border)] bg-[var(--bg-surface)] px-3.5 py-1 text-[13.5px] font-medium text-[var(--text-secondary)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-all"
     >
       <span>{t({ en: "View Bookshelf", "zh-cn": "全部书架", ja: "本棚を見る", ar: "عرض الكل" })}</span>
       <span class="transition-transform group-hover:translate-x-1">→</span>
@@ -51,7 +51,7 @@ const statusBadge = (book: CollectionEntry<"books">) => {
         return (
           <a
             href={bookHref}
-            class="group flex items-start gap-5 rounded-xl border border-[var(--border)] bg-[var(--bg-surface)] p-5 transition-all hover:border-[var(--accent)]/50 hover:shadow-md"
+            class="group flex items-start gap-5 rounded-[var(--radius)] border border-[var(--border)] bg-[var(--bg-surface)] p-5 transition-all hover:border-[var(--accent)]/50 hover:shadow-md"
           >
             <!-- Left 2:3 3D Book Cover -->
             <div class="book-cover-3d aspect-[2/3] w-24 sm:w-[110px] shrink-0 overflow-hidden bg-[var(--bg-muted)] transition-transform duration-300 group-hover:-translate-y-1">
@@ -71,8 +71,8 @@ const statusBadge = (book: CollectionEntry<"books">) => {
             <div class="flex flex-1 flex-col justify-between">
               <div>
                 <!-- Seal-style badge -->
-                <div class="mb-2 inline-flex items-center gap-1 rounded-md bg-[var(--accent-subtle)] px-2.5 py-0.5 font-mono-tabular text-[12px] font-semibold text-[var(--accent)]">
-                  <span>{statusBadge(book)}</span>
+                <div class="mb-2">
+                  <span class="seal-stamp text-[11.5px]">{statusBadge(book)}</span>
                 </div>
 
                 <h3 class="mb-1 font-serif text-[18px] font-bold leading-snug text-[var(--text-primary)] group-hover:text-[var(--accent)] transition-colors line-clamp-1">

@@ -4,6 +4,7 @@ import { Image } from "astro:assets";
 import AvatarImage from "@/assets/about-avatar.png";
 import { type Lang } from "@/i18n";
 import { getRelativeLocaleUrl } from "astro:i18n";
+import { getTraditionalDateLabel } from "@/utils/lunar";
 
 interface Props {
   title: string;
@@ -30,29 +31,27 @@ const {
 const locale = Astro.currentLocale as Lang;
 const isEn = locale === "en";
 
-const formattedDate = pubDate.toLocaleDateString(locale, {
-  year: "numeric",
-  month: isEn ? "short" : "numeric",
-  day: "numeric",
-});
+const traditionalDate = getTraditionalDateLabel(pubDate, isEn);
 
 const filteredHeadings = headings.filter((h) => h.depth >= 2 && h.depth <= 3);
 ---
 
 <Base {title} {description} isArticle={true}>
-  <div class="mx-auto max-w-[1080px] py-4 sm:py-6">
-    <div class="grid grid-cols-1 gap-12 xl:grid-cols-[minmax(0,720px)_240px]">
+  <div class="mx-auto max-w-[1120px] py-4 sm:py-6">
+    <div class="grid grid-cols-1 gap-12 xl:grid-cols-[minmax(0,740px)_250px]">
       
-      <!-- Left main reading column (720px golden reading width) -->
+      <!-- Left main reading column (740px golden reading width) -->
       <main class="min-w-0">
         <!-- 1. Top Meta Row -->
-        <div class="mb-3 flex flex-wrap items-center gap-2.5 font-mono-tabular text-[13.5px] text-[var(--text-muted)]">
+        <div class="mb-3.5 flex flex-wrap items-center gap-2.5 font-mono-tabular text-[13.5px] text-[var(--text-muted)]">
           <a href={getRelativeLocaleUrl(locale, "/blog")} class="inline-flex items-center gap-1 text-[var(--text-secondary)] hover:text-[var(--accent)] transition-colors">
             <span>←</span>
             <span>{isEn ? "Blog" : "返回博客"}</span>
           </a>
           <span class="text-[var(--border-strong)]">/</span>
-          <time datetime={pubDate.toISOString()}>{formattedDate}</time>
+          <time datetime={pubDate.toISOString()} class="flex items-center gap-1.5">
+            <span>{traditionalDate}</span>
+          </time>
           {category && (
             <>
               <span class="text-[var(--border-strong)]">·</span>
@@ -70,13 +69,16 @@ const filteredHeadings = headings.filter((h) => h.depth >= 2 && h.depth <= 3);
         </div>
 
         <!-- 2. H1 Title -->
-        <h1 class="mb-6 text-[26px] sm:text-[34px] font-extrabold leading-[1.35] tracking-tight text-[var(--text-primary)]">
+        <h1 class:list={[
+          "mb-6 text-[27px] sm:text-[34px] font-bold leading-[1.38] text-[var(--text-primary)]",
+          isEn ? "font-serif tracking-tight" : "font-title tracking-wide"
+        ]}>
           {title}
         </h1>
 
         <!-- 3. Abstract Callout Box -->
         {description && (
-          <blockquote class="mb-8 rounded-r-xl border-l-[3px] border-[var(--accent)] bg-[var(--bg-muted)] px-5 py-4 text-[15.5px] leading-[1.7] text-[var(--text-secondary)]">
+          <blockquote class="mb-8 rounded-r-md border-l-[3px] border-[var(--accent)] bg-[var(--bg-muted)] px-5 py-4 text-[15.5px] leading-[1.78] text-[var(--text-secondary)] shadow-sm">
             {description}
           </blockquote>
         )}
@@ -139,7 +141,7 @@ const filteredHeadings = headings.filter((h) => h.depth >= 2 && h.depth <= 3);
         )}
 
         <!-- Author Signature Card -->
-        <div class="mt-12 rounded-xl border border-[var(--border)] bg-[var(--bg-surface)] p-6">
+        <div class="mt-12 rounded-[var(--radius)] border border-[var(--border)] bg-[var(--bg-surface)] p-6 shadow-sm">
           <div class="flex items-center gap-4">
             <Image
               src={AvatarImage}
@@ -151,6 +153,7 @@ const filteredHeadings = headings.filter((h) => h.depth >= 2 && h.depth <= 3);
             <div class="flex-1 min-w-0">
               <div class="flex items-center gap-2">
                 <h3 class="text-base font-bold text-[var(--text-primary)]">Frency</h3>
+                {!isEn && <span class="seal-stamp text-[11px]">晓风</span>}
                 <span class="text-xs font-mono-tabular text-[var(--text-muted)]">· @psephopaiktes</span>
               </div>
               <p class="mt-1 text-sm text-[var(--text-secondary)] line-clamp-2">

@@ -14,7 +14,7 @@ interface Props {
 const { title, description, pubDate, category, cover, href, eager = false } = Astro.props;
 ---
 
-<article class="group flex h-full flex-col overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--bg-surface)] transition-all duration-200 hover:-translate-y-1 hover:border-[var(--accent)]/50 hover:shadow-md">
+<article class="group flex h-full flex-col overflow-hidden rounded-[var(--radius)] border border-[var(--border)] bg-[var(--bg-surface)] transition-all duration-200 hover:-translate-y-1 hover:border-[var(--accent)]/50 hover:shadow-md">
   {cover && (
     <a href={href} class="relative block aspect-[16/9] w-full overflow-hidden bg-[var(--bg-muted)]">
       <Image
@@ -35,17 +35,17 @@ const { title, description, pubDate, category, cover, href, eager = false } = As
       <div class="mb-2.5 flex items-center justify-between text-[13.5px] font-mono-tabular text-[var(--text-muted)]">
         <time>{pubDate}</time>
         {category && (
-          <span class="rounded bg-[var(--bg-muted)] px-2 py-0.5 text-[12.5px] font-medium text-[var(--text-secondary)]">
+          <span class="rounded-[var(--radius-small)] bg-[var(--bg-muted)] px-2 py-0.5 text-[12.5px] font-medium text-[var(--text-secondary)]">
             #{category}
           </span>
         )}
       </div>
 
-      <h3 class="mb-2 text-[18px] font-semibold leading-[1.45] text-[var(--text-primary)] group-hover:text-[var(--accent)] transition-colors line-clamp-2">
+      <h3 class="mb-2 font-serif text-[18px] font-bold leading-[1.4] text-[var(--text-primary)] group-hover:text-[var(--accent)] transition-colors line-clamp-2">
         <a href={href}>{title}</a>
       </h3>
 
-      <p class="text-[15px] leading-[1.65] text-[var(--text-secondary)] line-clamp-2">
+      <p class="text-[14.5px] leading-[1.68] text-[var(--text-secondary)] line-clamp-2">
         {description}
       </p>
     </div>

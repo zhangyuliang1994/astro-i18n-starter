@@ -10,7 +10,7 @@ const copyrightOwner = t({ en: "frency", "zh-cn": "xiaofeng" });
   <div class="footer-inner l-content">
     <div class="footer-primary">
       <div class="footer-tagline">
-        {t({ ja: "✨ インスピレーションを記録し、思考を沈殿させる", en: "✨ Capture inspiration, cultivate thoughts", "zh-cn": "✨ 记录灵感，沉淀思考", ar: "✨ التقاط الإلهام، زراعة الأفكار" })}
+        {t({ ja: "インスピレーションを記録し、思考を沈殿させる", en: "Capture inspiration, cultivate thoughts", "zh-cn": "记录灵感，沉淀思考 · 慢品烟雨与代码", ar: "التقاط الإلهام، زراعة الأفكار" })}
       </div>
       <div class="copy">
         ©2024 - {currentYear} By {copyrightOwner}
@@ -39,7 +39,7 @@ const copyrightOwner = t({ en: "frency", "zh-cn": "xiaofeng" });
   .footer-primary,
   .footer-secondary { display: grid; gap: 12px; }
   .footer-secondary { justify-items: end; text-align: end; }
-  .footer-tagline { font-weight: 600; color: var(--color-main); }
+  .footer-tagline { font-family: var(--font-title); font-size: 0.95rem; font-weight: 600; color: var(--color-main); letter-spacing: 0.02em; }
   .copy,
   .icp-info { color: var(--color-faint); font-family: var(--font-mono); font-size: 0.75rem; }
   .icp-info a:hover { color: var(--color-theme); }

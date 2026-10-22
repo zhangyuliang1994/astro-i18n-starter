@@ -1,10 +1,11 @@
 ---
 interface Props { title: string; }
 const { title } = Astro.props;
+const isEn = Astro.currentLocale === "en";
 ---
 
 <header class="page-headline">
-  <span class="eyebrow" aria-hidden="true">/</span>
+  <span class="eyebrow" aria-hidden="true">{isEn ? "/" : "晓"}</span>
   <h1>{title}</h1>
   <slot />
 </header>
@@ -13,34 +14,43 @@ const { title } = Astro.props;
   .page-headline {
     position: relative;
     max-width: 1000px;
-    padding-block: 0 clamp(30px, 4vw, 44px);
+    padding-block: 0 clamp(24px, 3.5vw, 36px);
     border-bottom: 1px solid var(--color-border);
     text-align: start;
   }
   .eyebrow {
-    display: block;
-    margin-bottom: 12px;
-    color: var(--color-theme);
-    font-family: var(--font-mono);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    margin-bottom: 14px;
+    color: #FFFFFF;
+    background: var(--accent);
+    border-radius: 2px;
+    font-family: var(--font-title);
+    font-size: 11px;
     font-weight: 700;
+    box-shadow: 0 1px 3px rgba(185, 56, 38, 0.25);
   }
   h1 {
     color: var(--color-main);
-    font-size: clamp(2.6rem, 5vw, 4.4rem);
-    font-weight: 800;
-    letter-spacing: -0.055em;
-    line-height: 1;
+    font-family: var(--font-title);
+    font-size: clamp(2.2rem, 4.2vw, 3.6rem);
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    line-height: 1.15;
   }
   .page-headline :global(p) {
     max-width: 680px;
-    margin-top: 20px;
+    margin-top: 16px;
     color: var(--color-muted);
     font-size: 1.05rem;
-    line-height: 1.7;
+    line-height: 1.75;
   }
   @media (max-width: 640px) {
-    .page-headline { padding-block-end: 28px; }
-    h1 { font-size: clamp(2.2rem, 10vw, 3.1rem); line-height: 1.05; }
-    .page-headline :global(p) { margin-top: 16px; font-size: 1rem; }
+    .page-headline { padding-block-end: 24px; }
+    h1 { font-size: clamp(2rem, 8vw, 2.6rem); line-height: 1.15; }
+    .page-headline :global(p) { margin-top: 14px; font-size: 1rem; }
   }
 </style>

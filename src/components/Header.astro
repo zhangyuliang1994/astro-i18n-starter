@@ -30,7 +30,7 @@ const menuLabel = t({ en: "Open navigation", "zh-cn": "打开导航", ja: "ナ�
   <div class="header-inner">
     <!-- Brand -->
     <a class="brand" href={getRelativeLocaleUrl(locale, "/")} aria-label={t(SITE_TITLE)}>
-      <span class="brand-dot" aria-hidden="true"></span>
+      <span class="brand-seal" aria-hidden="true">{isEn ? "XF" : "晓风"}</span>
       <span class="brand-name">{t(SITE_TITLE)}</span>
     </a>
 
@@ -130,13 +130,28 @@ const menuLabel = t({ en: "Open navigation", "zh-cn": "打开导航", ja: "ナ�
     color: var(--text-primary);
   }
 
-  .brand-dot {
-    width: 9px;
-    height: 9px;
-    border-radius: 50%;
+  .brand-seal {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 2px;
     background: var(--accent);
+    color: #FFFFFF;
+    font-family: var(--font-title);
+    font-size: 11.5px;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.05em;
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 30%, transparent), 0 2px 4px rgba(185, 56, 38, 0.2);
+    user-select: none;
+    transition: transform 0.2s ease;
     flex-shrink: 0;
-    box-shadow: 0 0 8px color-mix(in srgb, var(--accent) 50%, transparent);
+  }
+
+  .brand:hover .brand-seal {
+    transform: rotate(-3deg) scale(1.05);
   }
 
   .brand-name {
