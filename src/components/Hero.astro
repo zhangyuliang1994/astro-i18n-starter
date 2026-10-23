@@ -13,8 +13,25 @@ const isEn = locale === "en";
 ---
 
 <section class="hero-section">
-  <!-- Subtle mist mountain silhouette in background -->
-  <div class="mist-mountain-bg" aria-hidden="true"></div>
+  <div class="mist-mountain-bg" aria-hidden="true">
+    <svg viewBox="0 0 1200 420" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <filter id="inkBlur" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="3" /></filter>
+        <filter id="inkBlurSoft"><feGaussianBlur stdDeviation="8" /></filter>
+        <linearGradient id="inkFade" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="currentColor" stop-opacity="0.9" />
+          <stop offset="1" stop-color="currentColor" stop-opacity="0" />
+        </linearGradient>
+      </defs>
+      <path d="M0 300 C120 250 190 210 280 240 C360 266 420 190 520 170 C610 152 660 230 760 210 C860 190 900 120 1000 140 C1090 158 1140 220 1200 230 L1200 420 L0 420Z" fill="url(#inkFade)" opacity="0.06" filter="url(#inkBlurSoft)" />
+      <path d="M560 330 C640 280 700 230 780 250 C840 266 870 200 940 180 C1010 162 1060 240 1120 250 C1160 256 1185 270 1200 280 L1200 420 L560 420Z" fill="url(#inkFade)" opacity="0.09" filter="url(#inkBlur)" />
+      <path d="M760 380 C820 340 870 320 930 330 C990 340 1030 290 1090 300 C1140 308 1170 330 1200 340 L1200 420 L760 420Z" fill="url(#inkFade)" opacity="0.13" filter="url(#inkBlur)" />
+      <g stroke="currentColor" stroke-opacity="0.035" stroke-width="1">
+        <line x1="640" y1="20" x2="610" y2="140" /><line x1="720" y1="0" x2="690" y2="120" /><line x1="820" y1="30" x2="790" y2="150" />
+        <line x1="900" y1="10" x2="870" y2="130" /><line x1="1080" y1="20" x2="1050" y2="140" /><line x1="1160" y1="0" x2="1130" y2="120" />
+      </g>
+    </svg>
+  </div>
 
   <div class="hero-container">
     <!-- Left column: Intro & Status -->
@@ -125,26 +142,27 @@ const isEn = locale === "en";
 <style>
   .hero-section {
     position: relative;
-    padding-block: clamp(32px, 4vw, 48px) 32px;
-    border-bottom: 1px solid var(--border);
+    padding-block: clamp(48px, 6vw, 84px) clamp(56px, 6vw, 88px);
+    border-bottom: 1px solid transparent;
+    border-image: linear-gradient(90deg, transparent, color-mix(in srgb, var(--text-primary) 22%, transparent) 30%, color-mix(in srgb, var(--text-primary) 22%, transparent) 70%, transparent) 1;
     overflow: hidden;
   }
 
-  /* 淡淡水墨远山与烟雨轻染背景 (纯 SVG 矢量远岫) */
   .mist-mountain-bg {
     position: absolute;
     inset: 0;
     pointer-events: none;
     z-index: 0;
-    opacity: 0.12;
-    background-image: radial-gradient(ellipse 70% 50% at 85% 20%, var(--accent) 0%, transparent 60%),
-      linear-gradient(to bottom, transparent 60%, var(--bg-primary) 100%);
+    color: var(--text-primary);
+    -webkit-mask-image: linear-gradient(to bottom, #000 70%, transparent), linear-gradient(to right, transparent, #000 12%, #000 92%, transparent);
+    -webkit-mask-composite: source-in;
+    mask-image: linear-gradient(to bottom, #000 70%, transparent), linear-gradient(to right, transparent, #000 12%, #000 92%, transparent);
+    mask-composite: intersect;
+    background: radial-gradient(circle at 80% 26%, color-mix(in srgb, var(--accent) 16%, transparent) 0 34px, transparent 60px);
   }
-
+  .mist-mountain-bg svg { position: absolute; left: 0; right: 0; bottom: 0; width: 100%; height: 100%; display: block; }
   :root[data-theme="dark"] .mist-mountain-bg,
-  html.dark .mist-mountain-bg {
-    opacity: 0.06;
-  }
+  html.dark .mist-mountain-bg { opacity: 0.8; }
 
   .hero-container {
     position: relative;
@@ -157,7 +175,7 @@ const isEn = locale === "en";
 
   @media (min-width: 1024px) {
     .hero-container {
-      grid-template-columns: minmax(0, 1fr) 260px;
+      grid-template-columns: minmax(0, 1fr) 240px;
       gap: 48px;
     }
   }
@@ -215,7 +233,7 @@ const isEn = locale === "en";
 
   .hero-name {
     font-family: var(--font-title);
-    font-size: clamp(1.6rem, 2.8vw, 2.1rem);
+    font-size: clamp(2.2rem, 4.4vw, 3.2rem);
     font-weight: 700;
     color: var(--text-primary);
     line-height: 1.2;
@@ -223,9 +241,10 @@ const isEn = locale === "en";
   }
 
   .hero-subtitle {
-    margin: 0;
-    font-size: 0.88rem;
-    font-family: var(--font-mono);
+    margin: 4px 0 0;
+    font-size: clamp(1.02rem, 1.5vw, 1.2rem);
+    font-family: var(--font-title);
+    letter-spacing: 0.08em;
     color: var(--text-muted);
     letter-spacing: -0.01em;
   }
@@ -328,22 +347,10 @@ const isEn = locale === "en";
 
   .vertical-scroll-card {
     display: inline-flex;
-    padding: 20px 22px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    background: var(--bg-surface);
-    box-shadow: 0 2px 8px rgba(35, 33, 30, 0.04);
-    position: relative;
-  }
-
-  .vertical-scroll-card::before {
-    content: "";
-    position: absolute;
-    inset: 4px;
-    border: 1px dashed var(--border);
-    border-radius: calc(var(--radius) - 2px);
-    pointer-events: none;
-    opacity: 0.6;
+    padding: 8px 4px;
+    background: none;
+    border: 0;
+    box-shadow: none;
   }
 
   .scroll-inner {
@@ -357,14 +364,14 @@ const isEn = locale === "en";
     writing-mode: vertical-rl;
     text-orientation: upright;
     font-family: var(--font-title);
-    font-size: 1.05rem;
-    line-height: 2;
-    letter-spacing: 0.22em;
+    font-size: 1.3rem;
+    line-height: 2.2;
+    letter-spacing: 0.24em;
     color: var(--text-primary);
   }
 
   .verse-line {
-    display: inline-block;
+    display: block;
   }
 
   .scroll-seal-col {
@@ -393,10 +400,9 @@ const isEn = locale === "en";
     width: 100%;
     max-width: 260px;
     padding: 20px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    background: var(--bg-surface);
-    box-shadow: 0 2px 8px rgba(35, 33, 30, 0.04);
+    border: 0;
+    border-left: 1px solid color-mix(in srgb, var(--text-primary) 20%, transparent);
+    background: none;
   }
 
   .ex-libris-top {
@@ -416,7 +422,7 @@ const isEn = locale === "en";
   .ex-libris-quote {
     font-family: var(--font-serif);
     font-style: italic;
-    font-size: 0.95rem;
+    font-size: 1.3rem;
     line-height: 1.6;
     color: var(--text-secondary);
     margin-block: 16px;

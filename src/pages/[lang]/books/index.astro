@@ -42,6 +42,9 @@ export const getStaticPaths = () =>
 <Layout {title} {description}>
   <PageHeadline {title} />
   <p class="page-description">{description}</p>
+  <blockquote class="shelf-verse">
+    {locale === "en" ? "“A book is a dream that you hold in your hand.” — Neil Gaiman" : "「书卷多情似故人，晨昏忧乐每相亲。」—— 于谦《观书》"}
+  </blockquote>
 
   <div class="filter-bar" role="tablist" aria-label="Book status filters">
     <button class="filter-btn active" data-filter="all" type="button">
@@ -67,7 +70,7 @@ export const getStaticPaths = () =>
           <article class="book-gallery-item" data-status={book.data.status}>
             <a href={`/${locale}/books/${id.join("/")}/`} class="book-gallery-link group">
               <!-- 2:3 3D Book Cover -->
-              <div class="book-cover-3d relative aspect-[2/3] w-full overflow-hidden bg-[var(--bg-muted)] transition-transform duration-300 group-hover:-translate-y-2">
+              <div class="book-cover-3d book-thread relative aspect-[2/3] w-full overflow-hidden bg-[var(--bg-muted)] transition-transform duration-300 group-hover:-translate-y-2">
                 {book.data.cover && (
                   <Image
                     src={book.data.cover}
@@ -109,6 +112,12 @@ export const getStaticPaths = () =>
         );
       })
     }
+    {books.length < 5 && (
+      <div class="shelf-empty" aria-hidden="true">
+        <span class="shelf-empty-seal">续</span>
+        <span>{locale === "en" ? "More volumes on the way…" : "案头留白，且待新卷"}</span>
+      </div>
+    )}
   </div>
 </Layout>
 
@@ -180,29 +189,56 @@ export const getStaticPaths = () =>
 
   .books-grid {
     display: grid;
-    gap: 32px 24px;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    margin-block-end: var(--sp-xl);
+    gap: 44px 40px;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 220px));
+    justify-content: start;
+    margin-block: var(--sp-m) var(--sp-xl);
+    padding: 36px 32px 28px;
+    border-top: 1px solid color-mix(in srgb, var(--text-primary) 14%, transparent);
+    border-bottom: 6px double color-mix(in srgb, var(--text-primary) 14%, transparent);
+    background: linear-gradient(to bottom, transparent, color-mix(in srgb, var(--text-primary) 3%, transparent));
   }
-
-  @media (min-width: 640px) {
-    .books-grid {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
+  @media (max-width: 520px) {
+    .books-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 18px; padding: 24px 12px; }
   }
-
-  @media (min-width: 860px) {
-    .books-grid {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
+  .shelf-empty {
+    aspect-ratio: 2 / 3;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
+    border: 1px dashed color-mix(in srgb, var(--text-primary) 18%, transparent);
+    border-radius: 2px 4px 4px 2px;
+    color: var(--text-muted);
+    font-family: var(--font-title);
+    letter-spacing: 0.12em;
+    font-size: 0.95rem;
+    text-align: center;
+    padding: 12px;
   }
-
-  @media (min-width: 1080px) {
-    .books-grid {
-      grid-template-columns: repeat(5, minmax(0, 1fr));
-    }
+  .shelf-empty-seal {
+    width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center;
+    border: 1.5px solid var(--accent); color: var(--accent); border-radius: 3px; font-size: 1.1rem; opacity: .75;
   }
-
+  .shelf-verse {
+    margin: 0 0 var(--sp-m);
+    padding: 4px 0 4px 18px;
+    border-left: 2px solid var(--accent);
+    font-family: var(--font-title);
+    font-size: 1.15rem;
+    letter-spacing: 0.08em;
+    color: var(--text-secondary);
+  }
+  .book-thread {
+    border-radius: 2px 4px 4px 2px;
+    box-shadow: 1px 1px 0 color-mix(in srgb, var(--text-primary) 10%, transparent), 6px 10px 22px rgba(30, 26, 20, 0.22);
+  }
+  .book-thread::before {
+    content: "";
+    position: absolute; inset: 0 auto 0 0; width: 14%;
+    z-index: 1; pointer-events: none;
+    background:
+      radial-gradient(circle, rgba(250,245,235,.85) 1.6px, transparent 2px) center 12% / 100% 25% repeat-y,
+      linear-gradient(90deg, rgba(0,0,0,.28), rgba(0,0,0,.06) 70%, rgba(255,255,255,.12));
+    border-right: 1px solid rgba(255,255,255,.18);
+  }
   .book-gallery-item {
     height: 100%;
   }

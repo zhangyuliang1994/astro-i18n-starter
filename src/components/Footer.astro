@@ -9,6 +9,10 @@ const copyrightOwner = t({ en: "frency", "zh-cn": "xiaofeng" });
 <footer class="site-footer">
   <div class="footer-inner l-content">
     <div class="footer-primary">
+      <div class="footer-sign">
+        <span class="footer-seal" aria-hidden="true">晓<br />风</span>
+        <span class="footer-colophon">{t({ en: "Written slowly, in the misty rain of Nanjing.", "zh-cn": "金陵烟雨中，晓风 谨识", ja: "金陵の霧雨の中で", ar: "Written slowly, in the misty rain of Nanjing." })}</span>
+      </div>
       <div class="footer-tagline">
         {t({ ja: "インスピレーションを記録し、思考を沈殿させる", en: "Capture inspiration, cultivate thoughts", "zh-cn": "记录灵感，沉淀思考 · 慢品烟雨与代码", ar: "التقاط الإلهام، زراعة الأفكار" })}
       </div>
@@ -40,6 +44,17 @@ const copyrightOwner = t({ en: "frency", "zh-cn": "xiaofeng" });
   .footer-secondary { display: grid; gap: 12px; }
   .footer-secondary { justify-items: end; text-align: end; }
   .footer-tagline { font-family: var(--font-title); font-size: 0.95rem; font-weight: 600; color: var(--color-main); letter-spacing: 0.02em; }
+  .footer-sign { display: flex; align-items: center; gap: 14px; }
+  .footer-seal {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 40px; height: 40px; flex-shrink: 0;
+    background: var(--accent); color: #fdf8f0;
+    font-family: var(--font-title); font-size: 15px; line-height: 1.05; font-weight: 700;
+    border-radius: 3px; transform: rotate(-4deg);
+    box-shadow: inset 0 0 0 2px var(--accent), inset 0 0 0 3px rgba(255,255,255,.55);
+    opacity: .92;
+  }
+  .footer-colophon { font-family: var(--font-title); color: var(--color-muted); letter-spacing: .1em; font-size: .92rem; }
   .copy,
   .icp-info { color: var(--color-faint); font-family: var(--font-mono); font-size: 0.75rem; }
   .icp-info a:hover { color: var(--color-theme); }

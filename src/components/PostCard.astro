@@ -14,9 +14,9 @@ interface Props {
 const { title, description, pubDate, category, cover, href, eager = false } = Astro.props;
 ---
 
-<article class="group flex h-full flex-col overflow-hidden rounded-[var(--radius)] border border-[var(--border)] bg-[var(--bg-surface)] transition-all duration-200 hover:-translate-y-1 hover:border-[var(--accent)]/50 hover:shadow-md">
+<article class="ink-card group flex h-full flex-col">
   {cover && (
-    <a href={href} class="relative block aspect-[16/9] w-full overflow-hidden bg-[var(--bg-muted)]">
+    <a href={href} class="ink-cover relative block aspect-[16/9] w-full overflow-hidden bg-[var(--bg-muted)]">
       <Image
         src={cover}
         alt={title}
@@ -30,7 +30,7 @@ const { title, description, pubDate, category, cover, href, eager = false } = As
     </a>
   )}
 
-  <div class="flex flex-1 flex-col justify-between p-5">
+  <div class="flex flex-1 flex-col justify-between px-1 pt-4 pb-5">
     <div>
       <div class="mb-2.5 flex items-center justify-between text-[13.5px] font-mono-tabular text-[var(--text-muted)]">
         <time>{pubDate}</time>
@@ -41,7 +41,7 @@ const { title, description, pubDate, category, cover, href, eager = false } = As
         )}
       </div>
 
-      <h3 class="mb-2 font-serif text-[18px] font-bold leading-[1.4] text-[var(--text-primary)] group-hover:text-[var(--accent)] transition-colors line-clamp-2">
+      <h3 class="mb-2 font-title text-[19px] font-bold leading-[1.4] text-[var(--text-primary)] group-hover:text-[var(--accent)] transition-colors line-clamp-2">
         <a href={href}>{title}</a>
       </h3>
 

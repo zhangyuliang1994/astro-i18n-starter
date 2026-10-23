@@ -27,7 +27,7 @@ const statusBadge = (book: CollectionEntry<"books">) => {
   <!-- Section Header -->
   <div class="mb-6 flex items-center justify-between">
     <div class="flex items-center gap-2.5">
-      <span class="h-4 w-1 rounded-[1px] bg-[var(--accent)]"></span>
+      <span class="sec-seal" aria-hidden="true"></span>
       <h2 class="font-title text-[22px] font-bold tracking-normal text-[var(--text-primary)]">
         {t({ en: "Reading Notes", "zh-cn": "读书笔记", ja: "読書ノート", ar: "ملاحظات القراءة" })}
       </h2>
@@ -54,7 +54,7 @@ const statusBadge = (book: CollectionEntry<"books">) => {
             class="group flex items-start gap-5 rounded-[var(--radius)] border border-[var(--border)] bg-[var(--bg-surface)] p-5 transition-all hover:border-[var(--accent)]/50 hover:shadow-md"
           >
             <!-- Left 2:3 3D Book Cover -->
-            <div class="book-cover-3d aspect-[2/3] w-24 sm:w-[110px] shrink-0 overflow-hidden bg-[var(--bg-muted)] transition-transform duration-300 group-hover:-translate-y-1">
+            <div class="book-cover-3d book-thread relative aspect-[2/3] w-24 sm:w-[110px] shrink-0 overflow-hidden bg-[var(--bg-muted)] transition-transform duration-300 group-hover:-translate-y-1">
               {book.data.cover && (
                 <Image
                   src={book.data.cover}
