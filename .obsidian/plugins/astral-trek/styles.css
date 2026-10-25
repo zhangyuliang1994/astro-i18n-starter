@@ -1,0 +1,4803 @@
+.workspace-leaf-content[data-type="astra-dashboard-view"] .view-content,
+.astra-dashboard-view-content {
+  padding: 0;
+  overflow-y: auto;
+  background: var(--background-primary);
+}
+
+/* 首页根容器 / 主体：默认（首页网格态）走自然文档流，由 .view-content 滚动承接。
+   不在此处设 flex:1 / min-height:0 —— 否则 body 会被压成可压缩到 0 的 flex 子项，
+   导致热图等高内容模块在高度基准不稳时整块消失（历史回归 bug）。
+   仅在嵌入态（body 含 .po-board-host）才切换为 flex 铺满，见下方 :has 规则。 */
+.astra-dashboard-root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.astra-dashboard-body {
+  display: flex;
+  flex-direction: column;
+  min-height: auto;
+}
+
+/* 嵌入态（body 含 .po-board-host）：仅在跳转面板出现时，从 view-content 起建立
+   确定高度 flex 链，使面板内部(.po-board-host/.po-container)能按视口高度铺满、不塌缩。
+   状态类 .is-po-board 由 JS 在创建 po-board-host 时加到 view-content（见 dashboard-view），
+   用普通类选择器替代 :has 后代检测，避免触发选择器性能告警并保证语义清晰。
+   主页无 .po-board-host，这些规则不命中，root/body 走上方自然流，热图安全。 */
+.astra-dashboard-view-content.is-po-board {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+.astra-dashboard-view-content.is-po-board .astra-dashboard-root {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+.astra-dashboard-view-content.is-po-board .astra-dashboard-body {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* 全局提供 --astra-surface 别名（等同 --background-secondary），
+   使 body 顶层容器（如 Cell 弹窗 Modal）也能读取该色变量 */
+:root {
+  --astra-surface: var(--background-secondary);
+  /* 强调色提升为全局，避免仅限 .astra-dashboard 局部作用域时在独立视图/弹窗取值不到 */
+  --astra-accent-red: #ef4444;
+}
+
+.astra-dashboard {
+  --astra-bg: var(--background-primary);
+  --astra-surface: var(--background-secondary);
+  --astra-surface-hover: var(--background-modifier-hover);
+  --astra-border: var(--background-modifier-border);
+  --astra-border-strong: var(--background-modifier-border-hover);
+  --astra-text: var(--text-normal);
+  --astra-text-muted: var(--text-muted);
+  --astra-text-faint: var(--text-faint);
+  --astra-accent-blue: #3b82f6;
+  --astra-accent-green: #16a34a;
+  --astra-accent-yellow: #f59e0b;
+  --astra-accent-purple: #a855f7;
+  --astra-accent-red: #ef4444;
+  --astra-accent-rose: #ec4899;
+  --astra-chart-grid: color-mix(in srgb, var(--text-muted) 20%, transparent);
+  /* Astra Pill Item token：让 Dashboard 主视图内所有组件都能解析，不再硬编码 */
+  --ad-accent: var(--interactive-accent, #7BA7FF);
+  --ad-accent-dim: color-mix(in srgb, var(--ad-accent) 18%, transparent);
+  --ad-h1: var(--background-modifier-hover);
+  --ad-line: var(--background-modifier-border);
+  --ad-text: var(--text-normal);
+  --ad-text-mute: var(--text-muted);
+  --ad-r1: 4px; --ad-r2: 6px; --ad-r3: 8px;
+  box-sizing: border-box;
+  width: min(100%, 1480px);
+  min-height: 100%;
+  margin: 0 auto;
+  padding: 34px 38px 42px;
+  container-type: inline-size;
+  color: var(--astra-text);
+  font-family: var(--font-interface);
+}
+
+.astra-dashboard button {
+  font-family: inherit;
+}
+
+.astra-dashboard-header {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.astra-dashboard-heading h1 {
+  margin: 0;
+  color: var(--astra-text);
+  font-size: clamp(26px, 2.7vw, 38px);
+  font-weight: 720;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+}
+
+.astra-dashboard-heading p {
+  margin: 9px 0 0;
+  color: var(--astra-text-muted);
+  font-size: 13px;
+}
+
+.astra-dashboard-actions {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-self: stretch;
+  text-align: right;
+  font-family: var(--font-monospace, monospace);
+}
+
+/* 右上角信息区（竖排三等分）：第 1 行 日期时间 / 第 2 行 星期·农历 / 第 3 行 按钮 */
+.astra-dashboard-date {
+  color: var(--astra-text);
+  font-size: 14px;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.astra-dashboard-lunar {
+  color: var(--astra-text-muted);
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.astra-dashboard-tools {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+/* ============================================================
+   Astra 共用方形图标按钮（createIconButton 生成）
+   统一替代：header 工具 / 热图设置 / 快捷链接管理 / TODO 刷新设置
+   ============================================================ */
+.astra-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  color: var(--astra-text-muted);
+  border: 1px solid var(--astra-border);
+  border-radius: 6px;
+  background: transparent;
+  box-shadow: none;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: none;
+}
+.astra-icon-btn:hover {
+  color: var(--astra-text);
+  border-color: var(--astra-border-strong);
+  background: var(--astra-surface-hover);
+}
+.astra-icon-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.astra-quick-plugins {
+  display: grid;
+  min-height: 58px;
+  margin-bottom: 14px;
+  padding: 9px 18px 9px 15px;
+  grid-template-columns: minmax(0, 1fr) 26px;
+  gap: 12px;
+  align-items: center;
+  border: 1px solid var(--astra-border);
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--astra-surface) 72%, transparent);
+}
+
+.astra-quick-plugins-scroll {
+  display: flex;
+  min-width: 0;
+  padding: 2px 1px;
+  gap: 8px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: thin;
+}
+
+.astra-plugin-shortcut {
+  display: flex;
+  min-width: max-content;
+  align-items: center;
+  height: auto;
+  padding: 6px 8px;
+  gap: 7px;
+  color: var(--astra-text-muted);
+  border: 1px solid var(--astra-border);
+  border-radius: var(--ad-r3);
+  background: transparent;
+  font-size: 12px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
+}
+
+.astra-plugin-shortcut:hover {
+  color: var(--astra-text);
+  border-color: var(--astra-border-strong);
+  background: var(--astra-surface-hover);
+}
+
+.astra-plugin-shortcut-mark {
+  display: grid;
+  width: 23px;
+  height: 23px;
+  place-items: center;
+  color: #fff;
+  border-radius: 6px;
+  background: var(--astra-accent-blue);
+  font-size: 10px;
+  font-weight: 750;
+}
+
+.astra-plugin-shortcut-mark svg {
+  width: 13px;
+  height: 13px;
+  stroke-width: 2.5px;
+}
+
+.astra-plugin-shortcut:nth-child(5n + 2) .astra-plugin-shortcut-mark {
+  background: var(--astra-accent-green);
+}
+
+.astra-plugin-shortcut:nth-child(5n + 3) .astra-plugin-shortcut-mark {
+  background: var(--astra-accent-yellow);
+}
+
+.astra-plugin-shortcut:nth-child(5n + 4) .astra-plugin-shortcut-mark {
+  background: var(--astra-accent-purple);
+}
+
+.astra-plugin-shortcut:nth-child(5n + 5) .astra-plugin-shortcut-mark {
+  background: var(--astra-accent-red);
+}
+
+.astra-plugin-shortcut-name {
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.astra-quick-plugins-empty {
+  align-self: center;
+  color: var(--astra-text-faint);
+  font-size: 11px;
+}
+
+.astra-quick-plugins-manage {
+  flex-shrink: 0;
+}
+
+@keyframes astra-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.astra-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  overflow: hidden;
+  margin-bottom: 22px;
+  border: 1px solid var(--astra-border);
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--astra-surface) 72%, transparent);
+}
+
+.astra-metric {
+  display: grid;
+  min-width: 0;
+  min-height: 92px;
+  padding: 18px 20px;
+  grid-template-columns: 34px minmax(0, 1fr) 18px;
+  gap: 13px;
+  align-items: center;
+  color: var(--astra-text);
+  border: 0;
+  border-right: 1px solid var(--astra-border);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  text-align: left;
+  cursor: pointer;
+}
+
+.astra-metric:last-child {
+  border-right: 0;
+}
+
+.astra-metric:hover {
+  background: var(--astra-surface-hover);
+}
+
+.astra-metric:focus-visible,
+.astra-recent-row:focus-visible,
+.astra-modal-row:focus-visible {
+  outline: 2px solid var(--interactive-accent);
+  outline-offset: -2px;
+}
+
+.astra-metric-icon {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+}
+
+.astra-metric-icon svg {
+  width: 27px;
+  height: 27px;
+  stroke-width: 1.7;
+}
+
+.astra-metric.accent-blue .astra-metric-icon {
+  color: var(--astra-accent-blue);
+}
+
+.astra-metric.accent-green .astra-metric-icon {
+  color: var(--astra-accent-green);
+}
+
+.astra-metric.accent-yellow .astra-metric-icon {
+  color: var(--astra-accent-yellow);
+}
+
+.astra-metric.accent-purple .astra-metric-icon {
+  color: var(--astra-accent-purple);
+}
+
+.astra-metric-copy {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.astra-metric-value {
+  overflow: hidden;
+  font-size: 23px;
+  font-weight: 700;
+  line-height: 1.1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.astra-metric-label {
+  color: var(--astra-text-muted);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.astra-row-arrow {
+  display: grid;
+  color: var(--astra-text-faint);
+  place-items: center;
+}
+
+.astra-row-arrow svg {
+  width: 16px;
+  height: 16px;
+}
+
+.astra-dashboard-grid {
+  display: grid;
+  gap: 14px;
+}
+
+.astra-todo-surface,
+.astra-activity-surface {
+  width: 100%;
+  max-width: none;
+}
+
+.astra-todo-surface,
+.astra-activity-surface {
+  display: flex;
+  height: 100%;
+  min-height: 0;
+  flex-direction: column;
+}
+
+.astra-activity-surface {
+  overflow: hidden;
+}
+
+.astra-surface-fullrow {
+  grid-column: 1 / -1;
+  width: 100%;
+  max-width: none;
+  margin-bottom: 14px;
+}
+
+.astra-surface {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--astra-border);
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--astra-surface) 78%, transparent);
+}
+
+.astra-surface-header {
+  display: flex;
+  min-height: 56px;
+  padding: 16px 18px 12px;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.astra-surface-header h2 {
+  margin: 0;
+  color: var(--astra-text);
+  font-size: 15px;
+  font-weight: 680;
+  letter-spacing: -0.01em;
+}
+
+.astra-surface-header > span:not(.ad-badge) {
+  color: var(--astra-text-faint);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.astra-projects-titles,
+.astra-qc-titles,
+.astra-todo-titles,
+.astra-weekly-titles,
+.astra-countdown-titles,
+.astra-activity-titles,
+.astra-daily-phrase-titles {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+}
+
+.astra-projects-titles > span,
+.astra-qc-titles > span,
+.astra-todo-titles > span,
+.astra-weekly-titles > span,
+.astra-countdown-titles > span,
+.astra-activity-titles > span,
+.astra-daily-phrase-titles > span {
+  color: var(--astra-text-faint);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+/* 按钮组容器 */
+.astra-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+/* 待办进展：头部右上角逾期角标（红色闪烁，对齐上游 obsidian-dashboard-main:800-814） */
+.ad-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 7px;
+  border-radius: 12px;
+  font-family: var(--font-monospace, monospace);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1;
+}
+.astra-surface-header > .ad-badge.ad-badge--danger {
+  background: var(--astra-accent-red);
+  color: #fff;
+  animation: ad-badge-blink 2.2s ease-in-out infinite;
+}
+@keyframes ad-badge-blink {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 color-mix(in srgb, var(--astra-accent-red) 55%, transparent); }
+  50% { opacity: 0.35; box-shadow: 0 0 0 5px transparent; }
+}
+
+.astra-heatmap-wrapper {
+  padding: 4px 0;
+}
+
+.astra-heatmap-settings-btn {
+  flex-shrink: 0;
+  margin-left: auto;
+  align-self: center;
+}
+
+/* ============================================================
+   Heatmap（obsidian-dashboard-main 的 ad-ns 实现 + GitHub 绿主题）
+   ============================================================ */
+.astra-heatmap-wrapper {
+  --hm-cell: 15px; /* Cell 与网格行轨道统一尺寸，移动端媒体查询覆盖为 12px */
+  --ad-hm-0: #dbe3dd;
+  --ad-hm-1: #9be9a8;
+  --ad-hm-2: #40c463;
+  --ad-hm-3: #30a14e;
+  --ad-hm-4: #216e39;
+  --ad-accent: var(--interactive-accent, #4078c0);
+  --ad-text: var(--text-normal);
+  --ad-text-dim: var(--text-muted);
+  --ad-text-mute: var(--text-faint);
+}
+.theme-dark .astra-heatmap-wrapper {
+  --ad-hm-0: color-mix(in srgb, var(--astra-surface) 88%, #ffffff);
+  --ad-hm-1: #9be9a8;
+  --ad-hm-2: #40c463;
+  --ad-hm-3: #30a14e;
+  --ad-hm-4: #216e39;
+}
+
+.astra-heatmap-wrapper.ad-ns {
+  width: 100%;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.astra-heatmap-wrapper .ad-ns__heat {
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0 20px 4px 0;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.astra-heatmap-wrapper .ad-ns__months {
+  display: flex;
+  gap: 0;
+  padding-left: 32px;
+  font-family: var(--font-monospace, monospace);
+  font-size: clamp(10px, 3.6cqi, 11px);
+  color: var(--ad-text-dim);
+  letter-spacing: 0.04em;
+  line-height: 12px;
+}
+.astra-heatmap-wrapper .ad-ns__months span {
+  white-space: nowrap;
+}
+
+.astra-heatmap-wrapper .ad-ns__grid {
+  display: grid;
+  grid-template-columns: 22px 1fr;
+  gap: 10px;
+  width: max-content;
+}
+/* Cell 与网格行轨道统一 --hm-cell：桌面 15px / 移动端 12px；列/行间距由 JS（layoutHeatmap）写 --hm-cgap / --hm-rgap */
+.astra-heatmap-wrapper .ad-ns__dow {
+  display: grid;
+  grid-template-rows: repeat(7, var(--hm-cell, 15px));
+  row-gap: var(--hm-rgap, 5px);
+  align-items: center;
+  font-family: var(--font-monospace, monospace);
+  font-size: clamp(10px, 3.6cqi, 11px);
+  color: var(--ad-text-dim);
+  text-align: right;
+}
+.astra-heatmap-wrapper .ad-ns__dow span {
+  height: var(--hm-cell, 15px);
+  line-height: var(--hm-cell, 15px);
+}
+
+.astra-heatmap-wrapper .ad-ns__cells {
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(7, var(--hm-cell, 15px));
+  gap: var(--hm-rgap, 5px) var(--hm-cgap, 5px);
+  width: max-content;
+}
+.astra-heatmap-wrapper .ad-ns__cell {
+  width: var(--hm-cell, 15px);
+  height: var(--hm-cell, 15px);
+  border-radius: 2px;
+  background: var(--ad-hm-0);
+  outline: 1px solid rgba(255, 255, 255, 0.02);
+  transition: transform 0.08s, outline-color 0.12s, box-shadow 0.14s ease;
+  cursor: crosshair;
+}
+.astra-heatmap-wrapper .ad-ns__cell:hover {
+  outline: 1px solid var(--ad-accent);
+  transform: scale(1.28);
+  z-index: 2;
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--ad-accent) 28%, transparent),
+    0 0 12px 3px color-mix(in srgb, var(--ad-accent) 45%, transparent);
+}
+.astra-heatmap-wrapper .ad-ns__cell.l1 { background: var(--ad-hm-1); }
+.astra-heatmap-wrapper .ad-ns__cell.l2 { background: var(--ad-hm-2); }
+.astra-heatmap-wrapper .ad-ns__cell.l3 { background: var(--ad-hm-3); }
+.astra-heatmap-wrapper .ad-ns__cell.l4 { background: var(--ad-hm-4); }
+.astra-heatmap-wrapper .ad-ns__cell.is-future { background: var(--ad-hm-0); opacity: 0.35; }
+.astra-heatmap-wrapper .ad-ns__cell.is-today {
+  outline: 1.5px solid var(--ad-accent);
+  z-index: 2;
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--ad-accent) 26%, transparent),
+    0 0 12px 3px color-mix(in srgb, var(--ad-accent) 50%, transparent);
+}
+
+.astra-heatmap-wrapper .ad-ns__foot {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  width: 100%;
+  box-sizing: border-box;
+  padding-right: 20px;
+  font-family: var(--font-monospace, monospace);
+  font-size: clamp(10px, 3.6cqi, 11px);
+  color: var(--ad-text-mute);
+}
+.astra-heatmap-wrapper .ad-ns__legend { display: inline-flex; align-items: center; gap: 6px; }
+.astra-heatmap-wrapper .ad-ns__legend .ad-ns__lbl {
+  color: var(--ad-text-dim);
+  font-size: clamp(10px, 3.6cqi, 11px);
+}
+.astra-heatmap-wrapper .ad-ns__sw {
+  width: 11px;
+  height: 11px;
+  border-radius: 2px;
+  background: var(--ad-hm-0);
+  outline: 1px solid rgba(255, 255, 255, 0.04);
+}
+.astra-heatmap-wrapper .ad-ns__sw.l1 { background: var(--ad-hm-1); }
+.astra-heatmap-wrapper .ad-ns__sw.l2 { background: var(--ad-hm-2); }
+.astra-heatmap-wrapper .ad-ns__sw.l3 { background: var(--ad-hm-3); }
+.astra-heatmap-wrapper .ad-ns__sw.l4 { background: var(--ad-hm-4); }
+
+.astra-heatmap-wrapper .ad-ns__heat::-webkit-scrollbar { display: none; }
+.astra-heatmap-wrapper .ad-ns__heat::-webkit-scrollbar-track { background: transparent; }
+.astra-heatmap-wrapper .ad-ns__heat::-webkit-scrollbar-thumb {
+  background: var(--background-modifier-border);
+  border-radius: 3px;
+}
+
+.astra-heatmap-settings-modal .astra-heatmap-section-heading {
+  margin: 18px 0 8px;
+  font-size: 14px;
+  font-weight: 650;
+}
+
+.astra-heatmap-settings-modal .astra-heatmap-section-heading:first-child {
+  margin-top: 0;
+}
+
+.astra-recent-list {
+  display: flex;
+  min-height: 0;
+  padding: 0 14px 14px;
+  flex: 1;
+  flex-direction: column;
+  gap: 6px;
+  overflow-y: auto;
+}
+
+.astra-modules-grid .astra-recent-row {
+  display: grid;
+  width: 100%;
+  min-height: 0;
+  flex: 1;
+  padding: 9px 14px;
+  grid-template-columns: 24px minmax(0, 1fr) auto 16px;
+  gap: 9px;
+  align-items: center;
+  color: var(--astra-text);
+  /* 加 1px 框线，避免淡背景导致列表与底色融为一体（与「项目情况」行一致） */
+  border: 1px solid var(--astra-border);
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--astra-surface) 55%, transparent);
+  box-shadow: none;
+  text-align: left;
+  cursor: pointer;
+}
+
+.astra-modules-grid .astra-recent-row:last-child {
+  /* 与 last-child 无特殊处理，间隔由 .astra-recent-list 的 gap 统一控制 */
+}
+
+.astra-modules-grid .astra-recent-row:hover {
+  background: var(--astra-surface-hover);
+}
+
+.astra-recent-icon {
+  display: grid;
+  color: var(--astra-text-faint);
+  place-items: center;
+}
+
+.astra-recent-icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.astra-recent-copy {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.astra-recent-title,
+.astra-recent-path {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.astra-recent-title {
+  color: var(--astra-text);
+  font-size: 11px;
+  font-weight: 550;
+}
+
+.astra-recent-path,
+.astra-recent-time {
+  color: var(--astra-text-faint);
+  font-size: 9px;
+}
+
+.astra-recent-time {
+  white-space: nowrap;
+}
+
+.astra-loading-mark,
+.astra-error-mark {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  color: var(--astra-accent-blue);
+}
+
+.astra-loading-mark svg {
+  animation: astra-spin 1s linear infinite;
+}
+
+.astra-error-mark {
+  color: var(--astra-accent-red);
+}
+
+.astra-empty-state {
+  padding: 32px 18px;
+  color: var(--astra-text-faint);
+  text-align: center;
+}
+
+.astra-detail-modal {
+  width: min(680px, 90vw);
+  background: var(--modal-background);
+}
+
+.astra-modal-header h2 {
+  margin: 0 0 6px;
+  font-size: 20px;
+}
+
+.astra-modal-header p {
+  margin: 0 0 16px;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.astra-modal-search {
+  position: relative;
+  margin-bottom: 8px;
+}
+
+.astra-modal-search-icon {
+  position: absolute;
+  top: 50%;
+  left: 11px;
+  display: grid;
+  color: var(--text-faint);
+  transform: translateY(-50%);
+  place-items: center;
+  pointer-events: none;
+}
+
+.astra-modal-search-icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.astra-modal-search input {
+  width: 100%;
+  height: 38px;
+  padding-left: 34px;
+}
+
+.astra-modal-summary {
+  padding: 7px 2px;
+  color: var(--text-faint);
+  font-size: 10px;
+}
+
+.astra-modal-list {
+  max-height: min(58vh, 620px);
+  overflow-y: auto;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 8px;
+}
+
+.astra-modal-row {
+  display: grid;
+  width: 100%;
+  min-height: 54px;
+  padding: 9px 12px;
+  grid-template-columns: 24px minmax(0, 1fr) auto 16px;
+  gap: 10px;
+  align-items: center;
+  color: var(--text-normal);
+  border: 0;
+  border-bottom: 1px solid var(--background-modifier-border);
+  border-radius: 0;
+  background: var(--background-secondary);
+  box-shadow: none;
+  text-align: left;
+  cursor: pointer;
+}
+
+.astra-modal-row:last-child {
+  border-bottom: 0;
+}
+
+/* 非聚焦=background-secondary（随主题），聚焦=background-modifier-hover（比之更深）。
+   使用显式声明覆盖 Obsidian .modal button 默认样式覆盖。仅 hover 高亮 */
+.astra-detail-modal .astra-modal-row:hover {
+  background: var(--background-modifier-hover);
+}
+
+/* 压掉 Obsidian 对 <button> 的 focus/active 焦点视觉（inset 阴影/描边），
+   避免首次打开时第一行获得焦点而在其下缘出现粗线 */
+.astra-detail-modal .astra-modal-row:focus,
+.astra-detail-modal .astra-modal-row:focus-visible,
+.astra-detail-modal .astra-modal-row:active {
+  outline: none;
+  box-shadow: none;
+}
+
+.astra-detail-modal .astra-modal-row:last-child,
+.astra-detail-modal .astra-modal-row:last-child:hover,
+.astra-detail-modal .astra-modal-row:last-child:focus,
+.astra-detail-modal .astra-modal-row:last-child:focus-visible,
+.astra-detail-modal .astra-modal-row:last-child:active {
+  border-bottom: 0;
+}
+
+.astra-modal-row-icon,
+.astra-modal-row-arrow {
+  display: grid;
+  color: var(--text-faint);
+  place-items: center;
+}
+
+.astra-modal-row-icon svg,
+.astra-modal-row-arrow svg {
+  width: 16px;
+  height: 16px;
+}
+
+.astra-modal-row-copy {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.astra-modal-row-title,
+.astra-modal-row-path {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.astra-modal-row-title {
+  font-size: 12px;
+  font-weight: 560;
+}
+
+.astra-modal-row-path {
+  color: var(--text-muted);
+  font-size: 10px;
+}
+
+.astra-modal-row-badge {
+  padding: 2px 7px;
+  color: var(--text-muted);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 5px;
+  font-size: 9px;
+  white-space: nowrap;
+}
+
+.astra-modal-empty {
+  display: flex;
+  min-height: 160px;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 10px;
+  color: var(--text-faint);
+}
+
+/* Settings: root */
+
+.astra-settings-root {
+  padding-bottom: var(--size-4-6);
+}
+
+/* Settings: content */
+.astra-settings-content {
+  padding-top: var(--size-4-6);
+}
+
+/* Settings: section (Section 导航内容区) */
+.astra-settings-section {
+  display: none;
+  animation: astra-settings-fade-in 140ms ease;
+}
+
+.astra-settings-section.is-active {
+  display: block;
+}
+
+/* Settings: navigation */
+.astra-settings-nav {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: var(--size-4-2) var(--size-4-4);
+  margin-bottom: var(--size-4-5);
+  padding: 0 0 var(--size-4-4);
+  border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.astra-settings-nav-btn {
+  appearance: none;
+  -webkit-appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--size-4-2);
+  border: 0;
+  border-radius: var(--radius-m);
+  background: transparent;
+  cursor: pointer;
+  box-shadow: none;
+  outline: none;
+  color: var(--text-muted);
+  font-weight: 500;
+  transition: background-color 140ms ease, color 140ms ease;
+}
+
+.astra-settings-nav-btn:hover {
+  background: var(--background-modifier-hover);
+  color: var(--text-normal);
+}
+
+.astra-settings-nav-btn:not(.is-active) {
+  background: transparent;
+  box-shadow: none;
+}
+
+.astra-settings-nav-btn:not(.is-active):focus,
+.astra-settings-nav-btn:not(.is-active):focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+.astra-settings-nav-btn.is-active {
+  background: var(--background-modifier-hover);
+  box-shadow: none;
+  color: var(--text-normal);
+}
+
+.astra-settings-nav-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: currentColor;
+}
+
+.astra-settings-nav-icon .svg-icon {
+  width: var(--size-4-5);
+  height: var(--size-4-5);
+  stroke-width: 1.9px;
+}
+
+@keyframes astra-settings-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Settings: mobile — 桌面/移动背景变量相反（页面=primary 卡片=secondary ↔ 移动端反向） */
+@media (max-width: 768px) {
+  .astra-settings-root {
+    --setting-items-background: var(--background-primary);
+  }
+
+  .astra-settings-nav {
+    gap: var(--size-4-2) var(--size-4-3);
+  }
+
+  .astra-settings-nav-btn {
+    border-radius: var(--touch-radius-xs);
+  }
+
+  .theme-dark .astra-settings-root {
+    --setting-items-background: var(--background-secondary);
+  }
+
+  /* 主页设置弹窗：底色对齐 Obsidian 原生设置页，分组卡片才能显出 */
+  .astra-settings-modal {
+    --modal-background: var(--settings-background);
+  }
+}
+
+
+
+.astra-settings-intro {
+  margin-top: -8px;
+  margin-bottom: 16px;
+}
+
+.astra-settings-actions {
+  display: flex;
+  padding-top: 18px;
+  justify-content: center;
+}
+
+.astra-quick-link-modal {
+  width: min(720px, 92vw);
+}
+
+.astra-link-editor-header {
+  margin-bottom: 14px;
+}
+
+.astra-link-editor-header h2 {
+  margin: 0 0 6px;
+  font-size: 16px;
+}
+
+.astra-link-editor-header p {
+  margin: 0;
+  color: var(--text-faint);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.astra-link-editor-list {
+  max-height: min(48vh, 460px);
+  margin-bottom: 12px;
+  overflow-y: auto;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 8px;
+}
+
+.astra-link-editor-empty {
+  padding: 28px 12px;
+  color: var(--text-faint);
+  font-size: 12px;
+  text-align: center;
+}
+
+.astra-link-editor-row {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.astra-link-editor-row:last-child {
+  border-bottom: 0;
+}
+
+.astra-link-editor-row-head {
+  display: flex;
+  margin-bottom: 8px;
+  align-items: center;
+  gap: 8px;
+}
+
+.astra-link-editor-index {
+  display: grid;
+  width: 22px;
+  height: 22px;
+  place-items: center;
+  color: var(--background-primary);
+  border-radius: 6px;
+  background: var(--interactive-accent);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.astra-link-editor-controls {
+  display: flex;
+  gap: 3px;
+  margin-left: auto;
+}
+
+.astra-link-editor-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 12px;
+}
+
+.astra-link-editor-field {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.astra-link-editor-label {
+  color: var(--text-faint);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.astra-link-editor-field input {
+  width: 100%;
+  padding: 5px 8px;
+  color: var(--text-normal);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 6px;
+  background: var(--background-primary);
+  font-size: 12px;
+  font-family: inherit;
+}
+
+.astra-link-editor-field input:focus {
+  border-color: var(--interactive-accent);
+  outline: none;
+}
+
+.astra-cmd-suggest-name {
+  font-size: 13px;
+}
+
+.astra-cmd-suggest-id {
+  color: var(--text-faint);
+  font-size: 10px;
+  margin-top: 2px;
+  word-break: break-all;
+}
+
+.astra-link-editor-button {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  place-items: center;
+  color: var(--text-muted);
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  box-shadow: none;
+  cursor: pointer;
+}
+
+.astra-link-editor-button:hover:not(:disabled) {
+  color: var(--text-normal);
+  border-color: var(--background-modifier-border-hover);
+  background: var(--background-modifier-hover);
+}
+
+.astra-link-editor-button:disabled {
+  opacity: 0.25;
+  cursor: default;
+}
+
+.astra-link-editor-button svg {
+  width: 14px;
+  height: 14px;
+}
+
+.astra-link-editor-add {
+  margin-bottom: 10px;
+}
+
+@container (max-width: 560px) {
+
+  .astra-todo-surface,
+  .astra-activity-surface {
+    max-width: none;
+    grid-column: auto;
+  }
+
+  .astra-todo-surface {
+    height: auto;
+  }
+
+}
+
+@media (max-width: 920px) {
+  .astra-dashboard {
+    padding: 28px 24px 36px;
+  }
+
+  .astra-todo-surface {
+    height: auto;
+  }
+
+  .astra-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .astra-metric:nth-child(2) {
+    border-right: 0;
+  }
+
+  .astra-metric:nth-child(-n + 2) {
+    border-bottom: 1px solid var(--astra-border);
+  }
+}
+
+.calendar-confirm-modal .modal-buttons {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.calendar-confirm-modal .modal-buttons .modal-button {
+  float: none;
+  display: inline-flex;
+}
+
+/* 通用确认弹窗（confirmDialog，替代 window.confirm） */
+.astra-confirm-modal__buttons {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+@media (max-width: 620px) {
+  .astra-dashboard {
+    padding: 20px 14px 30px;
+  }
+
+  .astra-dashboard-header {
+    align-items: center;
+  }
+
+  .astra-dashboard-heading h1 {
+    font-size: 26px;
+  }
+
+  .astra-quick-plugins {
+    padding: 9px 12px 9px 10px;
+    grid-template-columns: minmax(0, 1fr) 26px;
+  }
+
+  /* 移动端热图 Cell 缩小到 12px */
+  .astra-heatmap-wrapper {
+    --hm-cell: 12px;
+  }
+
+  .astra-plugin-shortcut-name {
+    max-width: 100px;
+  }
+
+  .astra-metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .astra-metric,
+  .astra-metric:nth-child(2) {
+    min-height: 76px;
+    border-right: 0;
+    border-bottom: 1px solid var(--astra-border);
+  }
+
+  .astra-metric:last-child {
+    border-bottom: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .astra-loading-mark svg {
+    animation: none;
+  }
+}
+
+/* ============================================================
+   迁入的 6 个主页模块卡片（快速捕捉 / TODO / 工作进度 / 待办进展 / 项目情况 / 倒计时）
+   视觉遵循 astra 浅色卡片风格：复用 --astra-* 变量，柔和边框 + 圆角 + 浅色填充。
+   ============================================================ */
+
+.astra-modules-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--astra-mod-cols, 4), minmax(0, 1fr));
+  /* 行高锁定为单列宽（由 JS 写入 --astra-mod-row），卡片 1×1 正方、比例随窗格等比缩放 */
+  grid-auto-rows: var(--astra-mod-row, 200px);
+  grid-auto-flow: row dense;
+  gap: 14px;
+  margin-bottom: 14px;
+  align-items: stretch;
+}
+
+.astra-modules-grid .astra-surface {
+  position: relative;
+  display: flex;
+  height: 100%;
+  min-height: 0;
+  flex-direction: column;
+  /* 拖拽调宽：宽/高按格数 span（由 JS 写入 --cols/--rows） */
+  grid-column: span var(--cols, 1);
+  grid-row: span var(--rows, 1);
+}
+
+/* 最近笔记作为最后一个常驻模块：从当前流位置延伸到本行末尾，
+   自动填满最后一行剩余列（前有 1×1 则剩 3×1，剩 2 列→2×1，剩 1 列→1×1），不强制独占整行 */
+.astra-modules-grid .astra-recent-surface {
+  grid-column: span var(--recent-span, 1);
+}
+
+/* ---- 编辑态 / 拖拽调宽（对齐 obsidian-dashboard-main） ---- */
+.astra-modules-grid.astra-mod-edit .astra-surface {
+  cursor: pointer;
+  outline: 1px dashed var(--astra-border-strong);
+  outline-offset: 2px;
+}
+
+.astra-card__resize {
+  position: absolute;
+  right: 3px;
+  bottom: 3px;
+  z-index: 3;
+  display: grid;
+  width: 20px;
+  height: 20px;
+  place-items: center;
+  color: var(--astra-text-muted);
+  border: 1px solid var(--astra-border-strong);
+  border-radius: 5px;
+  background: var(--astra-bg);
+  font-size: 11px;
+  line-height: 1;
+  cursor: nwse-resize;
+  opacity: 0;
+  transition: opacity 0.12s;
+}
+.astra-modules-grid.astra-mod-edit .astra-surface:hover .astra-card__resize {
+  opacity: 1;
+}
+.astra-card__resize:hover {
+  color: var(--astra-accent);
+}
+
+.astra-card--resizing {
+  user-select: none;
+  outline: 2px solid var(--interactive-accent);
+}
+.astra-modules-grid.astra-mod-edit .astra-surface.is-limit {
+  outline: 2px solid var(--astra-accent-red);
+  animation: astra-limit-shake 0.18s ease-in-out 2;
+}
+@keyframes astra-limit-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(2px); }
+  75% { transform: translateX(-2px); }
+}
+
+.astra-card__ratio {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 4;
+  padding: 4px 9px;
+  color: var(--astra-text);
+  border: 1px solid var(--astra-border-strong);
+  border-radius: 6px;
+  background: var(--astra-bg);
+  box-shadow: var(--shadow-s);
+  font-size: 12px;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.astra-mod-editbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0 2px;
+}
+.astra-mod-editbar button {
+  border: 1px solid var(--astra-border);
+  border-radius: 6px;
+  background: var(--astra-bg);
+  color: var(--astra-text);
+  font-size: 12px;
+  line-height: 1;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+.astra-mod-editbar button:hover {
+  color: var(--astra-accent);
+  border-color: var(--astra-border-strong);
+}
+.astra-mod-editbar__spacer {
+  flex: 1;
+}
+.astra-mod-editbar__trash.is-over {
+  color: var(--astra-accent-red, #e5534b);
+  border-color: currentColor;
+  background: color-mix(in srgb, var(--astra-accent-red, #e5534b) 14%, transparent);
+}
+
+/* 拖拽重排占位符与提起的卡片 */
+.astra-ph {
+  /* 保留原卡片在网格中的尺寸与槽位，供其余卡片让位 */
+  grid-column: span var(--cols, 1);
+  grid-row: span var(--rows, 1);
+}
+.astra-card--dragging {
+  position: absolute;
+  z-index: 9999;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+  outline: 2px solid var(--interactive-accent);
+  cursor: grabbing;
+  pointer-events: none;
+}
+.astra-card.astra-card--doomed {
+  opacity: 0.45;
+  outline: 2px dashed var(--astra-accent-red, #e5534b);
+}
+
+/* 添加卡片菜单 */
+.astra-addmenu-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.32);
+  backdrop-filter: blur(2px);
+}
+.astra-addmenu {
+  min-width: 200px;
+  max-height: 70vh;
+  overflow-y: auto;
+  padding: 10px;
+  border: 1px solid var(--astra-border-strong);
+  border-radius: 10px;
+  background: var(--astra-bg);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+}
+.astra-addmenu__title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--astra-text);
+  padding: 2px 4px 8px;
+}
+.astra-addmenu__item {
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  color: var(--astra-text);
+  cursor: pointer;
+}
+.astra-addmenu__item:hover {
+  background: var(--background-modifier-hover);
+  color: var(--astra-accent);
+}
+.astra-addmenu__empty {
+  padding: 8px 10px;
+  font-size: 13px;
+  color: var(--astra-text-muted);
+}
+.astra-modules-empty {
+  grid-column: 1 / -1;
+  padding: 22px;
+  text-align: center;
+  color: var(--astra-text-muted);
+  border: 1px dashed var(--astra-border-strong);
+  border-radius: 9px;
+  font-size: 13px;
+}
+
+/* ---- 通用空态 ---- */
+.astra-modules-grid .ad-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 30px 16px;
+  text-align: center;
+}
+.astra-modules-grid .ad-empty__title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--astra-text);
+}
+.astra-modules-grid .ad-empty__hint {
+  font-size: 11px;
+  line-height: 1.6;
+  color: var(--astra-text-faint);
+}
+
+/* ---- 快速捕捉 ---- */
+.astra-modules-grid .ad-qc {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 4px 18px 18px;
+  flex: 1;
+}
+/* ---- 快速捕获：复用「全部便签」面板主区输入卡样式（不渲染左侧 6 图标工具栏） ---- */
+.astra-modules-grid .ad-qc {
+  padding: 8px 18px 14px;
+  overflow: visible; /* 允许输入卡 focus-shadow 不被裁剪，避免左右视觉不对称 */
+}
+/* 快速捕获模块卡片本身也需要 overflow: visible，否则输入卡的 focus box-shadow 会被裁剪 */
+.astra-modules-grid .astra-qc-surface {
+  /* 特异性 0-2-0 已高于泛型卡片(0-1-0)，无需 */
+  overflow: visible;
+}
+.astra-modules-grid .qc-input-card,
+.astra-modules-grid .qc-input-card:hover {
+  margin: 0;
+  padding: 14px 16px 10px;
+  flex: 1 1 auto;
+  flex-shrink: 1;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  width: 100%;
+  background: var(--background-primary);  /* 悬停也保持和 .flomo-input-card 默认态一致 */
+}
+.astra-modules-grid .qc-input-card .flomo-input {
+  flex: 1;
+  min-height: 64px;
+  padding: 4px 0;
+}
+.astra-modules-grid .qc-input-card .qc-toolbar {
+  justify-content: flex-end;
+}
+.astra-modules-grid .qc-input-card .flomo-submit-btn.is-flashing {
+  opacity: 0.4;
+  filter: saturate(0.6);
+}
+
+/* ---- TODO ---- */
+.astra-modules-grid .ad-todo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px 10px 14px;
+  flex: 1;
+  overflow-y: auto;
+}
+.astra-modules-grid .ad-todo__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+}
+.astra-modules-grid .ad-todo__item:hover {
+  background: var(--astra-surface-hover);
+}
+.astra-modules-grid .ad-todo__item.is-done .ad-todo__text {
+  color: var(--astra-text-faint);
+  text-decoration: line-through;
+}
+.ad-todo__item.is-overdue .ad-todo__text {
+  color: var(--astra-accent-red, #ef4444);
+}
+.astra-modules-grid .ad-todo__check {
+  display: grid;
+  flex: 0 0 20px;
+  width: 20px;
+  height: 20px;
+  place-items: center;
+  cursor: pointer;
+  color: var(--astra-text-faint);
+}
+.astra-modules-grid .ad-todo__item.is-done .ad-todo__check {
+  color: var(--astra-accent-green);
+}
+.astra-modules-grid .ad-todo__item.is-overdue .ad-todo__check {
+  color: var(--astra-accent-red);
+}
+.astra-modules-grid .ad-todo__check svg {
+  width: 18px;
+  height: 18px;
+}
+.astra-modules-grid .ad-todo__text {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  cursor: pointer;
+  word-break: break-word;
+}
+.astra-modules-grid .ad-todo__tag {
+  flex: 0 0 auto;
+  padding: 1px 8px;
+  border-radius: 8px;
+  font-size: 10px;
+  font-weight: 600;
+  border: 1px solid currentColor;
+  background: color-mix(in srgb, currentColor 12%, transparent);
+  color: var(--astra-text-muted);
+}
+.astra-modules-grid .ad-todo__tag[data-prio="重要且紧急"] { color: var(--astra-accent-red); }
+.astra-modules-grid .ad-todo__tag[data-prio="重要不紧急"],
+.astra-modules-grid .ad-todo__tag[data-prio="紧急不重要"] { color: var(--astra-accent-yellow); }
+.astra-modules-grid .ad-todo__tag[data-prio="不重要不紧急"] { color: var(--astra-text-muted); }
+.astra-modules-grid .ad-todo__empty {
+  flex: 1;
+  align-self: stretch;
+  min-height: 0;
+  /* 左右对称，上下对称（两组独立） */
+  padding: 32px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: var(--astra-text-muted);
+}
+.astra-modules-grid .ad-todo__empty-icon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: inherit;
+  transform: translateY(-4px);
+}
+.astra-modules-grid .ad-todo__empty-icon svg {
+  width: 40px;
+  height: 40px;
+}
+.astra-modules-grid .ad-todo__empty-text {
+  font-size: 14px;
+  font-weight: 400;
+  color: inherit;
+  text-align: center;
+}
+
+/* ---- 待办进展 ---- */
+.astra-modules-grid .ad-wo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 4px 14px 10px;
+  flex: 1;
+  overflow: hidden;
+}
+.astra-modules-grid .ad-wo__group h4 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 6px 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--astra-text-muted);
+}
+.astra-modules-grid .ad-wo__mark {
+  color: var(--astra-accent-yellow);
+}
+.astra-modules-grid .ad-wo--overdue .ad-wo__mark {
+  color: var(--astra-accent-red);
+}
+.astra-modules-grid .ad-wo__sep {
+  height: 2px;
+}
+.astra-modules-grid .ad-wo__list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.astra-modules-grid .ad-wo__list li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 7px;
+  font-size: 12.5px;
+  cursor: pointer;
+}
+.astra-modules-grid .ad-wo__list li:hover {
+  background: var(--astra-surface-hover);
+}
+.astra-modules-grid .ad-wo__date {
+  flex: 0 0 auto;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: var(--astra-text-faint);
+}
+.astra-modules-grid .ad-wo__text {
+  flex: 1;
+  min-width: 0;
+  color: var(--astra-text);
+  word-break: break-word;
+}
+.astra-modules-grid .ad-wo__list li.is-overdue-row .ad-wo__text {
+  color: var(--astra-accent-red);
+}
+.astra-modules-grid .ad-wo__over {
+  flex: 0 0 auto;
+  padding: 1px 7px;
+  border-radius: 12px;
+  font-size: 10px;
+  color: var(--astra-accent-red);
+  background: color-mix(in srgb, var(--astra-accent-red) 16%, transparent);
+}
+.astra-modules-grid .ad-wo__urg {
+  flex: 0 0 auto;
+  padding: 1px 7px;
+  border-radius: 8px;
+  font-size: 10px;
+  font-weight: 600;
+  border: 1px solid currentColor;
+  background: color-mix(in srgb, currentColor 12%, transparent);
+  color: var(--astra-text-muted);
+}
+.astra-modules-grid .ad-wo__urg[data-urg="high"] { color: var(--astra-accent-red); }
+.astra-modules-grid .ad-wo__urg[data-urg="mid"] { color: var(--astra-accent-yellow); }
+.astra-modules-grid .ad-wo__urg[data-urg="low"] { color: var(--astra-accent-blue); }
+.astra-modules-grid .ad-wo__urg[data-urg="none"] { color: var(--astra-text-muted); }
+.astra-modules-grid .ad-wo__empty {
+  padding: 20px 12px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--astra-text-muted);
+}
+.astra-modules-grid .ad-wo__foot {
+  /* 左右/底部内边距：对齐任务行左缩进，并让出卡片 9px 圆角，避免首字被左下圆角切掉 */
+  padding: 8px 10px 10px;
+  border-top: 1px solid var(--astra-border);
+  font-size: 11px;
+  color: var(--astra-text-faint);
+}
+
+/* ---- 项目情况（阶段管道） ---- */
+.astra-modules-grid .ad-proj {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 4px 0 14px; /* 去掉左右内边距，让滚动容器贴卡面右缘（对齐最近笔记滚动条） */
+  flex: 1;
+  min-height: 0;
+}
+.astra-modules-grid .ad-proj__list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto; /* 滚动移到列表层，给 sum 空出贴底空间 */
+  padding: 0 14px; /* 原父层左右 14px 缩进移至滚动容器，保证行内容缩进不变 */
+}
+.astra-modules-grid .ad-proj__row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 44px 9px 10px;
+  border: 1px solid var(--astra-border);
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--astra-surface) 55%, transparent);
+  cursor: pointer;
+  position: relative;
+}
+.astra-modules-grid .ad-proj__row:hover {
+  background: var(--astra-surface-hover);
+}
+.astra-modules-grid .ad-proj__dot {
+  flex: 0 0 10px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--ad-proj-dot);
+}
+.astra-modules-grid .ad-proj__name {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--astra-text);
+}
+.astra-modules-grid .ad-proj__name .ad-meta {
+  margin-top: 2px;
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--astra-text-faint);
+}
+.astra-modules-grid .ad-proj__track {
+  flex: 1;
+  min-width: 0;
+}
+/* 全局：阶段管道 —— 与上游 obsidian-dashboard-main 一致，不带作用域 */
+.ad-proj__stages {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--pip-gap, 3px);
+  overflow-x: auto;
+  padding: 4px 0;
+}
+.ad-proj__stage {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  width: var(--pip-w, 40px);
+  flex: 0 0 auto;
+  font-size: 9px;
+  white-space: nowrap;
+  color: var(--astra-text);
+  /* 连接线本身不拦截点击 */
+  --proc-line: var(--astra-border-strong);
+}
+.ad-proj__stage::before {
+  content: "";
+  position: absolute;
+  top: 3px; /* 对齐圆点垂直中心（圆点 8px、贴 stage 顶部） */
+  right: calc(50% + 4px);
+  width: calc(var(--pip-w, 40px) - 8px + var(--pip-gap, 3px));
+  height: 2px;
+  background: var(--proc-line);
+  pointer-events: none;
+}
+.ad-proj__stage:first-child::before {
+  display: none;
+}
+.ad-proj__stage.is-done {
+  --proc-line: var(--proj-color, var(--astra-accent-blue, #40c463));
+}
+.ad-pip {
+  position: relative;
+  z-index: 1;
+  flex: 0 0 8px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--astra-border-strong);
+}
+.ad-proj__stage.is-done .ad-pip {
+  background: var(--proj-color, var(--astra-accent-blue, #40c463));
+}
+
+/* 主页卡片：阶段管道（复用全局样式 + 主页专属尺寸） */
+.astra-modules-grid .ad-proj__stages {
+  gap: var(--pip-gap, 3px);
+}
+.astra-modules-grid .ad-proj__stage {
+  font-size: 9px;
+}
+.astra-modules-grid .ad-pip {
+  flex: 0 0 8px;
+}
+.astra-modules-grid .ad-proj__chev {
+  position: absolute;
+  top: 50%;
+  right: 18px;
+  transform: translateY(-50%);
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  color: var(--astra-text-faint);
+  cursor: pointer;
+  transition: color 0.12s ease, background 0.12s ease;
+}
+.astra-modules-grid .ad-proj__chev svg {
+  width: 14px;
+  height: 14px;
+}
+.astra-modules-grid .ad-proj__chev:hover {
+  color: var(--astra-accent-blue);
+  background: var(--background-modifier-hover);
+}
+.astra-modules-grid .ad-proj__sum {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-shrink: 0;
+  margin-top: auto; /* 吸附卡片底部（对齐上游 obsidian-dashboard-main:887） */
+  padding: 8px 14px 0; /* 左右缩进补回原父层 14px */
+  border-top: 1px dashed var(--astra-border);
+  font-size: 11px;
+  color: var(--astra-text-faint);
+}
+
+/* ---- 倒计时 ---- */
+.astra-modules-grid .ad-cd {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 18px 18px;
+  flex: 1;
+}
+.astra-modules-grid .ad-cd__sub {
+  font-size: 12px;
+  color: var(--astra-text-muted);
+}
+.astra-modules-grid .ad-cd__big {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  font-size: 46px;
+  font-weight: 750;
+  line-height: 1;
+  color: var(--astra-text);
+}
+.astra-modules-grid .ad-cd__big .ad-unit {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--astra-text-faint);
+}
+.astra-modules-grid .ad-cd__bottom {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: auto; /* 将剩余周数行 + 进度条吸附到卡片底部（对齐上游 obsidian-dashboard-main:1174） */
+}
+.astra-modules-grid .ad-cd__row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--astra-text-muted);
+}
+.astra-modules-grid .ad-cd__row strong {
+  color: var(--astra-text);
+}
+.astra-modules-grid .ad-cd__bar {
+  width: 100%;
+  height: 8px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--astra-surface-hover);
+}
+.astra-modules-grid .ad-cd .ad-fill {
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  background: var(--astra-accent-blue);
+}
+.astra-modules-grid .ad-cd__arrived {
+  flex: 1 1 0; /* 占满副标题与底部进度条之间的剩余空间 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--astra-accent-green);
+}
+
+.astra-modules-grid .ad-cd__empty {
+  text-align: center;
+  padding: 24px 12px;
+  color: var(--astra-text-muted);
+  font-size: 13px;
+}
+
+/* ==================== 全部项目视图（ProjectBoardView）==================== */
+/* 独立 ItemView，容器不在 .astra-dashboard 内，故在此补全 --astra-* 变量。 */
+.po-board-view,
+.ad-task-modal {
+  /* astra 变量（供 gantt/table/calendar 等其他 po 子视图使用，保持主题跟随） */
+  --astra-bg: var(--background-primary);
+  --astra-surface: var(--background-secondary);
+  --astra-surface-hover: var(--background-modifier-hover);
+  --astra-border: var(--background-modifier-border);
+  --astra-border-strong: var(--background-modifier-border-hover);
+  --astra-text: var(--text-normal);
+  --astra-text-muted: var(--text-muted);
+  --astra-text-faint: var(--text-faint);
+  --astra-accent-blue: #3b82f6;
+  --astra-accent-green: #16a34a;
+  --astra-accent-yellow: #f59e0b;
+  --astra-accent-purple: #a855f7;
+  --astra-accent-red: #ef4444;
+  --astra-accent-rose: #ec4899;
+  --astra-chart-grid: color-mix(in srgb, var(--text-muted) 20%, transparent);
+  /* 上游 --ad-* 调色板（1:1 移植 .po-container/.po-sidebar/.po-main 使用）
+     与 .ad-task-modal 共享同一份定义，避免双源漂移（如圆角 12px/10px 类问题）。
+     强调色改为跟随 Obsidian 主题（与嵌入态 .po-board-host.po-board-view / .flomo-container
+     的重定向一致），使独立视图与内嵌面板、跨 Win/Mac 表现统一；#7BA7FF 仅作变量缺失时的兜底。 */
+  --ad-s1: #16181F;
+  --ad-s3: #252934;
+  /* Astra Pill Item 核心 token 改为跟随 Obsidian 主题变量（不再硬编码暗色/亮色值） */
+  --ad-h1: var(--background-modifier-hover);
+  --ad-line: var(--background-modifier-border);
+  --ad-line-s: var(--background-modifier-border-hover);
+  --ad-text: var(--text-normal);
+  --ad-text-mute: var(--text-muted);
+  --ad-text-dim: var(--text-faint);
+  --ad-accent: var(--interactive-accent, #7BA7FF);
+  --ad-accent-dim: color-mix(in srgb, var(--ad-accent) 18%, transparent);
+  --ad-accent-2: #A78BFA;
+  --ad-r1: 4px; --ad-r2: 6px; --ad-r3: 8px;
+  --ad-on-accent: #0F1014;
+}
+
+.po-board-view {
+  position: relative;
+  height: 100%;
+  overflow-y: auto;
+  box-sizing: border-box;
+  color: var(--astra-text);
+  font-family: var(--font-interface);
+  font-size: 13px;
+  padding: 22px 28px 60px;
+  background-color: var(--ad-on-accent);
+  background-image:
+    linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px);
+  background-size: 14px 14px;
+  background-position: -1px -1px;
+}
+/* 亮色主题：上游 shadcn 中性调色板覆盖（与上游 dashboard-plugin 亮色块 1:1）；与 .ad-task-modal 共享 */
+.theme-light .po-board-view,
+body.theme-light .ad-task-modal {
+  --ad-s1: oklch(1 0 0);
+  --ad-s3: oklch(0.94 0 0);
+  /* Astra Pill Item 核心 token 已统一到基础块的 Obsidian 变量，亮色覆盖块不再重复声明 */
+  --ad-accent-2: oklch(0.81 0.17 75.35);
+  --ad-on-accent: oklch(1 0 0);
+  --ad-r1: 4px; --ad-r2: 6px; --ad-r3: 8px;
+}
+
+.po-board-view .po-container {
+  flex: 1;
+  display: flex;
+  gap: 10px;
+  border-radius: var(--ad-r3);
+  overflow: hidden;
+  border: 1px solid var(--ad-line);
+  background: var(--ad-s1);
+  margin-top: 14px;
+  height: calc(200vh - 200px);
+  min-height: 800px;
+}
+.po-empty {
+  padding: 32px 16px;
+  text-align: center;
+  color: var(--astra-text-faint);
+}
+
+/* --- 侧栏（1:1 上游 obsidian-dashboard-main） --- */
+.po-sidebar {
+  width: 228px;
+  flex-shrink: 0;
+  background: var(--ad-s1);
+  border-right: 1px solid var(--ad-line);
+  display: flex;
+  flex-direction: column;
+  padding: 10px 0;
+  overflow-y: auto;
+}
+.po-sidebar__list {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0 8px;
+  overflow-y: auto;
+}
+.po-sidebar__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 12px;
+  margin: 1px 2px;
+  border-radius: var(--ad-r3);
+  cursor: pointer;
+  border: 1px solid transparent;
+  background: transparent;
+  font-size: 13px;
+  color: var(--ad-text-mute);
+  white-space: nowrap;
+  overflow: hidden;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
+}
+.po-sidebar__item:hover {
+  background: var(--ad-h1);
+  border-radius: var(--ad-r3);
+  border-color: var(--ad-line);
+  color: var(--ad-text);
+}
+.po-sidebar__item.is-active {
+  background: var(--ad-accent-dim);
+  border-radius: var(--ad-r3);
+  border-color: color-mix(in srgb, var(--ad-accent) 30%, transparent);
+  color: var(--ad-accent);
+  font-weight: 500;
+}
+.po-sidebar__item .po-tab__icon {
+  flex-shrink: 0;
+  opacity: 0.85;
+}
+.po-sidebar__item--dragging {
+  opacity: 0.4;
+}
+.po-sidebar__item--drag-over {
+  outline: 1px dashed var(--ad-line);
+}
+.po-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 0 6px currentColor;
+}
+.po-count {
+  font-size: 11px;
+  color: var(--ad-text-dim);
+  font-variant-numeric: tabular-nums;
+  margin-left: auto;
+}
+.po-add-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 14px;
+  margin: 8px 8px 2px;
+  border-radius: var(--ad-r3);
+  border: 1px solid var(--ad-line);
+  background: transparent;
+  color: var(--ad-text-dim);
+  cursor: pointer;
+  font-size: 11px;
+  border-color: var(--ad-line);
+  transition: all 0.12s ease;
+}
+.po-add-btn:hover {
+  border-color: var(--ad-accent);
+  color: var(--ad-accent);
+  background: var(--ad-accent-dim);
+}
+
+/* --- 主区 / 标签（1:1 上游 obsidian-dashboard-main） --- */
+.po-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+.po-tabs {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 12px;
+  border-bottom: 1px solid var(--ad-line);
+  flex-shrink: 0;
+  background: var(--ad-s1);
+}
+.po-tab {
+  padding: 5px 12px;
+  border-radius: var(--ad-r3);
+  font-size: 11px;
+  cursor: pointer;
+  color: var(--ad-text-mute);
+  border: 1px solid var(--ad-line);
+  background: transparent;
+  transition: all 0.12s ease;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.po-tab:hover {
+  color: var(--ad-text);
+  background: var(--ad-h1);
+  border-color: var(--ad-line);
+}
+.po-tab.is-active {
+  color: var(--ad-accent);
+  background: var(--ad-accent-dim);
+  border-color: color-mix(in srgb, var(--ad-accent) 30%, transparent);
+  font-weight: 500;
+}
+.po-content {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: auto;
+}
+.po-panel {
+  display: none;
+  flex: 1 1 auto;
+  min-height: 0;
+  flex-direction: column;
+}
+.po-panel.is-active {
+  display: flex;
+}
+
+/* --- 甘特 --- */
+.po-gantt {
+  display: flex;
+  flex-direction: column;
+  min-height: 300px;
+  height: auto;
+}
+.po-gantt__wrap {
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 0;
+  position: relative;
+}
+.po-gantt__zoom,
+.po-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--ad-line);
+  background: var(--ad-s1);
+  flex-wrap: wrap;
+}
+.po-gantt__zoom-btn {
+  padding: 5px 12px;
+  border: 1px solid var(--ad-line);
+  border-radius: var(--ad-r3);
+  background: transparent;
+  color: var(--ad-text-mute);
+  cursor: pointer;
+  font-size: 11px;
+  transition: all 0.12s ease;
+}
+.po-gantt__zoom-btn:hover {
+  background: var(--ad-h1);
+  color: var(--ad-text);
+}
+.po-gantt__zoom-btn.is-active {
+  background: var(--ad-accent-dim);
+  color: var(--ad-accent);
+  border-color: color-mix(in srgb, var(--ad-accent) 30%, transparent);
+}
+.po-gantt__sep {
+  width: 1px;
+  align-self: stretch;
+  margin: 2px 2px;
+  background: var(--ad-line);
+}
+
+.po-gantt__left {
+  flex: 0 0 280px;
+  min-width: 160px;
+  max-width: 50%;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--astra-border);
+  background: var(--ad-s1);
+  overflow: hidden;
+}
+.po-gantt__left-hd {
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  border-bottom: 1px solid var(--astra-border);
+  font-weight: 650;
+  color: var(--astra-text-muted);
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  flex: 0 0 auto;
+}
+.po-gantt__left-body {
+  flex: 1 1 auto;
+  overflow: hidden;
+}
+.po-gantt__label-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 8px 0 14px;
+  border-bottom: 1px solid var(--astra-border);
+  cursor: default;
+  user-select: none;
+  white-space: nowrap;
+}
+.po-gantt__label-row--child {
+  color: var(--astra-text-muted);
+}
+.po-gantt__label-dot {
+  flex: 0 0 auto;
+  width: 16px;
+  text-align: center;
+  color: var(--astra-text-faint);
+  cursor: pointer;
+}
+.po-gantt__label-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 12px;
+}
+/* 任务名后「+」加号：默认隐藏，行 hover 时显现，点击以该任务为父任务新建子任务；居右对齐 */
+.po-gantt__label-add {
+  flex-shrink: 0;
+  margin-left: auto;
+  width: 16px;
+  text-align: center;
+  color: var(--astra-text-muted);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.1s;
+}
+.po-gantt__label-row:hover .po-gantt__label-add {
+  opacity: 1;
+}
+.po-gantt__label-add:hover {
+  color: var(--interactive-accent);
+}
+.po-gantt__right {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: auto;
+  position: relative;
+}
+.po-gantt__hdr-sticky {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+.po-gantt__svgwrap {
+  position: relative;
+}
+.po-gantt__svg,
+.po-gantt__hdr-svg {
+  display: block;
+}
+.po-gantt__hdr-bg {
+  fill: var(--astra-bg);
+}
+.po-gantt__band-even {
+  fill: transparent;
+}
+.po-gantt__band-odd {
+  fill: rgba(128, 128, 128, 0.05);
+}
+.po-gantt__hdr-month-top,
+.po-gantt__hdr-year {
+  fill: var(--astra-text-muted);
+  font-size: 10px;
+  font-weight: 600;
+  pointer-events: none;
+}
+.po-gantt__hdr-month,
+.po-gantt__hdr-quarter,
+.po-gantt__hdr-week {
+  fill: var(--astra-text);
+  font-size: 10px;
+  font-weight: 600;
+  text-anchor: middle;
+  dominant-baseline: central;
+  pointer-events: none;
+}
+.po-gantt__hdr-month {
+  font-size: 11px;
+}
+.po-gantt__hdr-quarter {
+  font-size: 12px;
+  font-weight: 700;
+}
+.po-gantt__hdr-day {
+  fill: var(--astra-text-muted);
+  font-size: 10px;
+  text-anchor: middle;
+  dominant-baseline: central;
+  pointer-events: none;
+}
+.po-gantt__hdr-weekend {
+  fill: rgba(200, 80, 80, 0.06);
+}
+.po-gantt__hdr-tick {
+  stroke: var(--astra-border-strong);
+  stroke-width: 1;
+}
+.po-gantt__weekend {
+  fill: rgba(200, 80, 80, 0.05);
+  pointer-events: none;
+}
+.po-gantt__gridline-v {
+  stroke: color-mix(in srgb, var(--astra-border-strong) 85%, transparent);
+  stroke-width: 1;
+  stroke-dasharray: 2 3;
+  pointer-events: none;
+}
+.po-gantt__gridline-h {
+  stroke: color-mix(in srgb, var(--interactive-accent) 90%, transparent);
+  stroke-width: 1;
+  stroke-dasharray: none;
+  pointer-events: none;
+}
+.po-gantt__today {
+  stroke: var(--astra-accent-rose);
+  stroke-width: 2;
+  stroke-dasharray: 4 3;
+}
+.po-gantt__today-diamond {
+  fill: var(--astra-accent-rose);
+}
+.po-gantt__bar {
+  cursor: pointer;
+  filter: saturate(0.8);
+}
+.po-gantt__bar--movable {
+  cursor: move;
+}
+.po-gantt__bar--child {
+  opacity: 0.85;
+}
+.po-gantt__bar--parent {
+  stroke: var(--astra-border-strong);
+  stroke-width: 1;
+}
+.po-gantt__bar.is-completed {
+  opacity: 0.5;
+}
+.po-gantt__bar--grabbing {
+  cursor: grabbing;
+}
+.po-gantt__bar-handle {
+  fill: transparent;
+  cursor: ew-resize;
+}
+.po-bar--highlight {
+  stroke: var(--astra-text);
+  stroke-width: 1.5;
+}
+.po-gantt__tooltip {
+  position: absolute;
+  max-width: 320px;
+  padding: 8px 10px;
+  border: 1px solid var(--astra-border-strong);
+  border-radius: 6px;
+  background: var(--ad-s1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  font-size: 12px;
+  color: var(--astra-text);
+  pointer-events: none;
+  z-index: 50;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.12s;
+}
+.po-gantt__tooltip.is-visible {
+  opacity: 1;
+  visibility: visible;
+}
+.po-resize {
+  flex: 0 0 5px;
+  cursor: row-resize;
+  background: var(--ad-line);
+  border-top: 1px solid var(--astra-border);
+}
+.po-resize:hover {
+  background: var(--astra-accent-blue);
+}
+
+/* --- 列表 --- */
+.po-tasklist {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+.po-toolbar__label {
+  font-size: 12px;
+  color: var(--astra-text-muted);
+}
+.po-chip {
+  padding: 5px 12px;
+  border: 1px solid var(--ad-line);
+  border-radius: var(--ad-r3);
+  background: transparent;
+  color: var(--ad-text-mute);
+  cursor: pointer;
+  font-size: 11px;
+  transition: background 0.1s, border-color 0.1s, color 0.1s;
+}
+.po-chip:hover {
+  color: var(--ad-text);
+  border-color: var(--ad-line);
+  background: var(--ad-h1);
+}
+.po-chip.is-active {
+  color: var(--ad-accent);
+  border-color: color-mix(in srgb, var(--ad-accent) 30%, transparent);
+  background: var(--ad-accent-dim);
+  font-weight: 500;
+}
+.po-table-wrap {
+  flex: 1 1 auto;
+  overflow: auto;
+  min-height: 0;
+}
+.po-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.po-table th,
+.po-table td {
+  padding: 8px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--astra-border);
+  border-right: 1px solid var(--astra-border);
+  white-space: nowrap;
+}
+.po-table th:last-child,
+.po-table td:last-child {
+  border-right: none;
+}
+.po-table th {
+  position: sticky;
+  top: 0;
+  background: var(--ad-s1);
+  color: var(--astra-text-muted);
+  font-weight: 650;
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  z-index: 2;
+  border-bottom: 1px solid var(--astra-border-strong);
+}
+.po-th--sortable {
+  cursor: pointer;
+  user-select: none;
+}
+.po-th--sortable:hover {
+  color: var(--astra-text);
+}
+.po-sort-arrow {
+  font-size: 10px;
+  color: var(--astra-text-muted);
+}
+.po-data-row {
+  cursor: default;
+}
+.po-data-row:hover {
+  background: var(--ad-h1);
+}
+.po-data-row.is-done,
+.po-data-row.is-done .po-name-cell {
+  opacity: 0.55;
+}
+.po-data-row.po-row--highlight {
+  background: color-mix(in srgb, var(--astra-accent-blue) 16%, transparent);
+}
+.po-spacer-cell {
+  padding: 0;
+  border: none;
+}
+.po-check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 15px;
+  height: 15px;
+  border: 1.5px solid var(--astra-border-strong);
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 9px;
+  color: transparent;
+  transition: background 0.1s, border-color 0.1s, color 0.1s;
+}
+.po-check:hover {
+  border-color: var(--ad-accent);
+}
+.po-check.is-done {
+  background: var(--ad-accent-dim);
+  border-color: var(--ad-accent);
+  color: var(--ad-accent);
+}
+.po-name-cell {
+  color: var(--astra-text);
+}
+.po-prio {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 8px;
+  font-size: 10px;
+  font-weight: 600;
+  border: 1px solid currentColor;
+  background: color-mix(in srgb, currentColor 12%, transparent);
+}
+.po-p-high {
+  color: var(--astra-accent-red);
+}
+.po-p-med {
+  color: var(--astra-accent-yellow);
+}
+.po-p-low {
+  color: var(--astra-text-muted);
+}
+.po-mono {
+  font-family: var(--font-monospace);
+  font-size: 11px;
+  color: var(--astra-text-muted);
+}
+.po-status {
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: 8px;
+  font-size: 10px;
+  font-weight: 500;
+  border: 1px solid currentColor;
+  background: color-mix(in srgb, currentColor 12%, transparent);
+}
+.po-todo {
+  color: var(--astra-text-muted);
+  background: color-mix(in srgb, var(--astra-text-muted) 15%, transparent);
+}
+.po-progress {
+  color: var(--astra-accent-blue);
+}
+.po-blocked {
+  color: var(--astra-accent-yellow);
+}
+.po-done {
+  color: var(--astra-accent-green);
+  background: color-mix(in srgb, var(--astra-accent-green) 12%, transparent);
+}
+.po-cancelled {
+  color: var(--astra-text-faint);
+  background: transparent;
+  text-decoration: line-through;
+}
+.po-mini-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+.po-row--dragging {
+  opacity: 0.4;
+}
+.po-row--drag-over {
+  outline: 1px dashed var(--astra-border-strong);
+}
+
+/* --- 阶段紧凑管道（复用 ad-* 样式类，与上游 obsidian-dashboard-main:1745 一致） --- */
+.po-stage-compact {
+  margin-left: auto;
+  padding: 2px 6px;
+  border: 1px solid var(--ad-line);
+  border-radius: var(--ad-r2);
+}
+.po-stage-compact .ad-proj__stage {
+  cursor: pointer;
+  transition: transform .15s, opacity .15s;
+}
+.po-stage-compact .ad-proj__stage:hover {
+  transform: scale(1.1);
+}
+
+/* --- 新建项目弹窗 --- */
+.po-prompt-modal .po-prompt-input {
+  width: 100%;
+  margin: 8px 0 12px;
+}
+.po-board-view::-webkit-scrollbar,
+.po-board-view *::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.po-board-view ::-webkit-scrollbar-thumb {
+  background: var(--ad-line-s);
+  border-radius: 4px;
+}
+
+.po-board-host {
+  flex: 1 1 auto;
+  min-height: 0;
+  position: relative;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--background-primary);
+}
+/* 嵌入态：宿主元素在 renderAll 中同时被加了 po-board-host + po-board-view（同一元素，
+   见 project-board-view.ts:155 hostEl.addClass("po-board-view")），故必须用复合选择器
+   .po-board-host.po-board-view 才能命中。之前误用后代选择器 .po-board-host .po-board-view
+   导致覆盖完全失效 —— 嵌入态一直沿用 .po-board-view 暗色画布 + .po-container 卡片边框，
+   叠在 .po-board-host 卡片里，呈现"框中框"。现采用 flomo 铺满范式修复：宿主作唯一卡片外壳，
+   内部 .po-container/.po-sidebar/.po-tabs 全部透明填满，仅保留侧栏 border-right、
+   标签栏 border-bottom 分隔线。 */
+.po-board-host.po-board-view {
+  /* 与主页模块卡片一致的外观（外框 + 圆角），但内部用 flex 链确定高度撑满：
+     父链(root/body)已确定高度，此处 height:100% 可解析，面板内部占满、不塌缩，
+     不再依赖 .po-container 基础超大固定高度(calc(200vh-200px))。 */
+  flex: 1 1 auto;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  padding: 0;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--ad-sunk);
+  /* --ad-* 重定向为 Obsidian 主题变量，使嵌入态跟随主题、与 flomo 一致、区分线清晰 */
+  --ad-bg: var(--background-primary);
+  /* 主区底色：亮色=页底(primary)；暗色模式下由 .theme-dark 覆盖为比页底深一档(sunk)，
+     与 head/sidebar 反转 —— 对齐 macOS 暗色逻辑（侧栏/标题栏比内容区浅一档） */
+  --ad-sunk: var(--background-primary);
+  --ad-s1: var(--background-secondary);
+  --ad-s2: var(--background-secondary);
+  --ad-s3: var(--background-modifier-hover);
+  --ad-h1: var(--background-modifier-hover);
+  --ad-h2: var(--background-modifier-hover);
+  --ad-hair: var(--background-modifier-border);
+  --ad-line: var(--background-modifier-border);
+  --ad-line-s: var(--background-modifier-border-hover);
+  --ad-text: var(--text-normal);
+  --ad-text-mute: var(--text-muted);
+  --ad-text-dim: var(--text-faint);
+  --ad-accent: var(--interactive-accent);
+  --ad-accent-dim: color-mix(in srgb, var(--interactive-accent) 18%, transparent);
+  --ad-warn: var(--text-warning, #b97333);
+  --ad-danger: var(--text-error, #e0605f);
+  --ad-success: var(--text-success, #4fa86a);
+  --ad-on-accent: var(--background-primary);
+}
+/* macOS 式明暗反转：暗色模式下 head/sidebar 比主内容区浅一档、主区更深；
+   亮色保持 Obsidian 默认（sidebar 用 --background-secondary 深一档）。基于 --background-primary
+   派生 sunk 层，不依赖主题 secondary/primary 的相对明暗关系，故任意主题都正确。 */
+.theme-dark .po-board-host.po-board-view {
+  --ad-s1: var(--background-primary);
+  --ad-sunk: color-mix(in srgb, var(--background-primary) 90%, black);
+}
+.theme-dark .flomo-container {
+  --ad-s1: var(--background-primary);
+  --ad-sunk: color-mix(in srgb, var(--background-primary) 90%, black);
+}
+.po-board-host.po-board-view .po-container {
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  margin-top: 0;
+  height: 100%;
+  min-height: 0;
+  gap: 0;
+}
+/* flomo 铺满范式：嵌入态恢复 .po-sidebar/.po-tabs 的默认 var(--ad-s1) 背景，
+   与上游独立视图一致——区域间靠底色层次区分，避免"全透明无层次"。 */
+
+/* 嵌入态对齐上游完整 flex 链（obsidian-dashboard-main/styles.css:1467-1610）：
+   主区 overflow:hidden 不撑破；content flex:1；panel 竖向 height:100%；
+   sidebar__list flex:1 让列表撑满、新建按钮自然沉底；
+   gantt/tasklist 都 flex:1 各占一半，并保留 min-height(180/150) 保底、
+   各自 overflow:hidden 内部滚 —— 这样空项目也不压扁、又能同时铺满。 */
+.po-board-host.po-board-view .po-main {
+  background: transparent;
+  overflow: hidden;
+}
+.po-board-host.po-board-view .po-content {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+.po-board-host.po-board-view .po-panel.is-active {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+.po-board-host.po-board-view .po-sidebar__list {
+  flex: 1;
+}
+.po-board-host.po-board-view .po-gantt {
+  flex: 1;
+  min-height: 180px;
+  overflow: hidden;
+}
+.po-board-host.po-board-view .po-tasklist {
+  flex: 1;
+  min-height: 150px;
+  overflow: hidden;
+}
+/* 即使无任务，时间轴区/列表视口也各自占满所属半区，不塌成一条空白：
+   .po-gantt__right 是甘特图右侧时间轴（含表头+SVG），.po-table-wrap 是列表滚动区。
+   给它们 min-height 保底 + flex:1，空项目时也能把半区撑实。 */
+.po-board-host.po-board-view .po-gantt__right {
+  flex: 1;
+  min-height: 160px;
+}
+.po-board-host.po-board-view .po-table-wrap {
+  min-height: 120px;
+}
+/* 甘特图面板里的列表上边框，作为与甘特图之间的视觉分隔 */
+.po-board-host.po-board-view .po-gantt + .po-tasklist {
+  border-top: 1px solid var(--background-modifier-border);
+}
+
+/* 嵌入态下其余内部块统一透明，只保留边框线做分隔（避免亮色下发灰成块）。
+   .po-tabs / .po-sidebar / .po-gantt__zoom / .po-toolbar 已恢复 var(--ad-s1) 背景，
+   与上游独立视图一致——区域间靠底色层次区分。 */
+.po-board-host.po-board-view .po-gantt__left,
+.po-board-host.po-board-view .po-table th,
+.po-board-host.po-board-view .po-count {
+  background: transparent;
+}
+/* 嵌入态保留上游「奇偶月交替底色」：band-even 透明、band-odd 一层极淡填充，
+   让相邻月份边界可辨（嵌入态跟随 Obsidian 主题）。
+   hdr-bg / weekend / hdr-weekend 继续透明，避免亮色下发灰/发红成块。 */
+.po-board-host.po-board-view .po-gantt__hdr-bg,
+.po-board-host.po-board-view .po-gantt__weekend,
+.po-board-host.po-board-view .po-gantt__hdr-weekend {
+  fill: transparent;
+}
+.po-board-host.po-board-view .po-gantt__band-even {
+  fill: transparent;
+}
+/* 亮色主题（嵌入态背景浅色）用极淡黑；暗色主题用极淡白 */
+.po-board-host.po-board-view .po-gantt__band-odd {
+  fill: rgba(0, 0, 0, 0.03);
+}
+body.theme-dark .po-board-host.po-board-view .po-gantt__band-odd {
+  fill: rgba(255, 255, 255, 0.025);
+}
+/* 嵌入态左侧任务名称列行分隔线对齐上游：1px 实线、极淡 3% 白，
+   与 obsidian-dashboard-main/styles.css:1544 一致（弱分隔，非虚线）。 */
+.po-board-host.po-board-view .po-gantt__label-row {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.po-board-host.po-board-view .po-chip.is-active {
+  background: var(--ad-accent-dim);
+  border-color: color-mix(in srgb, var(--ad-accent) 30%, transparent);
+}
+
+/* 项目板嵌入态统一复用 .po-board-host 作唯一卡片外壳（flomo 对齐），内部 .po-container
+   只填满（见上）。复合选择器 .po-board-host.po-board-view 已把 --ad-* 重定向为 Obsidian
+   主题变量，故嵌入态跟随主题、与 flomo 一致；独立视图（无 po-board-host 包裹）仍用暗色 --ad-*。 */
+
+/* ===================== 全部便签（Flomo 主视图 1:1 骨架） =====================
+ *  布局：左侧边栏（240px）+ 右主区
+ *  左栏顺序：顶部统计（笔记/标签/天数）→ 热力图 → 进度条+小工具 → 视图筛选 → 检索式 → 年份分组
+ *  右区：顶栏（Logo + 搜索 + 工具图标）→ 输入卡 → 列表（总计 → 按天分组 → 卡片）
+ *  功能暂占位，先把骨架和配色对齐截图，后续逐步补功能。
+ */
+.po-board-host .flomo-root {
+  height: 100%;
+  overflow: hidden;
+}
+.flomo-root,
+.flomo-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  font-size: 14px;
+  color: var(--text-normal);
+  /* 与嵌入态 .po-board-view 一致的 --ad-* 重定向（跟随 Obsidian 主题变量），
+     让全部便签面板的设计语言与全部项目面板统一，不依赖祖先元素继承 */
+  --ad-bg: var(--background-primary);
+  --ad-s1: var(--background-secondary);
+  --ad-sunk: var(--background-primary);
+  --ad-s2: var(--background-secondary);
+  --ad-s3: var(--background-modifier-hover);
+  --ad-h1: var(--background-modifier-hover);
+  --ad-h2: var(--background-modifier-hover);
+  --ad-hair: var(--background-modifier-border);
+  --ad-line: var(--background-modifier-border);
+  --ad-line-s: var(--background-modifier-border-hover);
+  --ad-text: var(--text-normal);
+  --ad-text-mute: var(--text-muted);
+  --ad-text-dim: var(--text-faint);
+  --ad-accent: var(--interactive-accent);
+  --ad-accent-dim: color-mix(in srgb, var(--interactive-accent) 18%, transparent);
+  --ad-warn: var(--text-warning, #b97333);
+  --ad-danger: var(--text-error, #e0605f);
+  --ad-success: var(--text-success, #4fa86a);
+  --ad-on-accent: var(--background-primary);
+  /* 圆角变量：.flomo-container 不匹配 .po-board-view，此前取不到 --ad-r1/r2/r3，
+     导致 .flomo-nav-item 等圆角塌成 0；补上后与全部项目左边栏同为 4px */
+  --ad-r1: 4px; --ad-r2: 6px; --ad-r3: 8px;
+}
+.flomo-shell {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* ================== 左侧栏 ================== */
+.flomo-sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  overflow-y: auto;
+  padding: 16px 10px 24px;
+  border-right: 1px solid var(--ad-line);
+  background: var(--ad-s1);
+}
+
+/* 侧栏折叠状态 —— 复刻自 obsidian-memoria-main/styles.css */
+@media (min-width: 681px) {
+  .flomo-root.flomo-sidebar-collapsed .flomo-sidebar {
+    width: 0;
+    padding-left: 0;
+    padding-right: 0;
+    border-right-color: transparent;
+    opacity: 0;
+    pointer-events: none;
+    overflow: hidden;
+    transition: width 0.2s, opacity 0.2s;
+  }
+}
+/* 移动端：侧栏默认不显示。
+   检测与 panel.ts 保持一致（body.is-mobile 或 宽 < 680px），
+   覆盖横屏/宽屏移动端（viewport ≥ 680px 的平板等）。 */
+@media (max-width: 680px) {
+  .flomo-shell .flomo-sidebar {
+    display: none;
+  }
+}
+body.is-mobile .flomo-shell .flomo-sidebar {
+  display: none;
+}
+.flomo-stats {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 4px 4px 14px;
+  position: relative;
+}
+.flomo-stat {
+  text-align: center;
+  flex: 1;
+}
+.flomo-stat-num {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--ad-text);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+.flomo-stat-label {
+  font-size: 11px;
+  color: var(--ad-text-mute);
+  margin-top: 4px;
+  letter-spacing: 0.4px;
+}
+
+/* 侧栏分区标题 */
+.flomo-sidebar-section {
+  padding: 14px 12px 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ad-text-dim);
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+}
+
+/* 侧栏导航项 */
+.flomo-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 12px;
+  margin: 1px 2px;
+  border: 1px solid transparent;
+  border-radius: var(--ad-r3);
+  font-size: 13px;
+  color: var(--ad-text-mute);
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
+}
+.flomo-nav-item:hover {
+  background: var(--ad-h1);
+  border-radius: var(--ad-r3);
+  border-color: var(--ad-line);
+  color: var(--ad-text);
+}
+.flomo-nav-item.active {
+  background: var(--ad-accent-dim);
+  border-radius: var(--ad-r3);
+  border-color: color-mix(in srgb, var(--ad-accent) 30%, transparent);
+  color: var(--ad-accent);
+  font-weight: 500;
+}
+.flomo-nav-item.active .flomo-nav-count {
+  color: var(--ad-text);
+  opacity: 0.85;
+}
+.flomo-nav-icon {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.85;
+  font-size: 13px;
+}
+.flomo-nav-icon svg {
+  width: 16px;
+  height: 16px;
+}
+.flomo-nav-text {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.flomo-nav-count {
+  font-size: 11px;
+  color: var(--ad-text-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ================== 右主区 ================== */
+.flomo-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  /* 主区底色：暗色模式下由 .theme-dark .flomo-container 覆盖为比页底深一档(sunk)，
+     与 head/sidebar 反转（macOS 逻辑）；亮色沿用页底。显式声明，不依赖宿主透明穿透，
+     因为 flomo 宿主只带 po-board-host、不命中 .po-board-host.po-board-view 的暗色背景。 */
+  background: var(--ad-sunk);
+}
+.flomo-topbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-bottom: 1px solid var(--ad-line);
+  flex-shrink: 0;
+  background: var(--ad-s1);
+}
+.flomo-topbar .flomo-search-wrap {
+  margin-left: auto;
+}
+.flomo-search-wrap {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--background-modifier-form-field);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 12px;
+  padding: 0 8px 0 12px;
+  transition: border-color 0.15s;
+}
+.flomo-search-wrap:focus-within {
+  border-color: var(--interactive-accent);
+}
+.flomo-search-icon {
+  display: flex;
+  align-items: center;
+  color: var(--text-muted);
+}
+.flomo-search-icon svg {
+  width: 14px;
+  height: 14px;
+}
+.flomo-search {
+  width: 200px;
+  padding: 6px 4px;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  color: var(--text-normal);
+  font-size: 13px;
+  outline: none;
+}
+.flomo-search:focus,
+.flomo-search:hover,
+.flomo-search:active {
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  outline: none;
+}
+/* 清除 Obsidian / Minimal 对 .modal input 强加的 inset box-shadow 双重框 */
+.flomo-search-wrap input.flomo-search {
+  border: none;
+  box-shadow: none;
+  outline: none;
+  background: transparent;
+}
+.flomo-topbar-tools {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 4px;
+}
+.flomo-no-transition,
+.flomo-no-transition * {
+  transition: none;
+}
+
+/* 输入卡 */
+.flomo-input-card,
+.flomo-input-card:hover {
+  margin: 16px 24px 0;
+  padding: 14px 16px 10px;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 12px;
+  background: var(--background-primary);
+  transition: border-color 0.15s, box-shadow 0.15s;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 2;
+}
+.flomo-input-card:focus-within {
+  border-color: var(--interactive-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--interactive-accent) 15%, transparent);
+}
+/* v2.0.17 渐进式披露 —— 收起态：textarea 收矮 + 工具栏淡化 + 发送按钮褪色 */
+.flomo-input-card:not(.is-focused):not(.has-content):not(.is-editing):not(.dragging) .flomo-input {
+  min-height: 44px;
+}
+.flomo-input-card:not(.is-focused):not(.has-content):not(.is-editing):not(.dragging) .flomo-input-toolbar {
+  opacity: 0.55;
+  border-top-color: color-mix(in srgb, var(--background-modifier-border) 50%, transparent);
+}
+.flomo-input-card:not(.has-content) .flomo-submit-btn {
+  background: var(--background-modifier-hover);
+  color: var(--text-faint);
+  filter: none;   /* 清掉祖先层可能叠加的 saturate */
+  opacity: 1;
+}
+.flomo-input {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 96px;
+  max-height: 40vh;
+  padding: 4px 0;
+  margin: 0;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  color: var(--text-normal);
+  font-family: var(--font-text);
+  font-size: 14px;
+  line-height: 1.6;
+  resize: none;
+  outline: none;
+  overflow-y: auto;
+  transition: min-height 0.3s ease;
+}
+/* 加祖先类提特异性到 0,2,1 —— 压过 Obsidian 默认主题 .workspace textarea:hover 的 0,2,1 */
+.astra-dashboard .flomo-input,
+.astra-dashboard .flomo-input:hover,
+.astra-dashboard .flomo-input:focus,
+.astra-dashboard .flomo-input:active {
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  outline: none;
+}
+/* 弹窗面板里的 flomo-input（不在 .astra-dashboard 下） */
+.mod-root .flomo-input,
+.mod-root .flomo-input:hover,
+.mod-root .flomo-input:focus,
+.mod-root .flomo-input:active {
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  outline: none;
+}
+.flomo-input::placeholder {
+  color: color-mix(in srgb, var(--text-muted) 78%, var(--interactive-accent));
+}
+.flomo-input-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid var(--background-modifier-border);
+}
+.flomo-input-tools {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-right: auto;
+}
+.flomo-tool-btn {
+  padding: 4px 8px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.12s, color 0.12s;
+  box-shadow: none;
+}
+.flomo-tool-btn:hover {
+  background: var(--background-modifier-hover);
+  color: var(--text-normal);
+}
+.flomo-tool-btn svg {
+  width: 15px;
+  height: 15px;
+}
+/* 编辑模式的取消按钮（桌面端：与工具、时间、发送同排，形成工具左、时间+按钮右） */
+.flomo-edit-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+  margin-left: 8px;
+}
+.flomo-edit-datetime {
+  height: 32px;
+  padding: 0 8px;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 6px;
+  background: var(--background-primary);
+  color: var(--text-normal);
+  font-size: 13px;
+  font-family: var(--font-text);
+  outline: none;
+  transition: border-color 0.12s;
+  flex: none;
+  min-width: 0;
+}
+/* 提升特异性覆盖主题对 input[type=datetime-local] 的大圆角胶囊样式，
+   使其与 ×/发送 保持一致的小圆角（直接覆盖 Obsidian 内置 input 样式） */
+.flomo-edit-datetime[type="datetime-local"] {
+  border-radius: 6px;
+}
+.flomo-edit-datetime:hover,
+.flomo-edit-datetime:focus {
+  border-color: var(--interactive-accent);
+}
+.flomo-edit-datetime::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.7;
+}
+.flomo-edit-datetime::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+.flomo-edit-cancel-btn {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.12s, color 0.12s;
+  box-shadow: none;
+}
+.flomo-edit-cancel-btn:hover {
+  background: var(--background-modifier-hover);
+  color: var(--text-normal);
+}
+.flomo-edit-cancel-btn svg {
+  width: 15px;
+  height: 15px;
+}
+/* body 前置提特异性到 0,2,0，稳定覆盖同声明层的单类 display 规则
+   （如 .flomo-submit-btn { display: inline-flex } 在 .flomo-hidden 之后声明会把 hide 覆盖掉） */
+body .flomo-hidden {
+  display: none;
+}
+/* 编辑态输入卡高亮 */
+.flomo-input-card.is-editing {
+  border-color: var(--interactive-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--interactive-accent) 15%, transparent);
+}
+/* 编辑态下的被编辑便签卡高亮 */
+.flomo-card.is-editing {
+  border-color: var(--interactive-accent);
+  background: color-mix(
+    in srgb,
+    var(--interactive-accent) 8%,
+    var(--background-primary-alt, var(--background-secondary))
+  );
+}
+.flomo-submit-btn {
+  width: 48px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  background: var(--interactive-accent);
+  color: var(--text-on-accent);
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.12s, filter 0.12s;
+  box-shadow: none;
+}
+.flomo-submit-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* 有输入时：悬停/聚焦/点击 都保持实色蓝胶囊。
+   用 body + .flomo-input-card + button 提特异性（0,3,0 基础），
+   覆盖 Obsidian 原生 .modal button:hover / .workspace button:hover 规则。 */
+body .flomo-input-card .flomo-submit-btn,
+body .flomo-input-card .flomo-submit-btn:hover,
+body .flomo-input-card .flomo-submit-btn:focus,
+body .flomo-input-card .flomo-submit-btn:active {
+  background: var(--interactive-accent);
+  color: var(--text-on-accent);
+  filter: none;
+  opacity: 1;
+  box-shadow: none;
+  transition: none;
+}
+
+/* 空输入时：任何状态都灰色。特异性 0,4,0 压过上面 0,3,0 */
+body .flomo-input-card:not(.has-content) .flomo-submit-btn,
+body .flomo-input-card:not(.has-content) .flomo-submit-btn:hover,
+body .flomo-input-card:not(.has-content) .flomo-submit-btn:focus,
+body .flomo-input-card:not(.has-content) .flomo-submit-btn:active {
+  background: var(--background-modifier-hover);
+  color: var(--text-faint);
+  filter: none;
+  opacity: 1;
+}
+
+
+/* 列表 */
+.flomo-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 18px 24px 64px;
+  width: 100%;
+  box-sizing: border-box;
+  /* 方案B：列表滚动条不占位（隐藏但有滚动），Windows 上不再顶开内容，
+    右缘与 .flomo-input-card 对齐，行为与 mac 统一 */
+  scrollbar-width: none;
+}
+.flomo-list::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+}
+
+/* 紧凑视图模式 —— 复刻自 obsidian-memoria-main/styles.css */
+.flomo-list.is-compact .flomo-card-body {
+  max-height: 6em;
+  overflow: hidden;
+  position: relative;
+}
+.flomo-list.is-compact .flomo-card-body::after {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 2em;
+  pointer-events: none;
+  content: "";
+  background: linear-gradient(to bottom, transparent, var(--background-primary));
+}
+.flomo-list.is-compact .flomo-card {
+  padding: 10px 14px;
+}
+.flomo-list.is-compact .flomo-card-body p {
+  margin: 0.3em 0;
+}
+
+/* 预设视图分组标题（复刻原项目：如"📌 置顶 · 共 3 条"、"✅ 待办 · 共 0 条"） */
+.flomo-preset-head {
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+  font-size: 14px;
+  color: color-mix(in srgb, var(--text-normal) 70%, var(--interactive-accent));
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+.flomo-preset-head-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 6px;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+.flomo-preset-head-icon svg {
+  width: 16px;
+  height: 16px;
+}
+.flomo-preset-head > span {
+  line-height: 1.5;
+}
+.flomo-pin-head-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 6px;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+.flomo-pin-head-icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* 全部笔记视图的"共 N 条"统计文字 */
+.flomo-preset-head-count {
+  color: var(--text-muted);
+}
+
+/* 日期分组 */
+.flomo-day-group {
+  margin-bottom: 28px;
+}
+.flomo-day-head {
+  padding: 6px 4px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-accent);
+  letter-spacing: 0.3px;
+}
+
+/* 置顶专属分组 */
+.flomo-pin-head-icon {
+  display: inline-flex;
+  align-items: center;
+}
+.flomo-pin-head-icon svg {
+  width: 13px;
+  height: 13px;
+}
+
+/* 卡片 */
+.flomo-card {
+  padding: 14px 18px;
+  margin-bottom: 12px;
+  background: var(--background-primary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 12px;
+  transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+}
+.flomo-card:hover {
+  border-color: var(--background-modifier-border-hover, var(--background-modifier-border));
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+.flomo-card.is-pinned {
+  border-color: var(--interactive-accent);
+  background: color-mix(in srgb, var(--interactive-accent) 4%, var(--background-primary));
+}
+.flomo-card.is-starred::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  border-radius: 3px 0 0 3px;
+  background: linear-gradient(180deg, #e8b84a, transparent);
+}
+.flomo-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.flomo-card-time-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.flomo-card-pin,
+.flomo-card-star {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.flomo-card-pin svg,
+.flomo-card-star svg {
+  width: 13px;
+  height: 13px;
+}
+.flomo-card-pin {
+  color: var(--interactive-accent);
+}
+.flomo-card-star {
+  color: #e8b84a;
+}
+.flomo-card-time {
+  font-size: 12px;
+  color: color-mix(in srgb, var(--text-muted) 80%, var(--interactive-accent));
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.2px;
+}
+.flomo-card-actions {
+  display: flex;
+  gap: 2px;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.flomo-card:hover .flomo-card-actions {
+  opacity: 1;
+}
+.flomo-card-body {
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text-normal);
+  word-break: break-word;
+}
+.flomo-card-body p {
+  margin: 0.4em 0;
+}
+.flomo-card-body > *:first-child {
+  margin-top: 0;
+}
+.flomo-card-body > *:last-child {
+  margin-bottom: 0;
+}
+.flomo-card-body :not(pre) > code {
+  padding: 1px 5px;
+  background: var(--background-modifier-hover);
+  border-radius: 3px;
+  font-family: var(--font-monospace);
+  font-size: 0.9em;
+}
+.flomo-card-body pre {
+  position: relative;
+  margin: 8px 0;
+  padding: 10px 12px;
+  background: var(--code-background, var(--background-secondary));
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 6px;
+  overflow-x: auto;
+  font-size: 13px;
+  line-height: 1.55;
+}
+.flomo-card-body pre > code {
+  padding: 0;
+  background: transparent;
+  border-radius: 0;
+  font-family: var(--font-monospace);
+  color: var(--text-normal);
+  white-space: pre;
+  display: block;
+}
+.flomo-card-body img {
+  max-width: 100%;
+  border-radius: 6px;
+  margin: 0.5em 0;
+}
+.flomo-card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+.flomo-tag-pill {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--interactive-accent) 14%, transparent);
+  color: var(--interactive-accent);
+  font-size: 11px;
+  cursor: pointer;
+}
+.flomo-tag-pill:hover {
+  background: color-mix(in srgb, var(--interactive-accent) 24%, transparent);
+}
+.flomo-search-hit {
+  background: color-mix(in srgb, var(--text-warning, #e5a50a) 28%, transparent);
+  border-radius: 3px;
+  color: inherit;
+}
+.flomo-load-more {
+  padding: 14px 0;
+  text-align: center;
+  color: var(--text-faint);
+  font-size: 12px;
+}
+.flomo-empty {
+  padding: 100px 24px 40px;
+  text-align: center;
+  color: var(--text-faint);
+}
+.flomo-empty-emoji {
+  font-size: 40px;
+  margin-bottom: 12px;
+}
+.flomo-empty-text {
+  font-size: 15px;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+.flomo-empty-sub {
+  font-size: 12px;
+  color: var(--text-faint);
+}
+
+/* 表格选择器（插入表格按钮）—— 复刻自 obsidian-memoria-main/styles.css */
+.flomo-table-picker {
+  position: fixed;
+  z-index: 999;
+  background: var(--background-primary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 8px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
+  padding: 10px;
+  user-select: none;
+}
+.flomo-table-picker-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-align: center;
+  margin-bottom: 6px;
+  font-variant-numeric: tabular-nums;
+}
+.flomo-table-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 22px);
+  grid-template-rows: repeat(6, 22px);
+  gap: 3px;
+}
+.flomo-table-picker-cell {
+  width: 22px;
+  height: 22px;
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background 0.08s ease, border-color 0.08s ease;
+}
+.flomo-table-picker-cell:hover {
+  border-color: var(--interactive-accent);
+}
+.flomo-table-picker-cell.is-active {
+  background: color-mix(in srgb, var(--interactive-accent) 25%, transparent);
+  border-color: var(--interactive-accent);
+}
+.flomo-table-picker.is-mobile {
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.28);
+}
+.flomo-table-picker.is-mobile .flomo-table-picker-grid {
+  grid-template-columns: repeat(5, 36px);
+  grid-template-rows: repeat(5, 36px);
+  gap: 4px;
+}
+.flomo-table-picker.is-mobile .flomo-table-picker-cell {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 5px;
+}
+.flomo-table-picker.is-mobile .flomo-table-picker-cell-text {
+  font-size: 11px;
+  color: var(--text-faint);
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}
+.flomo-table-picker.is-mobile .flomo-table-picker-cell:active {
+  background: color-mix(in srgb, var(--interactive-accent) 35%, transparent);
+  border-color: var(--interactive-accent);
+}
+.flomo-table-picker.is-mobile .flomo-table-picker-label {
+  font-size: 13px;
+  margin-bottom: 12px;
+  color: var(--text-normal);
+}
+
+/* 标签树可折叠分组 + 标签项样式 —— 复刻自 obsidian-memoria-main/styles.css */
+.flomo-section-collapsible {
+  cursor: pointer;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  transition: color 0.12s;
+}
+.flomo-section-collapsible:hover {
+  color: var(--text-muted);
+}
+.flomo-section-arrow {
+  display: inline-block;
+  width: 12px;
+  font-size: 10px;
+  color: var(--text-faint);
+  text-align: center;
+  transition: transform 0.15s;
+}
+.flomo-tag-item {
+  padding-left: 12px;
+}
+/* 标签树包裹层：保持默认 block 作为透明容器（不用 display:contents，
+   规避 Obsidian "css-display-contents" 兼容告警）；item 自身全宽+margin，
+   视觉与 contents 一致。缩进由 .flomo-nav-item 内联 paddingLeft 决定，不受影响 */
+.flomo-tag-node {
+}
+.flomo-tag-item .flomo-nav-icon {
+  color: var(--text-accent);
+  opacity: 0.7;
+}
+
+/* 便签弹窗（编辑 / 删除确认）—— 保留后续补功能 */
+.flomo-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--layer-modal, 100);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.42);
+}
+.flomo-modal {
+  width: min(560px, calc(100vw - 48px));
+  max-height: 80vh;
+  overflow: hidden auto;
+  box-sizing: border-box;
+  padding: 20px;
+  border: 1px solid var(--background-modifier-border-hover, var(--background-modifier-border));
+  border-radius: 12px;
+  background: var(--background-primary);
+  color: var(--text-normal);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.24);
+}
+.flomo-modal-title {
+  font-size: 15px;
+  font-weight: 650;
+  margin-bottom: 14px;
+}
+.flomo-modal-btns {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 16px;
+}
+.flomo-modal-btns button {
+  padding: 6px 16px;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-normal);
+  cursor: pointer;
+}
+.flomo-modal-btns button:hover {
+  background: var(--background-modifier-hover);
+}
+.flomo-modal-btns button.mod-warning {
+  background: var(--text-error, #e5534b);
+  border-color: transparent;
+  color: #fff;
+}
+.flomo-modal-btns button.mod-cta {
+  background: var(--interactive-accent);
+  border-color: transparent;
+  color: #fff;
+}
+
+/* ---- 回顾（on-this-day）视图筛选栏 ---- */
+.flomo-otd-filter-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 10px;
+  background: var(--background-secondary);
+}
+.flomo-otd-filters {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.flomo-otd-filter-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.flomo-otd-filter-label {
+  font-size: 12px;
+  color: var(--text-faint);
+  white-space: nowrap;
+}
+.flomo-otd-select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding: 4px 28px 4px 10px;
+  font-size: 13px;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 6px;
+  background: var(--background-primary);
+  color: var(--text-normal);
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 6px center;
+  background-size: 12px;
+  transition: border-color 0.12s;
+}
+.flomo-otd-select:hover {
+  border-color: var(--interactive-accent);
+}
+.flomo-otd-select:focus {
+  outline: none;
+  border-color: var(--interactive-accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--interactive-accent) 20%, transparent);
+}
+.flomo-otd-search {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1 1 200px;
+  min-width: 160px;
+  padding: 4px 10px;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 6px;
+  background: var(--background-primary);
+}
+.flomo-otd-search .flomo-search-icon {
+  flex-shrink: 0;
+  opacity: 0.5;
+  width: 16px;
+  height: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.flomo-otd-search .flomo-search-icon svg {
+  width: 14px;
+  height: 14px;
+}
+.flomo-otd-search-input {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  font-size: 13px;
+  border: none;
+  background: transparent;
+  color: var(--text-normal);
+  outline: none;
+}
+.flomo-otd-search-input::placeholder {
+  color: var(--text-faint);
+}
+.flomo-otd-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.flomo-otd-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  font-size: 13px;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 8px;
+  background: var(--background-primary);
+  color: var(--text-normal);
+  cursor: pointer;
+  transition: border-color 0.12s, background 0.12s, color 0.12s;
+  white-space: nowrap;
+}
+.flomo-otd-action-btn svg {
+  width: 14px;
+  height: 14px;
+}
+.flomo-otd-action-btn:hover {
+  border-color: var(--interactive-accent);
+  background: color-mix(in srgb, var(--interactive-accent) 10%, var(--background-primary));
+  color: var(--interactive-accent);
+}
+.flomo-otd-action-btn:active {
+  transform: scale(0.97);
+}
+
+/* 回顾视图分组标题右侧统计 */
+.flomo-preset-head-right {
+  margin-left: auto;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--text-faint);
+  white-space: nowrap;
+}
+
+/* 空状态操作按钮 */
+.flomo-empty-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 16px;
+  padding: 10px 24px;
+  font-size: 14px;
+  font-weight: 500;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 24px;
+  background: var(--background-secondary);
+  color: var(--text-normal);
+  cursor: pointer;
+  transition: border-color 0.12s, background 0.12s, color 0.12s, transform 0.1s;
+}
+.flomo-empty-action-btn svg {
+  width: 16px;
+  height: 16px;
+}
+.flomo-empty-action-btn:hover {
+  border-color: var(--interactive-accent);
+  background: color-mix(in srgb, var(--interactive-accent) 12%, var(--background-secondary));
+  color: var(--interactive-accent);
+}
+.flomo-empty-action-btn:active {
+  transform: scale(0.97);
+}
+
+/* 回顾视图响应式：窄屏时筛选控件换行 */
+@media (max-width: 680px) {
+  .flomo-otd-filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .flomo-otd-filters {
+    justify-content: flex-start;
+  }
+  .flomo-otd-actions {
+    justify-content: flex-end;
+  }
+  .flomo-otd-action-btn {
+    padding: 5px 10px;
+    font-size: 12px;
+  }
+  /* 移动端编辑态：×/发送 回到工具同一行（居右），时间另起一行占整行 */
+  .flomo-input-toolbar {
+    flex-wrap: wrap;
+  }
+  .flomo-input-tools {
+    order: 0;
+  }
+  .flomo-edit-wrap {
+    order: 1;
+  }
+  .flomo-edit-datetime {
+    order: 3;
+    flex: 1 1 100%;
+    width: 100%;
+    margin-top: 4px;
+  }
+}
+
+/* --- 日历视图 --- */
+.po-clickable {
+  cursor: pointer;
+}
+.po-cal {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 10px;
+  overflow-y: auto;
+}
+.po-cal__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--astra-text);
+}
+.po-cal__nav {
+  display: flex;
+  gap: 4px;
+}
+.po-cal__btn {
+  background: transparent;
+  border: 1px solid var(--astra-border);
+  color: var(--astra-text-muted);
+  padding: 4px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background 0.12s ease;
+}
+.po-cal__btn:hover {
+  background: var(--ad-h1);
+  color: var(--astra-text);
+}
+.po-cal__weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  font-size: 10px;
+  color: var(--astra-text-muted);
+  font-weight: 600;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--astra-border);
+}
+.po-cal__days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+.po-cal__day {
+  position: relative;
+  height: 92px;
+  min-height: 56px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  font-size: 11px;
+  color: var(--astra-text-muted);
+  border: 1px solid transparent;
+  transition: background 0.12s ease, border-color 0.12s ease;
+  padding: 4px 3px;
+  overflow: hidden;
+}
+.po-cal__day:hover {
+  background: var(--ad-h1);
+  border-color: var(--astra-border);
+}
+.po-cal__day.is-today {
+  background: color-mix(in srgb, var(--astra-accent-blue) 16%, var(--ad-s1));
+  border-color: color-mix(in srgb, var(--astra-accent-blue) 40%, transparent);
+  color: var(--astra-text);
+  font-weight: 600;
+}
+.po-cal__day.has-overdue {
+  border-color: color-mix(in srgb, var(--astra-accent-red) 30%, transparent);
+}
+.po-cal__day.has-overdue:not(.is-today) {
+  background: color-mix(in srgb, var(--astra-accent-red) 8%, var(--ad-s1));
+}
+.po-cal__day--drag-over {
+  background: color-mix(in srgb, var(--astra-accent-blue) 22%, var(--ad-s1));
+  border-color: var(--astra-accent-blue);
+}
+.po-cal__day-num {
+  font-size: 11px;
+  font-weight: 500;
+  text-align: left;
+  width: 100%;
+  margin-bottom: 3px;
+  flex-shrink: 0;
+}
+.po-cal__day-task {
+  font-size: 10px;
+  line-height: 1.35;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-shrink: 0;
+}
+.po-cal__day-more {
+  font-size: 8px;
+  color: var(--astra-text-faint);
+  text-align: left;
+  padding-left: 4px;
+  margin-top: 1px;
+  flex-shrink: 0;
+}
+.po-cal__preview {
+  margin-top: 12px;
+  padding: 10px;
+  border-top: 1px solid var(--astra-border);
+  font-size: 11px;
+  color: var(--astra-text-muted);
+  background: var(--ad-s1);
+  border-radius: 6px;
+}
+.po-cal__task {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: default;
+  transition: background 0.12s ease;
+}
+.po-cal__task:hover {
+  background: var(--ad-h1);
+}
+.po-cal__task-name {
+  flex: 1;
+  color: var(--astra-text);
+}
+.po-cal__task .po-status {
+  font-size: 9px;
+  padding: 2px 6px;
+}
+
+/* --- 看板视图 --- */
+.po-kanban {
+  display: flex;
+  gap: 10px;
+  padding: 10px;
+  flex: 1;
+  overflow-x: auto;
+}
+.po-kanban__col {
+  flex: 1;
+  min-width: 200px;
+  background: var(--ad-s1);
+  border: 1px solid var(--astra-border);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  gap: 8px;
+}
+.po-kanban__hd {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--astra-text);
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--astra-border);
+}
+.po-kanban__count {
+  margin-left: auto;
+  font-size: 10px;
+  color: var(--astra-text-muted);
+}
+.po-kanban__card {
+  background: var(--ad-h1);
+  border: 1px solid transparent;
+  border-radius: 6px;
+  padding: 10px;
+  cursor: pointer;
+  transition: all 0.12s ease;
+  font-size: 12px;
+  color: var(--astra-text);
+}
+.po-kanban__card:hover {
+  border-color: var(--astra-border-strong);
+  background: var(--ad-h1);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+.po-kanban__meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  font-size: 10px;
+  color: var(--astra-text-muted);
+}
+.po-kanban__card--dragging {
+  opacity: 0.5;
+  transform: rotate(2deg);
+}
+.po-kanban__col--drag-over {
+  border-color: color-mix(in srgb, var(--astra-accent-blue) 60%, transparent);
+  background: color-mix(in srgb, var(--astra-accent-blue) 12%, var(--ad-s1));
+}
+
+/* ============================================================
+   项目弹窗（1:1 fork obsidian-dashboard-main ProjectModal）
+   ============================================================ */
+/* 弹窗挂在 <body> 下，与上方 .po-board-view 共享同一份 --ad-* 调色板（合并块），此处只放布局 */
+
+
+/* === 修正 Minimal 主题对弹窗圆角/滚动条的全局覆盖 === */
+/* Minimal body 设了 br=0，必须在更明确的层级写回来 */
+.ad-task-modal,
+.ad-task-modal * {
+  border-radius: var(--ad-r2);
+}
+/* 设置面板（PluginSettingTab）走 .vertical-tab-content */
+.vertical-tab-content.plugin-settings-astra-dashboard,
+.vertical-tab-content.plugin-settings-astra-dashboard * {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.vertical-tab-content.plugin-settings-astra-dashboard::-webkit-scrollbar,
+.vertical-tab-content.plugin-settings-astra-dashboard *::-webkit-scrollbar {
+  display: none;
+}
+
+.ad-task-modal {
+  padding: 18px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  border-radius: var(--ad-r2);
+  color: var(--ad-text);
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.ad-task-modal::-webkit-scrollbar,
+.ad-task-modal *::-webkit-scrollbar { display: none; }
+.ad-task-modal,
+.ad-task-modal * { scrollbar-width: none; -ms-overflow-style: none; }
+
+/* 主页齿轮打开的设置弹窗（AstraSettingsModal）：modalEl 挂 .astra-settings-modal，
+   滚动容器是 .modal-content（只带 .astra-settings-root，不带 .ad-task-modal），
+   覆盖上一组 .ad-task-modal 选择器漏掉的滚动条 */
+.astra-settings-modal,
+.astra-settings-modal * { scrollbar-width: none; -ms-overflow-style: none; }
+.astra-settings-modal::-webkit-scrollbar,
+.astra-settings-modal *::-webkit-scrollbar { display: none; }
+
+/* 仅主页设置弹窗：内容层同时带 ad-task-modal + astra-settings-root 两个类，
+   以此组合精确命中；倒计时/项目/任务编辑等其它 .ad-task-modal 弹窗、以及
+   原生设置页（只有 astra-settings-root 没有 ad-task-modal）都不受影响。
+   卡片自包含：白底 + 圆角 + 限高 + 滚动，内容在圆角卡片内滚动并被裁成圆角，
+   既保住四角圆润又恢复滚动；外层 .modal.astra-settings-modal 已透明化、无内边距。 */
+.ad-task-modal.astra-settings-root {
+  background-color: var(--background-primary);
+  border-radius: var(--radius-m);
+  max-height: 85vh;
+  overflow: auto;
+}
+.ad-modal-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ad-text);
+  margin: 0 0 6px;
+}
+.ad-modal-label {
+  font-size: 11px;
+  color: var(--ad-text-mute);
+  margin-top: 8px;
+  font-weight: 500;
+}
+.ad-task-modal label,
+.ad-modal-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--ad-text-mute);
+  margin: 8px 0 4px;
+}
+.ad-modal-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 7px 9px;
+  font-size: 12.5px;
+  color: var(--ad-text);
+  background: var(--background-primary);
+  border: 1px solid var(--ad-line);
+  border-radius: var(--ad-r2);
+  outline: none;
+  font-family: inherit;
+}
+.ad-modal-input:focus { border-color: var(--ad-accent); box-shadow: 0 0 0 2px var(--ad-accent-dim); }
+.ad-modal-input::placeholder { color: var(--ad-text-dim); }
+textarea.ad-modal-input { resize: vertical; min-height: 60px; }
+select.ad-modal-input { cursor: pointer; }
+input[type="date"].ad-modal-input { cursor: pointer; }
+.ad-modal-input[type="checkbox"] { width: auto; }
+.ad-modal-row { display: flex; gap: 10px; }
+.ad-modal-col { flex: 1; display: flex; flex-direction: column; }
+.ad-modal-field { display: flex; flex-direction: column; gap: 6px; }
+.ad-modal-btns {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+}
+/* 首位 ghost 按钮（如快捷链接「新增」）居左，其他保持靠右 */
+.ad-modal-btns > .ad-modal-btn--ghost:first-child { margin-right: auto; }
+.ad-modal-btn {
+  padding: 7px 16px;
+  font-size: 12.5px;
+  border-radius: var(--ad-r2);
+  border: 1px solid transparent;
+  background: var(--ad-s1);
+  color: var(--ad-text);
+  cursor: pointer;
+  transition: all 0.12s ease;
+  font-family: inherit;
+}
+.ad-modal-btn:hover { border-color: var(--ad-line); background: var(--ad-h1); }
+/* 仅移动端：圆角对齐 Obsidian 原生按钮语言。
+   body 上 --button-radius: var(--input-radius)，
+   移动端 --input-radius = --touch-radius-m = 44px，配合 44px 高度即胶囊。
+   布局沿用默认 row 并排（与桌面一致）；配色 token 仍走 --ad-s1/--ad-h1；
+   不堆叠，确保两个胶囊按钮始终同一行。 */
+body.is-mobile .ad-modal-btn { border-radius: var(--button-radius); }
+.ad-modal-btn--primary {
+  background: var(--ad-accent);
+  /* 固定白色前景，用 Obsidian 原生 --text-on-accent 保证亮/暗主题下都是白色 */
+  color: var(--text-on-accent);
+  border-color: transparent;
+  font-weight: 600;
+}
+.ad-modal-btn--primary:hover {
+  background: var(--ad-accent);
+  color: var(--text-on-accent);
+  border-color: transparent;
+  filter: brightness(1.08);
+}
+.ad-modal-btn--danger {
+  background: transparent;
+  color: var(--astra-accent-red);
+  border-color: color-mix(in srgb, var(--astra-accent-red) 45%, var(--ad-line));
+}
+.ad-modal-btn--danger:hover {
+  background: color-mix(in srgb, var(--astra-accent-red) 12%, transparent);
+  border-color: var(--astra-accent-red);
+}
+
+/* utility: double-class specificity to beat component display rules */
+.ad-hidden.ad-hidden { display: none; }
+
+/* reminders */
+.ad-rem-group { display: flex; flex-wrap: wrap; gap: 12px; }
+.ad-rem-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--ad-text-mute);
+  cursor: pointer;
+}
+.ad-rem-item input[type="checkbox"] { accent-color: var(--ad-accent); }
+
+/* tag chips */
+.ad-tag-wrap { display: flex; flex-direction: column; gap: 6px; }
+.ad-tag-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+.ad-tag-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  font-size: 11px;
+  background: var(--ad-accent-dim);
+  color: var(--ad-accent);
+  border-radius: var(--ad-r2);
+  border: 1px solid color-mix(in srgb, var(--ad-accent) 20%, transparent);
+}
+.ad-tag-x { cursor: pointer; font-size: 13px; opacity: 0.7; }
+
+.ad-color-group { display: flex; flex-wrap: wrap; gap: 8px; }
+.ad-color-swatch {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: border-color 0.12s, transform 0.1s;
+}
+.ad-color-swatch:hover { transform: scale(1.12); }
+.ad-color-swatch.is-selected { border-color: var(--ad-text); }
+.ad-task-modal select option,
+.ad-modal-input option {
+  background: var(--background-secondary);
+  color: var(--text-normal);
+}
+
+/* ============================================================
+   每日节点轴（1:1 fork obsidian-dashboard-main 的 .ad-node-*）
+   ============================================================ */
+.ad-node-row {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+.ad-node-col {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.ad-node-col:last-child {
+  flex: 1;
+  min-width: 160px;
+}
+.ad-node-axis {
+  --ad-node-cell: 20px;   /* cell edge length — tweak here */
+  --ad-node-gap: 3px;
+}
+.ad-node-axis__head {
+  display: grid;
+  grid-template-columns: repeat(7, var(--ad-node-cell, 25px));
+  gap: var(--ad-node-gap, 3px);
+  justify-content: start;
+  margin: 6px 0 4px;
+  font-family: var(--font-monospace, monospace);
+  font-size: 9px;
+  line-height: 1;
+  color: var(--ad-text-dim);
+  text-align: center;
+  font-weight: 600;
+}
+.ad-node-axis__grid {
+  display: grid;
+  grid-template-columns: repeat(7, var(--ad-node-cell, 25px));
+  gap: var(--ad-node-gap, 3px);
+  justify-content: start;
+}
+.ad-node-cell {
+  width: var(--ad-node-cell, 25px);
+  height: var(--ad-node-cell, 25px);
+  border-radius: 3px;
+  background: #232A3C;
+  border: 1px solid rgba(255,255,255,0.10);
+  position: relative;
+  transition: transform .1s, box-shadow .12s, background .12s, border-color .12s;
+}
+.ad-node-cell--empty { visibility: hidden; }
+.ad-node-cell.is-pending { background: #232A3C; border-color: rgba(255,255,255,0.12); }
+.ad-node-cell.is-pending-overdue { background: rgba(153,92,0,0.5); border-color: rgba(153,92,0,0.8); }
+.ad-node-cell.is-skip { background: #232A3C; border-color: rgba(255,255,255,0.12); }
+.ad-node-cell.is-skip::after {
+  content: '';
+  position: absolute;
+  left: 14%; right: 14%; top: 50%;
+  height: 1.5px;
+  background: rgba(255,255,255,0.45);
+  transform: translateY(-50%) rotate(-20deg);
+}
+.ad-node-cell.is-skip-overdue { background: rgba(153,92,0,0.5); border-color: rgba(153,92,0,0.8); }
+.ad-node-cell.is-skip-overdue::after {
+  content: '';
+  position: absolute;
+  left: 14%; right: 14%; top: 50%;
+  height: 1.5px;
+  background: rgba(255,255,255,0.45);
+  transform: translateY(-50%) rotate(-20deg);
+}
+.ad-node-cell.is-done {
+  background: rgb(123,167,255);
+  border-color: rgb(123,167,255);
+}
+.ad-node-cell.is-done-overdue {
+  background: #FB923C;
+  border-color: #FB923C;
+}
+.ad-node-cell.is-today {
+  outline: 2px solid var(--ad-accent-2);
+  outline-offset: 1px;
+  z-index: 2;
+}
+.ad-node-cell.is-complete-day { box-shadow: inset 0 0 0 1px #E5484D; }
+.ad-node-cell:hover {
+  transform: scale(1.25);
+  z-index: 3;
+  cursor: default;
+}
+.ad-node-cell.is-pending:hover,
+.ad-node-cell.is-skip:hover { box-shadow: 0 0 10px 2px rgba(123,167,255,0.45); }
+.ad-node-cell.is-pending-overdue:hover,
+.ad-node-cell.is-skip-overdue:hover { box-shadow: 0 0 10px 2px rgba(245,158,11,0.55); }
+.ad-node-cell.is-done:hover { box-shadow: 0 0 10px 2px rgba(123,167,255,0.7); }
+.ad-node-cell.is-done-overdue:hover { box-shadow: 0 0 10px 2px rgba(251,146,60,0.7); }
+.ad-node-cell.is-complete-day:hover { box-shadow: inset 0 0 0 1px #E5484D, 0 0 10px 2px rgba(123,167,255,0.6); }
+
+/* light theme: border needs to be dark so cells remain visible */
+body.theme-light .ad-task-modal .ad-node-cell { border-color: rgba(0,0,0,0.12); }
+body.theme-light .ad-task-modal .ad-node-cell.is-pending,
+body.theme-light .ad-task-modal .ad-node-cell.is-skip { border-color: rgba(0,0,0,0.12); }
+body.theme-light .ad-task-modal .ad-node-cell.is-pending-overdue,
+body.theme-light .ad-task-modal .ad-node-cell.is-skip-overdue { border-color: #92400E; }
+
+.ad-node-ctrl { display: flex; gap: 8px; margin-top: 8px; }
+.ad-node-btn {
+  flex: 1;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--ad-line);
+  background: var(--ad-s3);
+  color: var(--ad-text-mute);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all .12s;
+}
+.ad-node-btn:hover { color: var(--ad-text); border-color: var(--ad-accent); }
+.ad-node-btn.is-active { background: var(--ad-accent); border-color: var(--ad-accent); color: #fff; font-weight: 600; }
+.ad-node-btn:nth-child(2).is-active { background: var(--ad-text-dim); border-color: var(--ad-text-dim); }
+.ad-node-note {
+  margin-top: 4px;
+  resize: vertical;
+  min-height: 90px;
+  border: 1px solid var(--ad-text-dim);
+}
+.ad-node-note:focus { border-color: var(--ad-accent); }
+.ad-node-note-wrap { margin-top: 12px; }
+
+/* ===== 每日口语模块 ===== */
+.astra-daily-phrase-surface .ad-dp {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  padding: 10px 18px 20px;
+  overflow: auto;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+/* 文本区：占满剩余高度并垂直居中；按钮独立于文本，落于卡片底部 */
+.astra-daily-phrase-surface .ad-dp__content {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+.ad-dp__en {
+  font-size: 18px;
+  line-height: 1.45;
+  font-weight: 600;
+  color: var(--text-normal);
+  word-break: break-word;
+}
+.ad-dp__zh {
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--text-muted);
+  word-break: break-word;
+}
+.ad-dp__scene {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-faint);
+  border-left: 2px solid var(--interactive-accent);
+  padding-left: 8px;
+}
+.ad-dp__scene-label {
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-right: 4px;
+}
+.ad-dp__scene-text { color: var(--text-faint); }
+.ad-dp__btns {
+  display: flex;
+  gap: 14px;
+  margin-top: 10px;
+  justify-content: center;
+}
+.ad-dp__btns .clickable-icon { padding: 4px; }
+.ad-dp__hint {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+/* ==================== 静态样式辅助类（替代 JS inline style，便于主题化）==================== */
+/* 日历视图内容区：为滚动条预留固定槽位，避免滚动条出现/消失导致的重排抖动 */
+.astra-calendar-scroll-gutter {
+  scrollbar-gutter: stable;
+}
+/* 热图有笔记的日期格子：可点击 */
+.astra-heat-cell--clickable {
+  cursor: pointer;
+}
+
+/* ==================== Astra 通用查询（```astra 代码块）==================== */
+.astra-query {
+  margin: 0.5em 0;
+  overflow-x: auto;
+}
+
+.astra-query-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-ui-small);
+}
+
+.astra-query-table th,
+.astra-query-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--background-modifier-border);
+  text-align: left;
+  vertical-align: top;
+  overflow-wrap: break-word;
+}
+
+.astra-query-table th {
+  color: var(--text-normal);
+  font-weight: 600;
+  white-space: nowrap;
+  border-bottom: 3px solid var(--text-normal);
+}
+
+/* 文件链接列：单行显示，列宽收窄，超长用省略号截断 */
+.astra-query-table td.astra-query-file-cell {
+  max-width: 12em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 兜底：消除单元格内 Markdown 渲染产生的段落上下 margin，避免撑高行 */
+.astra-query-table td > p {
+  margin: 0;
+}
+
+/* LIST 查询结果：沿用 Obsidian 原生 ul 样式，仅微调行距与容器间距 */
+.astra-query-list {
+  margin: 0;
+}
+
+.astra-query-list li {
+  margin-block: 2px;
+}
+
+/* TASK 查询：复用 Obsidian 原生 task-list-item 样式，仅去除列表符号 */
+.astra-query-tasks li.task-list-item {
+  list-style: none;
+}
+
+/* TASK 勾选写回失败提示：checkbox 旁 inline 小字，5 秒自动消失 */
+.astra-query-task-hint {
+  margin-left: 8px;
+  font-size: 0.85em;
+  color: var(--text-error);
+}
+
+/* ================= 全文搜索弹窗（复刻 omnisearch prompt 风格） ================= */
+/* 高度与宽度不设固定值，完全跟随内容自适应——与 omnisearch 一致
+   （其 .omnisearch-modal 为空规则，靠 Obsidian 原生 prompt 类接管）。 */
+
+.astra-search-modal {
+  display: flex;
+  flex-direction: column;
+  max-height: 80vh;
+}
+
+/* 分隔线用伪元素绘制，左右各留 16px 不填满 */
+.astra-search-input-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+}
+
+.astra-search-input-row::after {
+  content: "";
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 0;
+  height: 1px;
+  background: var(--background-modifier-border);
+}
+
+/* 0-3-0：压过 Obsidian 原生 input[type='text'] 常态边框，任何状态都无框线 */
+.astra-search-modal.prompt .astra-search-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  outline: none;
+  font-size: 1.15em;
+  padding: 4px 0;
+}
+
+/* 特异性 0-4-0：压过 Obsidian 原生 .prompt input[type='text']:focus 样式 */
+.astra-search-modal.prompt .astra-search-input:hover,
+.astra-search-modal.prompt .astra-search-input:focus,
+.astra-search-modal.prompt .astra-search-input:focus-visible {
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  outline: none;
+}
+
+.astra-search-results {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 6px 8px;
+}
+
+/* 隐藏滚动条但保留滚动（与插件弹窗内滚动条偏好一致） */
+.astra-search-results::-webkit-scrollbar {
+  display: none;
+}
+
+.astra-search-empty {
+  padding: 24px 12px;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.astra-search-result {
+  padding: 8px 10px;
+  border-radius: var(--radius-s);
+  cursor: pointer;
+}
+
+.astra-search-result.is-selected {
+  background: var(--background-modifier-hover);
+}
+
+.astra-search-result-title {
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.astra-search-result-excerpt {
+  margin-top: 3px;
+  font-size: 0.88em;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.astra-search-excerpt-linewrap {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.astra-search-result-excerpt mark {
+  background: var(--text-highlight-bg);
+  color: inherit;
+  padding: 0 1px;
+  border-radius: 2px;
+}
+
+.astra-search-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  padding: 8px 14px;
+  font-size: 0.8em;
+  color: var(--text-muted);
+}
+
+.astra-query-error {
+  padding: 8px 10px;
+  border: 1px solid var(--background-modifier-error);
+  border-radius: 6px;
+  color: var(--text-error);
+  background: var(--background-modifier-error-hover);
+  font-size: var(--font-ui-small);
+}
+
+
+/* ============================================================ */

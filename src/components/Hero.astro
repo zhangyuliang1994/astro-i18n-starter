@@ -3,6 +3,7 @@ import { Image } from "astro:assets";
 import AvatarImage from "@/assets/about-avatar.png";
 import { type Lang } from "@/i18n";
 import { getRelativeLocaleUrl } from "astro:i18n";
+import { GITHUB_URL } from "@/consts";
 
 interface Props {
   locale: Lang;
@@ -92,9 +93,9 @@ const isEn = locale === "en";
         </div>
 
         <div class="hero-links">
-          <a href={getRelativeLocaleUrl(locale, "/rss.xml")} class="quick-link">RSS</a>
+          <a href={`/${locale}/rss.xml`} target="_blank" rel="noopener noreferrer" class="quick-link">RSS</a>
           <span class="link-sep">·</span>
-          <a href="https://github.com/psephopaiktes" target="_blank" rel="noopener noreferrer" class="quick-link">GitHub</a>
+          <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer" class="quick-link">GitHub</a>
           <span class="link-sep">·</span>
           <a href={getRelativeLocaleUrl(locale, "/ask")} class="quick-link ask-link">
             {isEn ? "Ask AI" : "AI 问答"} →

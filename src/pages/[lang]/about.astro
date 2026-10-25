@@ -1,5 +1,6 @@
 ---
 import { LOCALES, useTranslations, type Lang } from "@/i18n";
+import { GITHUB_ACCOUNT } from "@/consts";
 import Layout from "@/layouts/Base.astro";
 import PageHeadline from "@/components/PageHeadline.astro";
 import { Image } from "astro:assets";
@@ -207,7 +208,7 @@ const contactIntro = t({
 });
 
 const email = "zhangyuliang9425@gmail.com";
-const github = "zhangyuliang1994";
+const github = GITHUB_ACCOUNT;
 ---
 
 <Layout {title} description={introContent}>

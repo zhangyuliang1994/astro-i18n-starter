@@ -13,7 +13,9 @@ export const SITE_DESCRIPTION: string | Multilingual = {
 	"zh-cn": "xiaofeng.show 是小峰的个人数字花园，记录 AI、独立开发、SEO、软件工程与出海实践。",
 };
 
-export const X_ACCOUNT: string | Multilingual = "@psephopaiktes";
+export const GITHUB_ACCOUNT = "zhangyuliang1994";
+export const GITHUB_URL = "https://github.com/zhangyuliang1994";
+export const X_ACCOUNT: string | Multilingual = "@zhangyuliang1994";
 
 export const NOT_TRANSLATED_CAUTION: string | Multilingual = {
 	en: "This page is not available in your language.",
