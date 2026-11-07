@@ -18,11 +18,11 @@ const isEn = lang === "en";
   .twikoo-wrap { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border, var(--color-border)); }
   .twikoo-title { font-size: 1.15rem; font-weight: 700; margin-bottom: 1rem; color: var(--text-primary); }
   .twikoo-title::before { content: ""; display: inline-block; width: .5em; height: .5em; margin-right: .5em; background: var(--accent); transform: rotate(45deg); vertical-align: middle; }
-  #tcomment { --twikoo-accent: var(--accent); color: var(--text-primary); }
-  #tcomment .el-button--primary { background-color: var(--accent) !important; border-color: var(--accent) !important; }
-  #tcomment a, #tcomment .tk-action-link { color: var(--accent); }
-  #tcomment .el-textarea__inner, #tcomment .el-input__inner { background: var(--bg-surface, transparent); color: var(--text-primary); border-color: var(--border); }
-  #tcomment .el-textarea__inner:focus, #tcomment .el-input__inner:focus { border-color: var(--accent); }
-  #tcomment .tk-meta-input .el-input-group__prepend { background: var(--bg-muted, transparent); color: var(--text-secondary); border-color: var(--border); }
-  #tcomment .tk-time, #tcomment .tk-comments-count { color: var(--text-muted); }
+  .twikoo-wrap .twikoo { color: var(--text-primary); }
+  .twikoo-wrap .el-button--primary { background-color: var(--accent) !important; border-color: var(--accent) !important; }
+  .twikoo-wrap .tk-comments a, .twikoo-wrap .tk-action-link, .twikoo-wrap .tk-admin-config svg, .twikoo-wrap .tk-comments-title svg { color: var(--accent); }
+  .twikoo-wrap .el-textarea__inner, .twikoo-wrap .el-input__inner { background: var(--bg-surface, transparent); color: var(--text-primary); border-color: var(--border); }
+  .twikoo-wrap .el-textarea__inner:focus, .twikoo-wrap .el-input__inner:focus { border-color: var(--accent); }
+  .twikoo-wrap .tk-meta-input .el-input-group__prepend { background: var(--bg-muted, transparent); color: var(--text-secondary); border-color: var(--border); }
+  .twikoo-wrap .tk-time, .twikoo-wrap .tk-comments-count { color: var(--text-muted); }
 </style>
