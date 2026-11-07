@@ -32,6 +32,7 @@ const statusLabels: Record<string, string> = {
   finished: t({ en: "Finished", "zh-cn": "已读完", ja: "読了", ar: "مكتمل" }),
   unfinished: t({ en: "Unfinished", "zh-cn": "未读完", ja: "未読了", ar: "غير مكتمل" }),
 };
+import Comments from "@/components/Comments.astro";
 ---
 
 <Layout {title} {description}>
@@ -114,6 +115,8 @@ const statusLabels: Record<string, string> = {
   </div>
 
   <Content class="material-icons" />
+
+  <Comments lang={locale} />
 
   <div class="book-detail-footer">
     <a href={getRelativeLocaleUrl(locale, "/books")} class="back-link">
