@@ -32,8 +32,8 @@ export interface FriendLink {
 export const FRIEND_LINKS: FriendLink[] = [
 	{
 		name: { en: "Yuikij's Blog", "zh-cn": "Yuikij's Blog" },
-		url: "https://blog.yuisama.top:8000/kibou/",
-		avatar: "https://blog.yuisama.top:8000/kibou/img/avatar.jpg",
+		url: "https://yuisama.top/",
+		avatar: "https://yuisama.top/img/avatar.jpg",
 		description: {
 			en: "The day before yesterday I saw a rabbit, yesterday a deer, and today, you.",
 			"zh-cn": "おとといはウサギお見たの、昨日は鹿、今日はあなた"
