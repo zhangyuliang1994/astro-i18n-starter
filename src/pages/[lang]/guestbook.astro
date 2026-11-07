@@ -1,0 +1,29 @@
+---
+import { LOCALES, useTranslations, type Lang } from "@/i18n";
+import Layout from "@/layouts/Base.astro";
+import PageHeadline from "@/components/PageHeadline.astro";
+import Comments from "@/components/Comments.astro";
+
+const locale = Astro.currentLocale as Lang;
+const t = useTranslations(locale);
+
+const title = t({ ja: "ゲストブック", en: "Guestbook", "zh-cn": "留言板", ar: "سجل الزوار" });
+const intro = t({
+    ja: "ようこそ。気軽に挨拶や感想を残してください。",
+    en: "Welcome, traveler. Pull up a chair and leave a few words — say hello, share a thought or suggestion, or drop your site here to swap friend links.",
+    "zh-cn": "欢迎来访，不妨驻足片刻，留下只言片语。打个招呼、提点建议，或是想交换友链，都可以在这里告诉我。",
+    ar: "مرحبًا بك، اترك تحية أو اقتراحًا.",
+});
+
+export const getStaticPaths = () =>
+    Object.keys(LOCALES).map((lang) => ({ params: { lang } }));
+---
+
+<Layout {title} description={intro}>
+    <PageHeadline {title}>
+        <p style="margin-block-start: var(--sp-s); opacity: 0.9; font-size: 0.95rem;">{intro}</p>
+    </PageHeadline>
+    <div style="max-width: 48rem; margin-inline: auto; padding-inline: 1rem;">
+        <Comments lang={locale} />
+    </div>
+</Layout>

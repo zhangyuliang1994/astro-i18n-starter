@@ -2,6 +2,7 @@
 import { LOCALES, useTranslations, type Lang } from "@/i18n";
 import Layout from "@/layouts/Base.astro";
 import PageHeadline from "@/components/PageHeadline.astro";
+import { getRelativeLocaleUrl } from "astro:i18n";
 import FriendLinks from "@/components/FriendLinks.astro";
 
 const locale = Astro.currentLocale as Lang;
@@ -36,4 +37,10 @@ export const getStaticPaths = () =>
         </p>
     </PageHeadline>
     <FriendLinks />
+    <p style="text-align: center; margin-block: 2.5rem 1rem; font-size: 0.9rem; opacity: 0.85;">
+        {t({ en: "Want to swap links? ", "zh-cn": "想交换友链？", ja: "相互リンクをご希望の方は", ar: "تريد تبادل الروابط؟ " })}
+        <a href={getRelativeLocaleUrl(locale, "/guestbook")} style="color: var(--accent); font-weight: 600;">
+            {t({ en: "Leave a note in the guestbook →", "zh-cn": "来留言板留个言 →", ja: "ゲストブックへ →", ar: "اترك رسالة ←" })}
+        </a>
+    </p>
 </Layout>
