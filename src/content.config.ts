@@ -45,7 +45,7 @@ const books = defineCollection({
 			description: z.string(),
 			date: z.coerce.date(),
 			cover: image().optional(),
-			status: z.enum(["reading", "finished", "recommended"]).default("finished"),
+			status: z.enum(["reading", "finished", "recommended", "unfinished"]).default("finished"),
 			rating: z.number().min(1).max(5).optional(),
 			tags: z.array(z.string()).optional(),
 		}),

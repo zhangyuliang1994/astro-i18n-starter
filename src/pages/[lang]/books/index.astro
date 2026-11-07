@@ -31,6 +31,7 @@ const statusLabels: Record<string, string> = {
   recommended: t({ en: "Recommended", "zh-cn": "力荐", ja: "おすすめ", ar: "موصى به" }),
   reading: t({ en: "Reading", "zh-cn": "在读", ja: "読書中", ar: "قيد القراءة" }),
   finished: t({ en: "Finished", "zh-cn": "已读完", ja: "読了", ar: "مكتمل" }),
+  unfinished: t({ en: "Unfinished", "zh-cn": "未读完", ja: "未読了", ar: "غير مكتمل" }),
 };
 
 export const getStaticPaths = () =>
@@ -58,6 +59,9 @@ export const getStaticPaths = () =>
     </button>
     <button class="filter-btn" data-filter="finished" type="button">
       ✓ {statusLabels.finished} ({books.filter(b => b.data.status === 'finished').length})
+    </button>
+    <button class="filter-btn" data-filter="unfinished" type="button">
+      ⏸ {statusLabels.unfinished} ({books.filter(b => b.data.status === 'unfinished').length})
     </button>
   </div>
 
@@ -87,7 +91,7 @@ export const getStaticPaths = () =>
                   </span>
                 ) : (
                   <span class="absolute top-2 right-2 rounded-full bg-black/50 backdrop-blur-md px-2 py-0.5 font-mono-tabular text-[11px] text-white/90">
-                    {book.data.status === "reading" ? "在读" : "已读"}
+                    {statusLabels[book.data.status]}
                   </span>
                 )}
               </div>
@@ -104,6 +108,7 @@ export const getStaticPaths = () =>
                     {book.data.status === "recommended" && statusLabels.recommended}
                     {book.data.status === "reading" && statusLabels.reading}
                     {book.data.status === "finished" && statusLabels.finished}
+                    {book.data.status === "unfinished" && statusLabels.unfinished}
                   </span>
                 </div>
               </div>
@@ -300,6 +305,10 @@ export const getStaticPaths = () =>
 
   .book-status-dot[data-status="recommended"] {
     background: var(--accent);
+  }
+
+  .book-status-dot[data-status="unfinished"] {
+    background: #f59e0b;
   }
 
   .book-status-dot[data-status="reading"] {

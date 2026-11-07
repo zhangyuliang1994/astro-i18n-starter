@@ -30,6 +30,7 @@ const statusLabels: Record<string, string> = {
   recommended: t({ en: "Recommended", "zh-cn": "力荐", ja: "おすすめ", ar: "موصى به" }),
   reading: t({ en: "Currently Reading", "zh-cn": "正在阅读", ja: "読書中", ar: "قيد القراءة" }),
   finished: t({ en: "Finished", "zh-cn": "已读完", ja: "読了", ar: "مكتمل" }),
+  unfinished: t({ en: "Unfinished", "zh-cn": "未读完", ja: "未読了", ar: "غير مكتمل" }),
 };
 ---
 
@@ -57,6 +58,7 @@ const statusLabels: Record<string, string> = {
           {book.data.status === "recommended" && `⭐ ${statusLabels.recommended}`}
           {book.data.status === "reading" && `📖 ${statusLabels.reading}`}
           {book.data.status === "finished" && `✓ ${statusLabels.finished}`}
+          {book.data.status === "unfinished" && `⏸ ${statusLabels.unfinished}`}
         </span>
         {
           book.data.rating && (
@@ -185,6 +187,11 @@ const statusLabels: Record<string, string> = {
 
   .status-reading {
     background: #0f766e;
+    color: #fff;
+  }
+
+  .status-unfinished {
+    background: #b45309;
     color: #fff;
   }
 
